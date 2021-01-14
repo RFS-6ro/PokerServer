@@ -6,7 +6,12 @@ namespace PokerServer
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Starting Server...");
+			Console.Title = "Poker Server";
+
+			Server.Start(50, NetworkSettings.PORT);
+
+
+			Console.ReadLine();
 		}
 	}
 }
