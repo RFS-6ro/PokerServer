@@ -27,7 +27,6 @@ namespace PokerServer
 			_tcpListener = new TcpListener(IPAddress.Any, Port);
 			_tcpListener.Start();
 			_tcpListener.BeginAcceptTcpClient(new AsyncCallback(TCPConnectCallback), null);
-
 			ConsoleHandler.PrintSuccess($"Server has been started at port {Port}.");
 		}
 

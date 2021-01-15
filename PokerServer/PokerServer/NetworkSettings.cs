@@ -1,5 +1,4 @@
-﻿using System;
-namespace PokerServer
+﻿namespace PokerServer
 {
 	public static class NetworkSettings
 	{
