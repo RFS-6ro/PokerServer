@@ -1,15 +1,12 @@
 ﻿using System;
 
-namespace PokerServer
+namespace GameServer
 {
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			Console.Title = "Poker Server";
-
-
-			Console.ReadLine();
+			Console.WriteLine("Hello World!");
 		}
 	}
 }
