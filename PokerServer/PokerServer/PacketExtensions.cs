@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+
 namespace PokerServer
 {
 	public partial class Packet
