@@ -5,4 +5,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="Network">
+      <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\Network.dll</HintPath>
+    </Reference>
+    <Reference Include="PokerSynchronisation">
+      <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\PokerSynchronisation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
