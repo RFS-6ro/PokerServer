@@ -5,9 +5,9 @@ using System.Net.Sockets;
 using Network;
 using static PokerSynchronisation.ClientPacketsSend;
 
-namespace FrontendServer
+namespace GameServer
 {
-	public class FrontendServerDistributor : SingletonBase<FrontendServerDistributor>, IServer, INeedLogger
+	public class MainGameServer : SingletonBase<MainGameServer>, IServer, INeedLogger
 	{
 		protected static TcpListener _tcpListener;
 		protected static UdpClient _udpListener;
@@ -36,7 +36,7 @@ namespace FrontendServer
 		{
 			for (int i = 1; i <= IServer.MaxPlayers; i++)
 			{
-				IServer.Clients.Add(i, new FrontendClient(i));
+				IServer.Clients.Add(i, new PokerClient(i));
 			}
 
 			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()
