@@ -6,6 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TexasHoldemGameEngine" Version="2.0.0" />
+    <Reference Include="TexasHoldem.Logic">
+      <HintPath>..\..\..\..\..\Downloads\TexasHoldemGameEngine-master\src\UI\TexasHoldem.UI.Console\bin\Debug\netcoreapp3.1\TexasHoldem.Logic.dll</HintPath>
+    </Reference>
+    <Reference Include="TexasHoldem.UI.Console">
+      <HintPath>..\..\..\..\..\Downloads\TexasHoldemGameEngine-master\src\UI\TexasHoldem.UI.Console\bin\Debug\netcoreapp3.1\TexasHoldem.UI.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Network">
+      <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\Network.dll</HintPath>
+    </Reference>
+    <Reference Include="PokerSynchronisation">
+      <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\PokerSynchronisation.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

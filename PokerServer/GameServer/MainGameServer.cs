@@ -120,5 +120,12 @@ namespace GameServer
 				Console.WriteLine($"Error sending data to {clientEndPoint} via UDP: {_ex}");
 			}
 		}
+
+
+
+		public void LaunchLobbyWithArgs(string[] args)
+		{
+
+		}
 	}
 }
