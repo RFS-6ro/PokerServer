@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using Network;
 using static PokerSynchronisation.ClientPacketsSend;
 
@@ -115,17 +117,15 @@ namespace GameServer
 					_udpListener.BeginSend(packet.ToArray(), packet.Length, clientEndPoint, null, null);
 				}
 			}
-			catch (Exception _ex)
+			catch (Exception ex)
 			{
-				Console.WriteLine($"Error sending data to {clientEndPoint} via UDP: {_ex}");
+				Console.WriteLine($"Error sending data to {clientEndPoint} via UDP: {ex}");
 			}
 		}
 
-
-
 		public void LaunchLobbyWithArgs(string[] args)
 		{
-
+			Process.Start("/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/bin/Release/net5.0/osx.10.12-x64/PokerLobby", args);
 		}
 	}
 }

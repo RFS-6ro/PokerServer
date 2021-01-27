@@ -16,7 +16,9 @@ namespace GameServer
 				Console.WriteLine($"Player \"{username}\" (ID: {fromClient}) has assumed the wrong client ID ({clientIdCheck})!");
 			}
 
-
+			MainGameServer.Instance.LaunchLobbyWithArgs(new string[] { "1" });
+			MainGameServer.Instance.LaunchLobbyWithArgs(new string[] { "2" });
+			MainGameServer.Instance.LaunchLobbyWithArgs(new string[] { "3" });
 		}
 	}
 }

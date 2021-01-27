@@ -6,7 +6,14 @@ namespace PokerLobby
 	{
 		static void Main(string[] args)
 		{
-			Console.WriteLine(args[0]);
+			try
+			{
+				Console.WriteLine(args[0]);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("exception");
+			}
 
 			Console.ReadLine();
 			Console.ReadLine();

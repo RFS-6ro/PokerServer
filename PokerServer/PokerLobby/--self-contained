@@ -1,0 +1,5 @@
+Microsoft (R) Build Engine версии 16.8.3+39993bd9d для .NET
+(C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
+
+  Определение проектов для восстановления...
+/usr/local/share/dotnet/sdk/5.0.102/Sdks/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.FrameworkReferenceResolution.targets(63,5): error NETSDK1083: указанный RuntimeIdentifier "true" не распознан. [/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/PokerLobby.csproj]
