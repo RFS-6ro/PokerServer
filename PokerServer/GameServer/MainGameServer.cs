@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using Network;
 using static PokerSynchronisation.ClientPacketsSend;
 
@@ -32,6 +30,53 @@ namespace GameServer
 			_udpListener.BeginReceive(UDPReceiveCallback, null);
 
 			Console.WriteLine($"Server started on port {IServer.Port}.");
+		}
+
+		public void ConnectToLobby(int id, string lobbyName)
+		{
+			bool success = false;
+
+			try
+			{
+				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
+
+				//TODO: Connect player by id to lobby
+
+				success = true;
+
+				if (success)
+				{
+					//TODO:Send connect message for everyone except id
+					//TODO:Send all lobby info to connected player
+				}
+			}
+			catch
+			{
+				success = false;
+			}
+
+			if (success)
+			{
+				((PokerClient)IServer.Clients[id]).Lobbyname = lobbyName;
+			}
+			ConsoleLogger.Instance.PrintColored(success.ToString(), ConsoleColor.Blue, ConsoleColor.DarkYellow);
+			//TODO: send message about success/error of connection lobby
+		}
+
+		public void ExitLobby(int id, string lobbyName)
+		{
+			try
+			{
+				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
+				//TODO:Send disconnect message for everyone except id
+			}
+			catch
+			{
+
+			}
+
+			((PokerClient)IServer.Clients[id]).Lobbyname = null;
+			//TODO: Disconnect player by id from lobby
 		}
 
 		public void InitializeServerData()
@@ -121,11 +166,6 @@ namespace GameServer
 			{
 				Console.WriteLine($"Error sending data to {clientEndPoint} via UDP: {ex}");
 			}
-		}
-
-		public void LaunchLobbyWithArgs(string[] args)
-		{
-			Process.Start("/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/bin/Release/net5.0/osx.10.12-x64/PokerLobby", args);
 		}
 	}
 }
