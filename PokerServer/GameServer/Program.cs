@@ -15,7 +15,7 @@ namespace GameServer
 
 			Thread mainThread = new Thread(new ThreadStart(MainThread));
 			mainThread.Start();
-			MainGameServer.Instance.Start(10000, NetworkSettings.TEST_SERVERPORT);
+			new MainGameServer().Start(10000, NetworkSettings.TEST_SERVERPORT);
 
 			Console.ReadLine();
 		}
@@ -30,7 +30,7 @@ namespace GameServer
 				while (_nextLoop < DateTime.Now)
 				{
 					// If the time for the next loop is in the past, aka it's time to execute another tick
-					IThreadManager.UpdateMain(); // Execute game logic
+					AbstractThreadManager.UpdateMain(); // Execute game logic
 
 
 					_nextLoop = _nextLoop.AddMilliseconds(Constants.MS_PER_TICK); // Calculate at what point in time the next tick should be executed

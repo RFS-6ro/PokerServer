@@ -10,7 +10,7 @@ namespace GameServer
 		public static void SendTCPData(int _toClient, Packet _packet)
 		{
 			_packet.WriteLength();
-			IServer.Clients[_toClient].Tcp.SendData(_packet);
+			AbstractServer.Clients[_toClient].Tcp.SendData(_packet);
 		}
 
 		/// <summary>Sends a packet to a client via UDP.</summary>
@@ -19,7 +19,7 @@ namespace GameServer
 		public static void SendUDPData(int _toClient, Packet _packet)
 		{
 			_packet.WriteLength();
-			IServer.Clients[_toClient].Udp.SendData(_packet);
+			AbstractServer.Clients[_toClient].Udp.SendData(_packet);
 		}
 
 		/// <summary>Sends a packet to all clients via TCP.</summary>
@@ -27,9 +27,9 @@ namespace GameServer
 		public static void SendTCPDataToAll(Packet _packet)
 		{
 			_packet.WriteLength();
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= AbstractServer.MaxPlayers; i++)
 			{
-				IServer.Clients[i].Tcp.SendData(_packet);
+				AbstractServer.Clients[i].Tcp.SendData(_packet);
 			}
 		}
 		/// <summary>Sends a packet to all clients except one via TCP.</summary>
@@ -38,11 +38,11 @@ namespace GameServer
 		public static void SendTCPDataToAll(int _exceptClient, Packet _packet)
 		{
 			_packet.WriteLength();
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= AbstractServer.MaxPlayers; i++)
 			{
 				if (i != _exceptClient)
 				{
-					IServer.Clients[i].Tcp.SendData(_packet);
+					AbstractServer.Clients[i].Tcp.SendData(_packet);
 				}
 			}
 		}
@@ -52,9 +52,9 @@ namespace GameServer
 		public static void SendUDPDataToAll(Packet _packet)
 		{
 			_packet.WriteLength();
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= AbstractServer.MaxPlayers; i++)
 			{
-				IServer.Clients[i].Udp.SendData(_packet);
+				AbstractServer.Clients[i].Udp.SendData(_packet);
 			}
 		}
 		/// <summary>Sends a packet to all clients except one via UDP.</summary>
@@ -63,11 +63,11 @@ namespace GameServer
 		public static void SendUDPDataToAll(int _exceptClient, Packet _packet)
 		{
 			_packet.WriteLength();
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= AbstractServer.MaxPlayers; i++)
 			{
 				if (i != _exceptClient)
 				{
-					IServer.Clients[i].Udp.SendData(_packet);
+					AbstractServer.Clients[i].Udp.SendData(_packet);
 				}
 			}
 		}

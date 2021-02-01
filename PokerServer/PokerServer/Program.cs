@@ -15,7 +15,7 @@ namespace FrontendServer
 
 			Thread mainThread = new Thread(new ThreadStart(MainThread));
 			mainThread.Start();
-			FrontendServerDistributor.Instance.Start(50, NetworkSettings.PORT);
+			new FrontendServerDistributor().Start(50, NetworkSettings.PORT);
 
 			Console.ReadLine();
 		}
@@ -30,7 +30,7 @@ namespace FrontendServer
 				while (_nextLoop < DateTime.Now)
 				{
 					// If the time for the next loop is in the past, aka it's time to execute another tick
-					IThreadManager.UpdateMain(); // Execute game logic
+					AbstractThreadManager.UpdateMain(); // Execute game logic
 
 
 					_nextLoop = _nextLoop.AddMilliseconds(Constants.MS_PER_TICK); // Calculate at what point in time the next tick should be executed

@@ -7,39 +7,39 @@ using static PokerSynchronisation.ClientPacketsSend;
 
 namespace FrontendServer
 {
-	public class FrontendServerDistributor : SingletonBase<FrontendServerDistributor>, IServer, INeedLogger
+	public class FrontendServerDistributor : AbstractServer, INeedLogger
 	{
 		protected static TcpListener _tcpListener;
 		protected static UdpClient _udpListener;
 
 		public LoggerBase _logger => ConsoleLogger.Instance;
 
-		public void Start(int maxPlayers, int port)
+		public override void Start(int maxPlayers, int port)
 		{
-			IServer.MaxPlayers = maxPlayers;
-			IServer.Port = port;
+			MaxPlayers = maxPlayers;
+			Port = port;
 
 			Console.WriteLine("Starting server...");
 			InitializeServerData();
 
-			_tcpListener = new TcpListener(IPAddress.Any, IServer.Port);
+			_tcpListener = new TcpListener(IPAddress.Any, Port);
 			_tcpListener.Start();
 			_tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
 
-			_udpListener = new UdpClient(IServer.Port);
+			_udpListener = new UdpClient(Port);
 			_udpListener.BeginReceive(UDPReceiveCallback, null);
 
-			Console.WriteLine($"Server started on port {IServer.Port}.");
+			Console.WriteLine($"Server started on port {Port}.");
 		}
 
-		public void InitializeServerData()
+		protected override void InitializeServerData()
 		{
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= MaxPlayers; i++)
 			{
-				IServer.Clients.Add(i, new FrontendClient(i));
+				Clients.Add(i, new FrontendClient(i));
 			}
 
-			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()
+			PacketHandlers = new Dictionary<int, PacketHandler>()
 			{
 				{ (int)ClientPacketsToServer.WelcomeReceived, ServerHandle.WelcomeReceived },
 			};
@@ -52,11 +52,11 @@ namespace FrontendServer
 			_tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
 			Console.WriteLine($"Incoming connection from {client.Client.RemoteEndPoint}...");
 
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= MaxPlayers; i++)
 			{
-				if (IServer.Clients[i].Tcp.Socket == null)
+				if (Clients[i].Tcp.Socket == null)
 				{
-					IServer.Clients[i].Tcp.Connect(client);
+					Clients[i].Tcp.Connect(client);
 					return;
 				}
 			}
@@ -86,17 +86,17 @@ namespace FrontendServer
 						return;
 					}
 
-					if (IServer.Clients[clientId].Udp.EndPoint == null)
+					if (Clients[clientId].Udp.EndPoint == null)
 					{
 						// If this is a new connection
-						IServer.Clients[clientId].Udp.Connect(clientEndPoint);
+						Clients[clientId].Udp.Connect(clientEndPoint);
 						return;
 					}
 
-					if (IServer.Clients[clientId].Udp.EndPoint.ToString() == clientEndPoint.ToString())
+					if (Clients[clientId].Udp.EndPoint.ToString() == clientEndPoint.ToString())
 					{
 						// Ensures that the client is not being impersonated by another by sending a false clientID
-						IServer.Clients[clientId].Udp.HandleData(packet);
+						Clients[clientId].Udp.HandleData(packet);
 					}
 				}
 			}
@@ -106,7 +106,7 @@ namespace FrontendServer
 			}
 		}
 
-		public void SendUDPData(IPEndPoint clientEndPoint, Packet packet)
+		public static void SendUDPData(IPEndPoint clientEndPoint, Packet packet)
 		{
 			try
 			{

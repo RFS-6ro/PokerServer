@@ -75,7 +75,7 @@ namespace GameServer
 			protected override void HandleData(int packetId, Packet packet)
 			{
 				_logger.PrintWarning(Thread.CurrentThread.ToString());
-				IServer.PacketHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
+				AbstractServer.PacketHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
 			}
 
 			public new void ReceiveCallback(IAsyncResult result)
@@ -146,19 +146,19 @@ namespace GameServer
 				int packetLength = data.ReadInt();
 				byte[] packetBytes = data.ReadBytes(packetLength);
 
-				IThreadManager.ExecuteOnMainThread(() =>
+				AbstractThreadManager.ExecuteOnMainThread(() =>
 				{
 					using (Packet packet = new Packet(packetBytes))
 					{
 						int packetId = packet.ReadInt();
-						IServer.PacketHandlers[packetId](_id, packet);
+						AbstractServer.PacketHandlers[packetId](_id, packet);
 					}
 				});
 			}
 
 			public override void SendData(Packet packet)
 			{
-				MainGameServer.Instance.SendUDPData(EndPoint, packet);
+				MainGameServer.SendUDPData(EndPoint, packet);
 			}
 
 			protected override void DisconnectClient()
