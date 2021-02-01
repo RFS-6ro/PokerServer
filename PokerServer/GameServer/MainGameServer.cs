@@ -7,32 +7,32 @@ using static PokerSynchronisation.ClientPacketsSend;
 
 namespace GameServer
 {
-	public class MainGameServer : AbstractServer, INeedLogger
+	public class MainGameServer : SingletonBase<MainGameServer>, IServer, INeedLogger
 	{
 		protected static TcpListener _tcpListener;
 		protected static UdpClient _udpListener;
 
 		public LoggerBase _logger => ConsoleLogger.Instance;
 
-		public override void Start(int maxPlayers, int port)
+		public void Start(int maxPlayers, int port)
 		{
-			MaxPlayers = maxPlayers;
-			Port = port;
+			IServer.MaxPlayers = maxPlayers;
+			IServer.Port = port;
 
 			Console.WriteLine("Starting server...");
 			InitializeServerData();
 
-			_tcpListener = new TcpListener(IPAddress.Any, Port);
+			_tcpListener = new TcpListener(IPAddress.Any, IServer.Port);
 			_tcpListener.Start();
 			_tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
 
-			_udpListener = new UdpClient(Port);
+			_udpListener = new UdpClient(IServer.Port);
 			_udpListener.BeginReceive(UDPReceiveCallback, null);
 
-			Console.WriteLine($"Server started on port {Port}.");
+			Console.WriteLine($"Server started on port {IServer.Port}.");
 		}
 
-		public static void ConnectToLobby(int id, string lobbyName)
+		public void ConnectToLobby(int id, string lobbyName)
 		{
 			bool success = false;
 
@@ -57,13 +57,13 @@ namespace GameServer
 
 			if (success)
 			{
-				((PokerClient)Clients[id]).Lobbyname = lobbyName;
+				((PokerClient)IServer.Clients[id]).Lobbyname = lobbyName;
 			}
 			ConsoleLogger.Instance.PrintColored(success.ToString(), ConsoleColor.Blue, ConsoleColor.DarkYellow);
 			//TODO: send message about success/error of connection lobby
 		}
 
-		public static void ExitLobby(int id, string lobbyName)
+		public void ExitLobby(int id, string lobbyName)
 		{
 			try
 			{
@@ -75,18 +75,18 @@ namespace GameServer
 
 			}
 
-			((PokerClient)Clients[id]).Lobbyname = null;
+			((PokerClient)IServer.Clients[id]).Lobbyname = null;
 			//TODO: Disconnect player by id from lobby
 		}
 
-		protected override void InitializeServerData()
+		public void InitializeServerData()
 		{
-			for (int i = 1; i <= MaxPlayers; i++)
+			for (int i = 1; i <= IServer.MaxPlayers; i++)
 			{
-				Clients.Add(i, new PokerClient(i));
+				IServer.Clients.Add(i, new PokerClient(i));
 			}
 
-			PacketHandlers = new Dictionary<int, PacketHandler>()
+			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()
 			{
 				{ (int)ClientPacketsToServer.WelcomeReceived, ServerHandle.WelcomeReceived },
 			};
@@ -99,11 +99,11 @@ namespace GameServer
 			_tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
 			Console.WriteLine($"Incoming connection from {client.Client.RemoteEndPoint}...");
 
-			for (int i = 1; i <= MaxPlayers; i++)
+			for (int i = 1; i <= IServer.MaxPlayers; i++)
 			{
-				if (Clients[i].Tcp.Socket == null)
+				if (IServer.Clients[i].Tcp.Socket == null)
 				{
-					Clients[i].Tcp.Connect(client);
+					IServer.Clients[i].Tcp.Connect(client);
 					return;
 				}
 			}
@@ -133,17 +133,17 @@ namespace GameServer
 						return;
 					}
 
-					if (Clients[clientId].Udp.EndPoint == null)
+					if (IServer.Clients[clientId].Udp.EndPoint == null)
 					{
 						// If this is a new connection
-						Clients[clientId].Udp.Connect(clientEndPoint);
+						IServer.Clients[clientId].Udp.Connect(clientEndPoint);
 						return;
 					}
 
-					if (Clients[clientId].Udp.EndPoint.ToString() == clientEndPoint.ToString())
+					if (IServer.Clients[clientId].Udp.EndPoint.ToString() == clientEndPoint.ToString())
 					{
 						// Ensures that the client is not being impersonated by another by sending a false clientID
-						Clients[clientId].Udp.HandleData(packet);
+						IServer.Clients[clientId].Udp.HandleData(packet);
 					}
 				}
 			}
@@ -153,7 +153,7 @@ namespace GameServer
 			}
 		}
 
-		public static void SendUDPData(IPEndPoint clientEndPoint, Packet packet)
+		public void SendUDPData(IPEndPoint clientEndPoint, Packet packet)
 		{
 			try
 			{
