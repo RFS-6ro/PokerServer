@@ -45,18 +45,15 @@ namespace GameServer
 			if (fromClient != playerId)
 			{
 				Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ playerId })!");
-				//TODO: send denied turn to player
+				ServerPacketsSend.Approvance(playerId, false, ServerSendHandlers.SendTCPData);
 				return;
 			}
 
-			bool turnAvaliability = true;//TODO: Check turn avaliability
+			bool turnAvaliability = false;
 
-			//TODO: send confirmed/denied turn to player
+			//TODO: Check turn avaliability
 
-			if (turnAvaliability)
-			{
-				//TODO: Send turn to lobby
-			}
+			ServerPacketsSend.Approvance(playerId, turnAvaliability, ServerSendHandlers.SendTCPData);
 		}
 
 		public static void ExitLobby(int fromClient, Packet packet)
@@ -72,6 +69,7 @@ namespace GameServer
 			}
 
 			MainGameServer.Instance.ExitLobby(clientIdCheck, lobbyName);
+			ServerSendHandlers.SendTCPData(fromClient, packet);
 		}
 	}
 }

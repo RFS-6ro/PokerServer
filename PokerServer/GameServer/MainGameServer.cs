@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Network;
+using PokerSynchronisation;
 using static PokerSynchronisation.ClientPacketsSend;
 
 namespace GameServer
@@ -34,17 +35,17 @@ namespace GameServer
 
 		public void ConnectToLobby(int id, string lobbyName)
 		{
-			bool success = false;
+			bool result;
 
 			try
 			{
 				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
 
-				//TODO: Connect player by id to lobby
+				result = false;
 
-				success = true;
+				//TODO: Check connect player by id to lobby
 
-				if (success)
+				if (result)
 				{
 					//TODO:Send connect message for everyone except id
 					//TODO:Send all lobby info to connected player
@@ -52,14 +53,15 @@ namespace GameServer
 			}
 			catch
 			{
-				success = false;
+				result = false;
 			}
 
-			if (success)
+			if (result)
 			{
 				((PokerClient)IServer.Clients[id]).Lobbyname = lobbyName;
 			}
-			ConsoleLogger.Instance.PrintColored(success.ToString(), ConsoleColor.Blue, ConsoleColor.DarkYellow);
+			ConsoleLogger.Instance.PrintColored(result.ToString(), ConsoleColor.Blue, ConsoleColor.DarkYellow);
+
 			//TODO: send message about success/error of connection lobby
 		}
 
