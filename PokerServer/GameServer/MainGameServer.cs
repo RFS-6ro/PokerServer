@@ -39,7 +39,7 @@ namespace GameServer
 
 			try
 			{
-				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
+				LobbyProcessData lobbyProcessData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
 
 				result = false;
 
@@ -47,22 +47,33 @@ namespace GameServer
 
 				if (result)
 				{
-					//TODO:Send connect message for everyone except id
-					//TODO:Send all lobby info to connected player
+					((PokerClient)IServer.Clients[id]).Lobbyname = lobbyProcessData.LobbyIdentifierData.Name;
+
+					//Send message about success/error of connection lobby
+					ServerPacketsSend.ConnectionToLobbyApprovance(id, lobbyProcessData.LobbyIdentifierData, ServerSendHandlers.SendTCPData);
+					//Send connect message for everyone except id
+					ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, true, ServerSendHandlers.SendTCPDataToAll);
+					List<LobbySeatData> seatDatas = new List<LobbySeatData>();
+					//TODO: Fill lobby seats data
+					//Send all lobby info to connected player
+					ServerPacketsSend.SendLobbyData(id, seatDatas, ServerSendHandlers.SendTCPData);
+				}
+				else
+				{
+					//Send message about success/error of connection lobby
+					ServerPacketsSend.ConnectionToLobbyApprovance(id, "You couldn't connect to this lobby", ServerSendHandlers.SendTCPData);
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
 				result = false;
+				_logger.PrintError($"Player by ID: {id} invoked error with connecting to lobby.");
+				_logger.PrintError(ex.ToString());
+				//Send message about success/error of connection lobby
+				ServerPacketsSend.ConnectionToLobbyApprovance(id, "Some errors were occured with connecting", ServerSendHandlers.SendTCPData);
 			}
 
-			if (result)
-			{
-				((PokerClient)IServer.Clients[id]).Lobbyname = lobbyName;
-			}
 			ConsoleLogger.Instance.PrintColored(result.ToString(), ConsoleColor.Blue, ConsoleColor.DarkYellow);
-
-			//TODO: send message about success/error of connection lobby
 		}
 
 		public void ExitLobby(int id, string lobbyName)
@@ -70,12 +81,10 @@ namespace GameServer
 			try
 			{
 				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
-				//TODO:Send disconnect message for everyone except id
+				//Send disconnect message for everyone except id
+				ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, false, ServerSendHandlers.SendTCPDataToAll);
 			}
-			catch
-			{
-
-			}
+			catch { }
 
 			((PokerClient)IServer.Clients[id]).Lobbyname = null;
 			//TODO: Disconnect player by id from lobby
