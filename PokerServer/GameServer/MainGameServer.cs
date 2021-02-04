@@ -52,7 +52,8 @@ namespace GameServer
 					//Send message about success/error of connection lobby
 					ServerPacketsSend.ConnectionToLobbyApprovance(id, lobbyProcessData.LobbyIdentifierData, ServerSendHandlers.SendTCPData);
 					//Send connect message for everyone except id
-					ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, true, ServerSendHandlers.SendTCPDataToAll);
+					//TODO: calculate offset
+					ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, 0, true, ServerSendHandlers.SendTCPDataToAll);
 					List<LobbySeatData> seatDatas = new List<LobbySeatData>();
 					//TODO: Fill lobby seats data
 					//Send all lobby info to connected player
@@ -82,7 +83,8 @@ namespace GameServer
 			{
 				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
 				//Send disconnect message for everyone except id
-				ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, false, ServerSendHandlers.SendTCPDataToAll);
+				//TODO: calculate offset
+				ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, 0, false, ServerSendHandlers.SendTCPDataToAll);
 			}
 			catch { }
 

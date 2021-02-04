@@ -12,7 +12,16 @@
             <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\PokerSynchronisation.dll</HintPath>
         </Reference>
         <Reference Include="TexasHoldem.Logic">
-          <HintPath>..\..\..\..\..\Downloads\TexasHoldemGameEngine-master\src\TexasHoldem.Logic\bin\Debug\netstandard2.0\TexasHoldem.Logic.dll</HintPath>
+          <HintPath>..\..\..\TexasHoldemEngine\src\TexasHoldem.Logic\bin\Debug\netstandard2.0\TexasHoldem.Logic.dll</HintPath>
+        </Reference>
+        <Reference Include="TexasHoldem.AI.DummyPlayer">
+          <HintPath>..\..\..\TexasHoldemEngine\src\AI\TexasHoldem.AI.DummyPlayer\bin\Debug\netstandard2.0\TexasHoldem.AI.DummyPlayer.dll</HintPath>
+        </Reference>
+        <Reference Include="TexasHoldem.UI.Console">
+          <HintPath>..\..\..\TexasHoldemEngine\src\UI\TexasHoldem.UI.Console\bin\Debug\net5.0\TexasHoldem.UI.Console.dll</HintPath>
+        </Reference>
+        <Reference Include="TexasHoldem.AI.SmartPlayer">
+          <HintPath>..\..\..\TexasHoldemEngine\src\UI\TexasHoldem.UI.Console\bin\Debug\net5.0\TexasHoldem.AI.SmartPlayer.dll</HintPath>
         </Reference>
     </ItemGroup>
 </Project>

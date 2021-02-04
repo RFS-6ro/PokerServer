@@ -1,11 +1,14 @@
-﻿using TexasHoldem.Logic.Players;
+﻿using System.Collections.Generic;
+using TexasHoldem.Logic.Cards;
+using TexasHoldem.Logic.Players;
 
 namespace PokerLobby
 {
 	public class RealPlayerDecorator : PlayerDecorator
 	{
-		public RealPlayerDecorator(IPlayer player) : base(player)
+		public RealPlayerDecorator() : base()
 		{
+			Cards = new List<Card>();
 		}
 
 		public override void EndGame(IEndGameContext context)
@@ -35,16 +38,23 @@ namespace PokerLobby
 
 		public override void StartGame(IStartGameContext context)
 		{
+			PlayerMoney = new TexasHoldem.Logic.GameMechanics.InternalPlayerMoney(context.StartMoney);
 			base.StartGame(context);
 		}
 
 		public override void StartHand(IStartHandContext context)
 		{
+			Cards.Clear();
+			Cards.Add(context.FirstCard);
+			Cards.Add(context.SecondCard);
+
+			PlayerMoney.NewHand();
 			base.StartHand(context);
 		}
 
 		public override void StartRound(IStartRoundContext context)
 		{
+			PlayerMoney.NewRound();
 			base.StartRound(context);
 		}
 	}
