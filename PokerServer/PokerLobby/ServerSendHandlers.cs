@@ -1,6 +1,7 @@
-﻿using Network;
+﻿using System;
+using Network;
 
-namespace GameServer
+namespace PokerLobby
 {
 	public static class ServerSendHandlers
 	{

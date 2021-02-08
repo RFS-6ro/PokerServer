@@ -9,6 +9,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameServer", "GameServer\Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokerLobby", "PokerLobby\PokerLobby.csproj", "{C24AC8A3-5D70-493C-AAED-80AC12D8F90A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Network", "..\..\ServerNetworkDLL\Network\Network.csproj", "{5EAD1325-4EB4-4050-9243-C4B1941A3C1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokerSynchronisation", "..\..\ServerNetworkDLL\PokerSync\PokerSynchronisation.csproj", "{0D5A4A36-DCAE-4E87-A3BE-1021BA933F4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexasHoldem.Logic", "..\..\TexasHoldemEngine\src\TexasHoldem.Logic\TexasHoldem.Logic.csproj", "{9B41A315-211D-43CF-B228-93985EA03D67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexasHoldem.AI.SmartPlayer", "..\..\TexasHoldemEngine\src\AI\TexasHoldem.AI.SmartPlayer\TexasHoldem.AI.SmartPlayer.csproj", "{43674424-BC75-4575-88D0-9FF76A1134BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexasHoldem.AI.DummyPlayer", "..\..\TexasHoldemEngine\src\AI\TexasHoldem.AI.DummyPlayer\TexasHoldem.AI.DummyPlayer.csproj", "{36D393BA-8D2C-4E03-B8D6-DF1F358ED67D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexasHoldem.UI.Console", "..\..\TexasHoldemEngine\src\UI\TexasHoldem.UI.Console\TexasHoldem.UI.Console.csproj", "{41C9B2C7-6565-465F-B950-74B8405FAD8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +39,30 @@ Global
 		{C24AC8A3-5D70-493C-AAED-80AC12D8F90A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C24AC8A3-5D70-493C-AAED-80AC12D8F90A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C24AC8A3-5D70-493C-AAED-80AC12D8F90A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EAD1325-4EB4-4050-9243-C4B1941A3C1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EAD1325-4EB4-4050-9243-C4B1941A3C1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EAD1325-4EB4-4050-9243-C4B1941A3C1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EAD1325-4EB4-4050-9243-C4B1941A3C1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D5A4A36-DCAE-4E87-A3BE-1021BA933F4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D5A4A36-DCAE-4E87-A3BE-1021BA933F4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D5A4A36-DCAE-4E87-A3BE-1021BA933F4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D5A4A36-DCAE-4E87-A3BE-1021BA933F4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B41A315-211D-43CF-B228-93985EA03D67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B41A315-211D-43CF-B228-93985EA03D67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B41A315-211D-43CF-B228-93985EA03D67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B41A315-211D-43CF-B228-93985EA03D67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43674424-BC75-4575-88D0-9FF76A1134BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43674424-BC75-4575-88D0-9FF76A1134BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43674424-BC75-4575-88D0-9FF76A1134BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43674424-BC75-4575-88D0-9FF76A1134BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36D393BA-8D2C-4E03-B8D6-DF1F358ED67D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36D393BA-8D2C-4E03-B8D6-DF1F358ED67D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36D393BA-8D2C-4E03-B8D6-DF1F358ED67D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36D393BA-8D2C-4E03-B8D6-DF1F358ED67D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41C9B2C7-6565-465F-B950-74B8405FAD8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41C9B2C7-6565-465F-B950-74B8405FAD8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41C9B2C7-6565-465F-B950-74B8405FAD8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41C9B2C7-6565-465F-B950-74B8405FAD8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

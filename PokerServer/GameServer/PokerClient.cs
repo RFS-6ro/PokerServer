@@ -12,7 +12,7 @@ namespace GameServer
 		public TCPBase Tcp { get; set; }
 		public UDPBase Udp { get; set; }
 		public string UserName { get; set; }
-		public string Lobbyname { get; set; }
+		public string LobbyName { get; set; }
 
 		public PokerClient(int id)
 		{
@@ -78,7 +78,7 @@ namespace GameServer
 				IServer.PacketHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
 			}
 
-			public new void ReceiveCallback(IAsyncResult result)
+			public void ReceiveCallbacks(IAsyncResult result)
 			{
 				_logger.PrintWarning(Thread.CurrentThread.ToString());
 				_logger.PrintSuccess($"Receiving data {DateTime.Now}");

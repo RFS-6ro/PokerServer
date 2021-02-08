@@ -14,15 +14,15 @@ namespace PokerLobby
 {
 	class Program
 	{
-		public static EventWaitHandle EventHandle;
-
-		private static ITexasHoldemGame _game;
+		private static TexasHoldemGameLogic<RealPlayerDecorator> _game;
 		private static List<IPlayer> _players;
 
+#if DEBUG
 		private const int GameWidth = 66;
 		private const int NumberOfCommonRows = 3; // place for community cards, pot, main pot, side pots
+#endif
 
-		private static readonly List<IPlayer> Players = new List<IPlayer>();
+		public static List<IPlayer> Players = new List<IPlayer>();
 
 		public static int MinimumPlayersNumberToStart { get; private set; } = 5;
 
@@ -30,6 +30,23 @@ namespace PokerLobby
 
 		public static async Task Main(string[] args)
 		{
+			string lobbyName;
+
+			try
+			{
+				lobbyName = args[0];
+			}
+			catch
+			{
+				lobbyName = DefaultSyncValues.LobbyName;
+			}
+
+			ConsoleLogger.Instance.PrintSuccess($"Starting Lobby with name { lobbyName }");
+
+			LobbyClient.Instance.SetName(lobbyName);
+			LobbyClient.Instance.ConnectToServer();
+
+#if DEBUG
 			Players.Add(new DummyPlayer());
 			Players.Add(new DummyPlayer());
 			Players.Add(new DummyPlayer());
@@ -37,21 +54,8 @@ namespace PokerLobby
 			Players.Add(new DummyPlayer());
 			Players.Add(new DummyPlayer());
 			Players.Add(new DummyPlayer());
-
-			{
-				//string eventHandlerName;
-
-				//try
-				//{
-				//	eventHandlerName = args[0];
-				//}
-				//catch
-				//{
-				//	eventHandlerName = DefaultSyncValues.EventHandlerName;
-				//}
-
-				//EventHandle = EventWaitHandle.OpenExisting(eventHandlerName);
-			}
+#else
+#endif
 
 			await PlayersConnection();
 
@@ -60,10 +64,10 @@ namespace PokerLobby
 			{
 				_players = AssignRealPlayersToInternalDecorators();
 
-				ConsoleLogger.Instance.Print("starting server");
-				//TODO: Start Game with current players
-				_game = new TexasHoldemGame<RealPlayerDecorator>(_players);
-				_game.Start();
+				ConsoleLogger.Instance.Print("Starting Game Loop");
+				// Starting Game with current players
+				_game = new TexasHoldemGameLogic<RealPlayerDecorator>(_players);
+				await _game.Start();
 
 			}
 		}
@@ -76,68 +80,66 @@ namespace PokerLobby
 
 			while (isReadyToStart == false)
 			{
-				await Task.Run(() =>
+				try
 				{
-					try
+					while (ConnectedPlayers < MinimumPlayersNumberToStart || ConnectedPlayers != Players.Count)
 					{
-						while (ConnectedPlayers < MinimumPlayersNumberToStart || ConnectedPlayers != Players.Count)
+						if (previousNumber != ConnectedPlayers)
 						{
-							if (previousNumber != ConnectedPlayers)
-							{
-								previousNumber = ConnectedPlayers;
-								waitingTime = 0;
-							}
+							previousNumber = ConnectedPlayers;
+							waitingTime = 0;
+						}
 
-							Thread.Sleep(500);
-							waitingTime += 500;
-							ConsoleLogger.Instance.Print(waitingTime.ToString());
+						await Task.Delay(500);
+						waitingTime += 500;
+#if DEBUG
+						ConsoleLogger.Instance.Print(waitingTime.ToString());
+#endif
 
-							if (waitingTime > DefaultSyncValues.LobbyWaitingLimit)
-							{
-								//TODO: terminate lobby and free it
-								return;
-							}
+						if (waitingTime > DefaultSyncValues.LobbyWaitingLimit)
+						{
+							//TODO: terminate lobby and free it
+							return;
 						}
 					}
-					catch (System.Exception ex)
-					{
-						ConsoleLogger.Instance.PrintError(ex.ToString());
-						Console.ReadKey();
-					}
-				});
+				}
+				catch (Exception ex)
+				{
+					ConsoleLogger.Instance.PrintError(ex.ToString());
+					Console.ReadKey();
+				}
 
 				//TODO: Show 10 sec Timer to players and await for it's ending
 				ConsoleLogger.Instance.Print("waiting 10 sec");
-				await Task.Run(() =>
+
+				try
 				{
-					try
+					for (int i = 0; i < DefaultSyncValues.StartDelay; i += 1000)
 					{
-						for (int i = 0; i < DefaultSyncValues.StartDelay; i += 1000)
+						if (ConnectedPlayers != previousNumber)
 						{
-							if (ConnectedPlayers != previousNumber)
-							{
-								previousNumber = ConnectedPlayers;
-								waitingTime = 0;
+							previousNumber = ConnectedPlayers;
+							waitingTime = 0;
 
-								isReadyToStart = false;
-								break;
-							}
-							else
-							{
-								isReadyToStart = true;
-							}
-
-							Thread.Sleep(100);
-							ConsoleLogger.Instance.Print(i.ToString());
+							isReadyToStart = false;
+							break;
 						}
-					}
-					catch (System.Exception ex)
-					{
-						ConsoleLogger.Instance.PrintError(ex.ToString());
-						Console.ReadKey();
-					}
+						else
+						{
+							isReadyToStart = true;
+						}
 
-				});
+						await Task.Delay(100);
+#if DEBUG
+						ConsoleLogger.Instance.Print(i.ToString());
+#endif
+					}
+				}
+				catch (Exception ex)
+				{
+					ConsoleLogger.Instance.PrintError(ex.ToString());
+					Console.ReadKey();
+				}
 			}
 		}
 
@@ -148,9 +150,13 @@ namespace PokerLobby
 
 			for (int i = 0; i < Players.Count; i++)
 			{
+#if DEBUG
 				ConsoleUiDecorator decorator = new ConsoleUiDecorator();
-				decorator.SetPlayer(Players[i]);
 				decorator.DrawGameBox((6 * i) + NumberOfCommonRows, GameWidth, 1);
+#else
+				RealPlayerDecorator decorator = new RealPlayerDecorator();
+#endif
+				decorator.SetPlayer(Players[i]);
 				players.Add(decorator);
 			}
 

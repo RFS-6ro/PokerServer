@@ -21,12 +21,12 @@ namespace GameServer
 			try
 			{
 				Process process = new Process();
-				process.StartInfo.CreateNoWindow = true;
+				process.StartInfo.CreateNoWindow = false;
 				process.StartInfo.UseShellExecute = false;
 				process.StartInfo.FileName = "/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/bin/Release/net5.0/osx.10.12-x64/PokerLobby";
 
-				string linedAttributes;
-				linedAttributes = data.Name;
+				string linedAttributes = data.Name;
+
 				if (args != null)
 				{
 					linedAttributes += GenerateLinedString(args);
@@ -54,12 +54,11 @@ namespace GameServer
 		{
 			StringBuilder builder = new StringBuilder();
 
-			for (int i = 0; i < args.Length - 1; i++)
+			for (int i = 0; i < args.Length; i++)
 			{
+				builder.Append(' ');
 				builder.Append(args[i]);
-				builder.Append(" ");
 			}
-			builder.Append(args.Length - 1);
 
 			return builder.ToString();
 		}

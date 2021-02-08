@@ -24,4 +24,10 @@
           <HintPath>..\..\..\TexasHoldemEngine\src\UI\TexasHoldem.UI.Console\bin\Debug\net5.0\TexasHoldem.AI.SmartPlayer.dll</HintPath>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\TexasHoldemEngine\src\AI\TexasHoldem.AI.DummyPlayer\TexasHoldem.AI.DummyPlayer.csproj" />
+      <ProjectReference Include="..\..\..\TexasHoldemEngine\src\AI\TexasHoldem.AI.SmartPlayer\TexasHoldem.AI.SmartPlayer.csproj" />
+      <ProjectReference Include="..\..\..\TexasHoldemEngine\src\TexasHoldem.Logic\TexasHoldem.Logic.csproj" />
+      <ProjectReference Include="..\..\..\TexasHoldemEngine\src\UI\TexasHoldem.UI.Console\TexasHoldem.UI.Console.csproj" />
+    </ItemGroup>
 </Project>

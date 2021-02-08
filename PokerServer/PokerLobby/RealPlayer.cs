@@ -35,44 +35,40 @@ namespace PokerLobby
 				//Allow all turn types
 			}
 
-			while (true)
+			//TODO: replace by TurnType
+			var key = Console.ReadKey(true);
+			PlayerAction action = null;
+			switch (key.Key)
 			{
-				//TODO: replace by TurnType
-				var key = Console.ReadKey(true);
-				PlayerAction action = null;
-				switch (key.Key)
+			case ConsoleKey.C:
+				action = PlayerAction.CheckOrCall();
+				break;
+			case ConsoleKey.R:
+				if (!context.CanRaise)
 				{
-				case ConsoleKey.C:
-					action = PlayerAction.CheckOrCall();
-					break;
-				case ConsoleKey.R:
-					if (!context.CanRaise)
-					{
-						continue;
-					}
-
-					action = PlayerAction.Raise(RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound));
-					break;
-				case ConsoleKey.F:
-					action = PlayerAction.Fold();
-					break;
-				case ConsoleKey.A:
-					if (!context.CanRaise)
-					{
-						continue;
-					}
-
-					action = context.MoneyLeft > 0
-								 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
-								 : PlayerAction.CheckOrCall();
-					break;
+					//TODO: send wrong input event
+					return null;
 				}
 
-				if (action != null)
+				action = PlayerAction.Raise(RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound));
+				break;
+			case ConsoleKey.F:
+				action = PlayerAction.Fold();
+				break;
+			case ConsoleKey.A:
+				if (!context.CanRaise)
 				{
-					return action;
+					//TODO: send wrong input event
+					return null;
 				}
+
+				action = context.MoneyLeft > 0
+							 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
+							 : PlayerAction.CheckOrCall();
+				break;
 			}
+
+			return action;
 		}
 
 		private int RaiseAmount(int moneyLeft, int minRaise, int moneyToCall, int myMoneyInTheRound)

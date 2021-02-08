@@ -10,7 +10,7 @@ namespace GameServer
 	{
 		private Dictionary<LobbyIdentifierData, LobbyProcessData> _lobbiesContainer = new Dictionary<LobbyIdentifierData, LobbyProcessData>();
 
-		public LobbyProcessData GetLobbyByName(string name, string args = null)
+		public LobbyProcessData GetLobbyByName(string name, string[] args = null)
 		{
 			LobbyIdentifierData data = _lobbiesContainer.FirstOrDefault((pair) => pair.Key.Name == name).Key;
 			if (data != null)
@@ -28,7 +28,7 @@ namespace GameServer
 			return lobbyData;
 		}
 
-		private LobbyProcessData CreateNewLobby(LobbyIdentifierData data, string args = null)
+		public LobbyProcessData CreateNewLobby(LobbyIdentifierData data, string[] args = null)
 		{
 			LobbyProcessData lobbyData = new LobbyProcessData(data, args);
 			_lobbiesContainer.Add(data, lobbyData);

@@ -15,6 +15,8 @@ namespace GameServer
 
 		public LoggerBase _logger => ConsoleLogger.Instance;
 
+		public static Dictionary<int, LobbyClient> Lobbies = new Dictionary<int, LobbyClient>();
+
 		public void Start(int maxPlayers, int port)
 		{
 			IServer.MaxPlayers = maxPlayers;
@@ -31,6 +33,17 @@ namespace GameServer
 			_udpListener.BeginReceive(UDPReceiveCallback, null);
 
 			Console.WriteLine($"Server started on port {IServer.Port}.");
+
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_1", 5, 2, 500));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_2", 6, 3, 600));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_3", 7, 4, 700));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_4", 5, 2, 500));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_5", 6, 3, 600));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_6", 7, 4, 700));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_7", 5, 2, 500));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_8", 6, 3, 600));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_9", 7, 4, 700));
+			LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_10", 5, 5, 500));
 		}
 
 		public void ConnectToLobby(int id, string lobbyName)
@@ -47,7 +60,7 @@ namespace GameServer
 
 				if (result)
 				{
-					((PokerClient)IServer.Clients[id]).Lobbyname = lobbyProcessData.LobbyIdentifierData.Name;
+					((PokerClient)IServer.Clients[id]).LobbyName = lobbyProcessData.LobbyIdentifierData.Name;
 
 					//Send message about success/error of connection lobby
 					ServerPacketsSend.ConnectionToLobbyApprovance(id, lobbyProcessData.LobbyIdentifierData, ServerSendHandlers.SendTCPData);
@@ -88,7 +101,7 @@ namespace GameServer
 			}
 			catch { }
 
-			((PokerClient)IServer.Clients[id]).Lobbyname = null;
+			((PokerClient)IServer.Clients[id]).LobbyName = null;
 			//TODO: Disconnect player by id from lobby
 		}
 
@@ -97,6 +110,11 @@ namespace GameServer
 			for (int i = 1; i <= IServer.MaxPlayers; i++)
 			{
 				IServer.Clients.Add(i, new PokerClient(i));
+			}
+
+			for (int i = 1; i <= IServer.MaxPlayers / 3; i++)
+			{
+				Lobbies.Add(i, new LobbyClient(i));
 			}
 
 			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()

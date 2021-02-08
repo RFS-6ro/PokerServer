@@ -9,13 +9,28 @@ namespace GameServer
 		public static void WelcomeReceived(int fromClient, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
-			string username = packet.ReadString();
-			((PokerClient)IServer.Clients[clientIdCheck]).UserName = username;
+			string userName = packet.ReadString();
 
-			Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now player { fromClient } with name { username }.");
-			if (fromClient != clientIdCheck)
+			if (userName.Contains("LOBBY_NAME_"))
 			{
-				Console.WriteLine($"Player \"{ username }\" (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
+				//TODO: connect input client as lobby
+				MainGameServer.Lobbies[clientIdCheck].Name = userName;
+
+				Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now player { fromClient } with name { userName }.");
+				if (fromClient != clientIdCheck)
+				{
+					Console.WriteLine($"Lobby \"{ userName }\" (ID: { fromClient }) has assumed the wrong ID ({ clientIdCheck })!");
+				}
+			}
+			else
+			{
+				((PokerClient)IServer.Clients[clientIdCheck]).UserName = userName;
+
+				Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now player { fromClient } with name { userName }.");
+				if (fromClient != clientIdCheck)
+				{
+					Console.WriteLine($"Player \"{ userName }\" (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
+				}
 			}
 		}
 
