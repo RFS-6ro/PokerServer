@@ -14,9 +14,12 @@ namespace PokerLobby
 
 		public bool IsReady => true;
 
-		public RealPlayer(string name) : base()
+		public readonly int ServerId;
+
+		public RealPlayer(string name, int serverId) : base()
 		{
 			Name = name;
+			ServerId = serverId;
 		}
 
 		public override PlayerAction PostingBlind(IPostingBlindContext context)
@@ -26,18 +29,10 @@ namespace PokerLobby
 
 		public override PlayerAction GetTurn(IGetTurnContext context)
 		{
-			if (!context.CanRaise)
-			{
-				//Allow only check and fold
-			}
-			else
-			{
-				//Allow all turn types
-			}
-
 			//TODO: replace by TurnType
 			var key = Console.ReadKey(true);
 			PlayerAction action = null;
+
 			switch (key.Key)
 			{
 			case ConsoleKey.C:
@@ -46,7 +41,6 @@ namespace PokerLobby
 			case ConsoleKey.R:
 				if (!context.CanRaise)
 				{
-					//TODO: send wrong input event
 					return null;
 				}
 
@@ -58,7 +52,6 @@ namespace PokerLobby
 			case ConsoleKey.A:
 				if (!context.CanRaise)
 				{
-					//TODO: send wrong input event
 					return null;
 				}
 

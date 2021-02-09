@@ -14,7 +14,7 @@ namespace PokerLobby
 {
 	class Program
 	{
-		private static TexasHoldemGameLogic<RealPlayerDecorator> _game;
+		private static TexasHoldemGameLogic _game;
 		private static List<IPlayer> _players;
 
 #if DEBUG
@@ -30,6 +30,16 @@ namespace PokerLobby
 
 		public static async Task Main(string[] args)
 		{
+
+#if DEBUG
+			Players.Add(new DummyPlayer());
+			Players.Add(new DummyPlayer());
+			Players.Add(new DummyPlayer());
+			Players.Add(new ConsolePlayer((6 * Players.Count) + NumberOfCommonRows));
+			Players.Add(new DummyPlayer());
+			Players.Add(new DummyPlayer());
+			Players.Add(new DummyPlayer());
+#else
 			string lobbyName;
 
 			try
@@ -45,16 +55,6 @@ namespace PokerLobby
 
 			LobbyClient.Instance.SetName(lobbyName);
 			LobbyClient.Instance.ConnectToServer();
-
-#if DEBUG
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-			Players.Add(new ConsolePlayer((6 * Players.Count) + NumberOfCommonRows));
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-#else
 #endif
 
 			await PlayersConnection();
@@ -64,11 +64,13 @@ namespace PokerLobby
 			{
 				_players = AssignRealPlayersToInternalDecorators();
 
+#if !DEBUG
 				ConsoleLogger.Instance.Print("Starting Game Loop");
+#endif
 				// Starting Game with current players
-				_game = new TexasHoldemGameLogic<RealPlayerDecorator>(_players);
+				_game = new TexasHoldemGameLogic(_players);
 				await _game.Start();
-
+				//TODO: Disconnect winner player from lobby 
 			}
 		}
 
@@ -92,7 +94,7 @@ namespace PokerLobby
 
 						await Task.Delay(500);
 						waitingTime += 500;
-#if DEBUG
+#if !DEBUG
 						ConsoleLogger.Instance.Print(waitingTime.ToString());
 #endif
 
@@ -110,7 +112,9 @@ namespace PokerLobby
 				}
 
 				//TODO: Show 10 sec Timer to players and await for it's ending
+#if !DEBUG
 				ConsoleLogger.Instance.Print("waiting 10 sec");
+#endif
 
 				try
 				{
@@ -130,7 +134,7 @@ namespace PokerLobby
 						}
 
 						await Task.Delay(100);
-#if DEBUG
+#if !DEBUG
 						ConsoleLogger.Instance.Print(i.ToString());
 #endif
 					}
@@ -150,11 +154,11 @@ namespace PokerLobby
 
 			for (int i = 0; i < Players.Count; i++)
 			{
-#if DEBUG
-				ConsoleUiDecorator decorator = new ConsoleUiDecorator();
-				decorator.DrawGameBox((6 * i) + NumberOfCommonRows, GameWidth, 1);
-#else
 				RealPlayerDecorator decorator = new RealPlayerDecorator();
+#if DEBUG
+				decorator.DrawGameBox((6 * i) + NumberOfCommonRows, GameWidth, 1);
+				//				ConsoleUiDecorator decorator = new ConsoleUiDecorator();
+				//#else
 #endif
 				decorator.SetPlayer(Players[i]);
 				players.Add(decorator);

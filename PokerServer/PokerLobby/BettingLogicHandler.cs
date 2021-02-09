@@ -1,36 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Network;
 using PokerSynchronisation;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
 
 namespace PokerLobby
 {
-	public class BettingLogicHandler<TDECORATOR>
-		where TDECORATOR : PlayerDecorator, new()
+	public class BettingLogicHandler
 	{
 		private readonly int _initialPlayerIndex;
 
-		private readonly IList<TDECORATOR> _players;
+		private readonly IList<RealPlayerDecorator> _players;
 
 		private readonly int _smallBlind;
 
-		private PotCreator<TDECORATOR> _potCreator;
+		private PotCreator<RealPlayerDecorator> _potCreator;
 
 		private MinRaise _minRaise;
 
-		public BettingLogicHandler(IList<TDECORATOR> players, int smallBlind)
+		public BettingLogicHandler(IList<RealPlayerDecorator> players, int smallBlind)
 		{
 			Random rnd = new Random();
 			_initialPlayerIndex = players.Count == 2 ? 0 : 1;
-			//TODO: move dealerButton
 			_players = players;
 			_smallBlind = smallBlind;
 			RoundBets = new List<PlayerActionAndName>();
-			_potCreator = new PotCreator<TDECORATOR>(_players);
+			_potCreator = new PotCreator<RealPlayerDecorator>(_players);
 			_minRaise = new MinRaise(_smallBlind);
+
+			//CHECK: send dealer's server index event
+			//CHECK: move dealerButton
+			LobbySends.Dealer(LobbyClient.Instance.Id, _players[_initialPlayerIndex].ServerId, ClientSentHandlers.SendTCPData);
 		}
 
 		public int Pot
@@ -61,6 +65,8 @@ namespace PokerLobby
 
 		public async Task Bet(GameRoundType gameRoundType)
 		{
+			UpdateBank();
+
 			var playerIndex = gameRoundType == GameRoundType.PreFlop
 				? _initialPlayerIndex
 				: 1;
@@ -81,9 +87,18 @@ namespace PokerLobby
 				return;
 			}
 
+			int safeCounter = 0;
+
 			while (_players.Count(x => x.PlayerMoney.InHand) >= 2
 				   && _players.Any(x => x.PlayerMoney.ShouldPlayInRound))
 			{
+				safeCounter++;
+
+				if (safeCounter > 100)
+				{
+					return;
+				}
+
 				var player = _players[playerIndex % _players.Count];
 				if (player.PlayerMoney.Money <= 0)
 				{
@@ -93,7 +108,7 @@ namespace PokerLobby
 					continue;
 				}
 
-				if (!player.PlayerMoney.InHand || !player.PlayerMoney.ShouldPlayInRound)
+				if (player.PlayerMoney.InHand == false || player.PlayerMoney.ShouldPlayInRound == false)
 				{
 					if (player.PlayerMoney.InHand == player.PlayerMoney.ShouldPlayInRound)
 					{
@@ -105,10 +120,34 @@ namespace PokerLobby
 
 				var maxMoneyPerPlayer = _players.Max(x => x.PlayerMoney.CurrentRoundBet);
 
-				var action = await GettingTurn(player, gameRoundType, maxMoneyPerPlayer);
+				GetTurnContext turnContext = new GetTurnContext(
+							gameRoundType,
+							RoundBets.AsReadOnly(),
+							_smallBlind,
+							player.PlayerMoney.Money,
+							Pot,
+							player.PlayerMoney.CurrentRoundBet,
+							maxMoneyPerPlayer,
+							_minRaise.Amount(player.Name),
+							MainPot,
+							SidePots);
+				int lastBet = player.PlayerMoney.CurrentRoundBet;
+				//CHECK: Send start turn event
+				LobbySends.StartTurn(LobbyClient.Instance.Id, player.ServerId, turnContext.CanRaise, ClientSentHandlers.SendTCPData);
+
+				var action = await GettingTurn(player, turnContext, maxMoneyPerPlayer);
 
 				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
+
+				if (lastBet <= player.PlayerMoney.CurrentRoundBet)
+				{
+					//CHECK: need bet animation
+					LobbySends.ShowPlayerBet(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.CurrentRoundBet - lastBet, ClientSentHandlers.SendTCPData);
+				}
+
 				RoundBets.Add(new PlayerActionAndName(player.Name, action));
+
+				UpdateBank();
 
 				if (action.Type == TurnType.Raise)
 				{
@@ -122,6 +161,9 @@ namespace PokerLobby
 				_minRaise.Update(player.Name, maxMoneyPerPlayer, player.PlayerMoney.CurrentRoundBet);
 				player.PlayerMoney.ShouldPlayInRound = false;
 				playerIndex++;
+
+				//CHECK: Send end turn event
+				LobbySends.EndTurn(LobbyClient.Instance.Id, player.ServerId, ClientSentHandlers.SendTCPData);
 
 				await Task.Delay(500);
 			}
@@ -141,34 +183,52 @@ namespace PokerLobby
 
 			await Task.Delay(500);
 
-			//TODO: Update bank
+			UpdateBank();
 		}
 
-		private async Task<PlayerAction> GettingTurn(TDECORATOR player, GameRoundType gameRoundType, int maxMoneyPerPlayer)
+		private async Task<PlayerAction> GettingTurn(RealPlayerDecorator player, GetTurnContext turnContext, int awaitTime = 10000)
 		{
+			int timeLeft = awaitTime;
+			//CHECK: send start turn timer event
+			LobbySends.TimerEvent(LobbyClient.Instance.Id, true, timeLeft, ClientSentHandlers.SendTCPData);
+			int approveTimerDelta = 300;
+			int askDelay = 50;
+
 			PlayerAction action = null;
+
 			while (action == null)
 			{
-				action = player.GetTurn(
-					new GetTurnContext(
-						gameRoundType,
-						RoundBets.AsReadOnly(),
-						_smallBlind,
-						player.PlayerMoney.Money,
-						Pot,
-						player.PlayerMoney.CurrentRoundBet,
-						maxMoneyPerPlayer,
-						_minRaise.Amount(player.Name),
-						MainPot,
-						SidePots));
-				await Task.Delay(50);
+				action = player.GetTurn(turnContext);
+				await Task.Delay(askDelay);
+
+				approveTimerDelta -= askDelay;
+				timeLeft -= askDelay;
+
+				if (timeLeft <= 0)
+				{
+					//CHECK: send stop turn timer event
+					LobbySends.TimerEvent(LobbyClient.Instance.Id, false, timeLeft, ClientSentHandlers.SendTCPData);
+					return PlayerAction.Fold();
+				}
+
+				if (approveTimerDelta <= 0)
+				{
+					approveTimerDelta = 300;
+					//CHECK: send timer approvance event
+					LobbySends.TimerEvent(LobbyClient.Instance.Id, true, timeLeft, ClientSentHandlers.SendTCPData);
+				}
 			}
 
+			//CHECK: send stop turn timer event
+			LobbySends.TimerEvent(LobbyClient.Instance.Id, false, timeLeft, ClientSentHandlers.SendTCPData);
 			return action;
 		}
 
-		public void PlaceBlinds()
+		public async Task PlaceBlinds()
 		{
+			await Task.Delay(300);
+			//CHECK: send small blind posting event
+			LobbySends.ShowPlayerBet(LobbyClient.Instance.Id, _players[_initialPlayerIndex].ServerId, _smallBlind, ClientSentHandlers.SendTCPData);
 			// Small blind
 			RoundBets.Add(
 				new PlayerActionAndName(
@@ -179,7 +239,12 @@ namespace PokerLobby
 							0,
 							_players[_initialPlayerIndex].PlayerMoney.Money))));
 
+			await Task.Delay(300);
+
 			// Big blind
+			//CHECK: send big blind posting event
+			LobbySends.ShowPlayerBet(LobbyClient.Instance.Id, _players[_initialPlayerIndex + 1].ServerId, 2 * _smallBlind, ClientSentHandlers.SendTCPData);
+
 			RoundBets.Add(
 				new PlayerActionAndName(
 					_players[_initialPlayerIndex + 1].Name,
@@ -188,6 +253,7 @@ namespace PokerLobby
 							_players[_initialPlayerIndex + 1].PlayerMoney.DoPlayerAction(PlayerAction.Post(2 * _smallBlind), 0),
 							Pot,
 							_players[_initialPlayerIndex + 1].PlayerMoney.Money))));
+			await Task.Delay(500);
 		}
 
 		private void ReturnMoneyInCaseOfAllIn()
@@ -206,6 +272,12 @@ namespace PokerLobby
 			{
 				group.First().First().PlayerMoney.NormalizeBets(group.ElementAt(1).First().PlayerMoney.CurrentRoundBet);
 			}
+		}
+
+		private void UpdateBank()
+		{
+			//CHECK: Update bank and send event
+			LobbySends.ShowBank(LobbyClient.Instance.Id, Pot, ClientSentHandlers.SendTCPData);
 		}
 	}
 }

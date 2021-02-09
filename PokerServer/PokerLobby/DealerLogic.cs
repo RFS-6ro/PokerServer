@@ -12,44 +12,49 @@ using TexasHoldem.Logic.Players;
 
 namespace PokerLobby
 {
-	public class DealerLogic<TDECORATOR>
-		where TDECORATOR : PlayerDecorator, new()
+	public class DealerLogic
 	{
 		private readonly int _handNumber;
 
 		private readonly int _smallBlind;
 
-		private readonly IList<TDECORATOR> _players;
+		private readonly IList<RealPlayerDecorator> _players;
 
 		private readonly Deck _deck;
 
 		private readonly List<Card> _communityCards;
 
-		private readonly BettingLogicHandler<TDECORATOR> _bettingLogic;
+		private readonly BettingLogicHandler _bettingLogic;
 
 		private Dictionary<string, ICollection<Card>> _showdownCards;
 
 		private GameRoundType GameRoundType { get; set; } = GameRoundType.Posting;
 
-		public DealerLogic(IList<TDECORATOR> players, int handNumber, int smallBlind)
+		public DealerLogic(IList<RealPlayerDecorator> players, int handNumber, int smallBlind)
 		{
 			_handNumber = handNumber;
 			_smallBlind = smallBlind;
 			_players = players;
 			_deck = new Deck();
 			_communityCards = new List<Card>(5);
-			_bettingLogic = new BettingLogicHandler<TDECORATOR>(_players, smallBlind);
+			_bettingLogic = new BettingLogicHandler(_players, smallBlind);
 			_showdownCards = new Dictionary<string, ICollection<Card>>();
 		}
 
 		public async Task Play()
 		{
 			// Start the hand and deal cards to each player
+			List<Card> dispence1 = new List<Card>();
+			List<Card> dispence2 = new List<Card>();
 			foreach (var player in _players)
 			{
+				Card card1 = _deck.GetNextCard();
+				dispence1.Add(card1);
+				Card card2 = _deck.GetNextCard();
+				dispence2.Add(card2);
 				var startHandContext = new StartHandContext(
-					_deck.GetNextCard(),
-					_deck.GetNextCard(),
+					card1,
+					card2,
 					_handNumber,
 					player.PlayerMoney.Money,
 					_smallBlind,
@@ -58,53 +63,31 @@ namespace PokerLobby
 			}
 
 
+			//Blinds
+			GameRoundType = GameRoundType.Posting;
+			await _bettingLogic.PlaceBlinds();
 
-			if (GameRoundType == GameRoundType.Posting)
-			{
-				_bettingLogic.PlaceBlinds();
-				GameRoundType = GameRoundType.Dispensing1;
-			}
 
-			if (GameRoundType == GameRoundType.Dispensing1)
-			{
-				//TODO: send second dispence event
-				GameRoundType = GameRoundType.Dispensing2;
-			}
+			//Dispencing 1 card row
+			GameRoundType = GameRoundType.Dispensing1;
+			//CHECK: send dispence event
+			await DispenceOneCircle(dispence1);
 
-			if (GameRoundType == GameRoundType.Dispensing2)
-			{
-				await Task.Delay(new Random().Next(100, 250));
-				//TODO: send second dispence event
-				GameRoundType = GameRoundType.PreFlop;
-			}
 
-			{
-				//if (GameRoundType == GameRoundType.PreFlop)
-				//{
-				//	await PlayRound(GameRoundType);
-				//}
+			//dispencing pause
+			await Task.Delay(new Random().Next(100, 250));
 
-				//if (GameRoundType == GameRoundType.Flop)
-				//{
-				//	await Task.Delay(new Random().Next(500));
-				//	await PlayRound(GameRoundType, new int[] { 0, 1, 2 });
-				//}
 
-				//if (GameRoundType == GameRoundType.Turn)
-				//{
-				//	await Task.Delay(new Random().Next(500));
-				//	await PlayRound(GameRoundType, new int[] { 3 });
-				//}
+			//Dispencing 2 card row
+			GameRoundType = GameRoundType.Dispensing2;
+			//CHECK: send second dispence event
+			await DispenceOneCircle(dispence2);
 
-				//if (GameRoundType == GameRoundType.River)
-				//{
-				//	await Task.Delay(new Random().Next(500));
-				//	await PlayRound(GameRoundType, new int[] { 4 });
-				//}
-			}
 
 			// Pre-flop -> blinds -> betting
+			GameRoundType = GameRoundType.PreFlop;
 			await PlayRound(GameRoundType.PreFlop);
+
 
 			// Flop -> 3 cards -> betting
 			if (_players.Count(x => x.PlayerMoney.InHand) > 1)
@@ -114,6 +97,7 @@ namespace PokerLobby
 				await PlayRound(GameRoundType.Flop, new int[] { 0, 1, 2 });
 			}
 
+
 			// Turn -> 1 card -> betting
 			if (_players.Count(x => x.PlayerMoney.InHand) > 1)
 			{
@@ -121,6 +105,7 @@ namespace PokerLobby
 				await Task.Delay(new Random().Next(500));
 				await PlayRound(GameRoundType.Turn, new int[] { 3 });
 			}
+
 
 			// River -> 1 card -> betting
 			if (_players.Count(x => x.PlayerMoney.InHand) > 1)
@@ -134,6 +119,8 @@ namespace PokerLobby
 
 			DetermineWinnerAndAddPot(_bettingLogic.Pot, _bettingLogic.MainPot, _bettingLogic.SidePots);
 
+			//TODO: send event to open cards
+
 			await Task.Delay(2000);
 
 			foreach (var player in _players)
@@ -142,12 +129,28 @@ namespace PokerLobby
 			}
 		}
 
+		private async Task DispenceOneCircle(List<Card> cards)
+		{
+			Random random = new Random();
+
+			for (int i = 0, j = 0; i < _players.Count; i++, j += 2)
+			{
+				LobbySends.GiveCard(LobbyClient.Instance.Id,
+									_players[i].ServerId,
+									type1: (int)cards[i].Type,
+									suit1: (int)cards[i].Suit,
+									ClientSentHandlers.SendTCPData);
+
+				await Task.Delay(random.Next(30, 250));
+			}
+		}
+
 		private void DetermineWinnerAndAddPot(int pot, Pot mainPot, List<Pot> sidePot)
 		{
 			if (_players.Count(x => x.PlayerMoney.InHand) == 1)
 			{
 				var winner = _players.FirstOrDefault(x => x.PlayerMoney.InHand);
-				winner.PlayerMoney.Money += pot;
+				GiveWin(winner, pot);
 			}
 			else
 			{
@@ -167,16 +170,16 @@ namespace PokerLobby
 					_players[1].Cards.Concat(_communityCards));
 					if (betterHand > 0)
 					{
-						_players[0].PlayerMoney.Money += pot;
+						GiveWin(_players[0], pot);
 					}
 					else if (betterHand < 0)
 					{
-						_players[1].PlayerMoney.Money += pot;
+						GiveWin(_players[1], pot);
 					}
 					else
 					{
-						_players[0].PlayerMoney.Money += pot / 2;
-						_players[1].PlayerMoney.Money += pot / 2;
+						GiveWin(_players[0], pot / 2);
+						GiveWin(_players[1], pot / 2);
 					}
 				}
 				else
@@ -228,7 +231,7 @@ namespace PokerLobby
 
 									foreach (var nominee in nominees)
 									{
-										_players.First(x => x.Name == nominee).PlayerMoney.Money += prize;
+										GiveWin(_players.First(x => x.Name == nominee), prize);
 									}
 								}
 								else
@@ -256,18 +259,37 @@ namespace PokerLobby
 			}
 		}
 
+		private void GiveWin(RealPlayerDecorator player, int amount)
+		{
+			//CHECK: send win amount event
+			LobbySends.WinAmount(LobbyClient.Instance.Id, player.ServerId, amount, ClientSentHandlers.SendTCPData);
+			player.PlayerMoney.Money += amount;
+			LobbySends.ShowMoneyLeft(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.Money, ClientSentHandlers.SendTCPData);
+		}
+
 		private async Task PlayRound(GameRoundType gameRoundType, int[] communityCardsIndexes = null)
 		{
 			if (communityCardsIndexes != null)
 			{
+				//CHECK: sending table cards info
+				List<int> types = new List<int>();
+				List<int> suits = new List<int>();
 				for (var i = 0; i < communityCardsIndexes.Length; i++)
 				{
-					_communityCards.Add(_deck.GetNextCard());
+					Card card = _deck.GetNextCard();
+					types.Add((int)card.Type);
+					suits.Add((int)card.Suit);
+					_communityCards.Add(card);
 				}
+
+				LobbySends.ShowTableCards(LobbyClient.Instance.Id, types.ToArray(), suits.ToArray(), communityCardsIndexes, ClientSentHandlers.SendTCPData);
 			}
 
 			foreach (var player in _players)
 			{
+				//CHECK: Player State At Start Of Round
+				LobbySends.PlayerStateAtStartOfRound(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.Money, _bettingLogic.Pot, ClientSentHandlers.SendTCPData);
+
 				var startRoundContext = new StartRoundContext(
 					gameRoundType,
 					_communityCards.AsReadOnly(),
@@ -284,7 +306,8 @@ namespace PokerLobby
 
 			if (_bettingLogic.Pot > previousBank)
 			{
-				//TODO: play sound and update bank
+				//CHECK: update bank
+				LobbySends.ShowBank(LobbyClient.Instance.Id, _bettingLogic.Pot, ClientSentHandlers.SendTCPData);
 			}
 
 			await Task.Delay(250);

@@ -7,8 +7,7 @@ using TexasHoldem.Logic.Players;
 
 namespace PokerLobby
 {
-	public class TexasHoldemGameLogic<TDECORATOR>
-		where TDECORATOR : PlayerDecorator, new()
+	public class TexasHoldemGameLogic
 	{
 		public static readonly int[] SmallBlinds =
 		{
@@ -17,7 +16,7 @@ namespace PokerLobby
 			10000, 15000, 20000, 30000, 40000, 50000, 60000, 80000, 100000,
 		};
 
-		private readonly ICollection<TDECORATOR> _players;
+		private readonly ICollection<RealPlayerDecorator> _players;
 
 		private int _initialMoney;
 
@@ -54,11 +53,12 @@ namespace PokerLobby
 				throw new ArgumentOutOfRangeException(nameof(initialMoney), "Initial money should be greater than 0 and less than 200000");
 			}
 
-			_players = new List<TDECORATOR>(players.Count);
-			foreach (var item in players)
+			_players = new List<RealPlayerDecorator>(players.Count);
+			for (int i = 0; i < players.Count; i++)
 			{
-				TDECORATOR player = new TDECORATOR();
-				player.SetPlayer(item);
+				RealPlayerDecorator player = new RealPlayerDecorator();
+				player.DrawGameBox((6 * i) + 3, 66, 1);
+				player.SetPlayer(players.ElementAt(i));
 				_players.Add(player);
 			}
 
@@ -103,11 +103,11 @@ namespace PokerLobby
 		{
 			var shifted = _players.ToList();
 
-			int shuffleNumber = new Random().Next(0, _players.Count - 1);
+			int shiftNumber = new Random().Next(0, _players.Count - 1);
 
-			for (int i = 0; i < shuffleNumber; i++)
+			for (int i = 0; i < shiftNumber; i++)
 			{
-				shifted = shifted.WithMoney().Cast<TDECORATOR>().ToList();
+				shifted = shifted.WithMoney().ToList();
 				shifted.Add(shifted.First());
 				shifted.RemoveAt(0);
 			}
@@ -122,12 +122,12 @@ namespace PokerLobby
 				//var smallBlind = SmallBlinds[0];
 
 				// Players are shifted in order of priority to make a move
-				shifted = shifted.WithMoney().Cast<TDECORATOR>().ToList();
+				shifted = shifted.WithMoney().ToList();
 				shifted.Add(shifted.First());
 				shifted.RemoveAt(0);
 
 				// Rotate players
-				DealerLogic<TDECORATOR> dealer = new DealerLogic<TDECORATOR>(shifted, HandsPlayed, smallBlind);
+				DealerLogic dealer = new DealerLogic(shifted, HandsPlayed, smallBlind);
 
 				await dealer.Play();
 
