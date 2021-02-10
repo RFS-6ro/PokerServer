@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Network;
 using PokerSynchronisation;
+using TexasHoldem.Logic.Players;
+using static PokerSynchronisation.GameServerSends;
 
 namespace PokerLobby
 {
@@ -13,17 +17,76 @@ namespace PokerLobby
 		public int Id = 0;
 		public TCPBase Tcp;
 
-		public string Name { get; private set; }
+
+		private static TexasHoldemGameLogic _game;
+
+		public static List<RealPlayer> Players = new List<RealPlayer>();
+		public static List<RealPlayerDecorator> Decorators = new List<RealPlayerDecorator>();
+
 
 		private bool isConnected = false;
 
-		public LoggerBase _logger => ConsoleLogger.Instance;
+		public string Name { get; private set; }
+		public LoggerBase Logger => ConsoleLogger.Instance;
+
 		private delegate void PacketHandler(Packet packet);
 		private static Dictionary<int, PacketHandler> _packetHandlers;
 
 		public void SetName(string name)
 		{
 			Name = name;
+		}
+
+		public bool TryConnectPlayer(int playerId, string name)
+		{
+			if (Players.Count < DefaultSyncValues.MaxPlayers)
+			{
+				Players.Add(new RealPlayer(name, playerId));
+
+				return true;
+			}
+
+			return false;
+		}
+
+		public void SetReadyState(int playerId, bool state)
+		{
+			RealPlayer player = Players.FirstOrDefault((x) => x.ServerId == playerId);
+			if (player != null)
+			{
+				player.IsReady = state;
+			}
+		}
+
+		public async Task PerformGameLoop()
+		{
+			AssignRealPlayersToInternalDecorators();
+
+			_game = new TexasHoldemGameLogic(Decorators.Cast<IPlayer>().ToList());
+			RealPlayerDecorator winner = (RealPlayerDecorator)await _game.Start();
+
+			//CHECK: Disconnect winner player from lobby
+			Players.RemoveAll((x) => x.ServerId == winner.ServerId);
+			//TODO: Send event to players about disconnecting from this server
+		}
+
+		private static void AssignRealPlayersToInternalDecorators()
+		{
+			for (int i = 0; i < Players.Count; i++)
+			{
+				RealPlayerDecorator decorator = new RealPlayerDecorator();
+#if DEBUG
+				decorator.DrawGameBox((6 * i) + 3, 66, 1);
+#endif
+				decorator.SetPlayer(Players[i]);
+				Decorators.Add(decorator);
+			}
+		}
+
+		public void DisconnectPlayer(int playerId)
+		{
+			Players.RemoveAll((x) => x.ServerId == playerId);
+			//TODO: Send event to players about disconnecting from this server
 		}
 
 		/// <summary>Attempts to connect to the server.</summary>
@@ -46,9 +109,13 @@ namespace PokerLobby
 		{
 			_packetHandlers = new Dictionary<int, PacketHandler>()
 			{
-				{ (int)ServerPacketsSend.ServerPacketsToClient.Welcome, ClientReceiveHandle.Welcome },
+				{ (int)GameServerToLobbyPackets.Welcome, ClientReceiveHandle.Welcome },
+				{ (int)GameServerToLobbyPackets.PlayerConnect, ClientReceiveHandle.PlayerConnect },
+				{ (int)GameServerToLobbyPackets.PlayerDisconnect, ClientReceiveHandle.PlayerDisconnect },
+				{ (int)GameServerToLobbyPackets.PlayerTurn, ClientReceiveHandle.PlayerTurn },
+				{ (int)GameServerToLobbyPackets.PlayerReadyStateChanged, ClientReceiveHandle.PlayerReadyStateChanged },
 			};
-			_logger.PrintSuccess("Initialized packets.");
+			Logger.PrintSuccess("Initialized packets.");
 		}
 
 		private void Disconnect()
@@ -58,7 +125,7 @@ namespace PokerLobby
 				isConnected = false;
 				Tcp?.Socket?.Close();
 
-				_logger.PrintWarning("Disconnected from server.");
+				Logger.PrintWarning("Disconnected from server.");
 			}
 		}
 

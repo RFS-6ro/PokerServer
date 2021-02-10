@@ -12,4 +12,7 @@
             <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\PokerSynchronisation.dll</HintPath>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\TexasHoldemEngine\src\TexasHoldem.Logic\TexasHoldem.Logic.csproj" />
+    </ItemGroup>
 </Project>

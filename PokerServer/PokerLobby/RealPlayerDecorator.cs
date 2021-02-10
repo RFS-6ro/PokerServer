@@ -5,7 +5,9 @@ using PokerSynchronisation;
 using TexasHoldem.Logic.Cards;
 using TexasHoldem.Logic.Extensions;
 using TexasHoldem.Logic.Players;
+#if DEBUG
 using TexasHoldem.UI.Console;
+#endif
 
 namespace PokerLobby
 {
@@ -116,6 +118,7 @@ namespace PokerLobby
 
 			PlayerMoney.NewHand();
 
+#if DEBUG
 			UpdateCommonRows(0, 0, new int[] { });
 			var dealerSymbol = context.FirstPlayerName == Player.Name ? "D" : " ";
 
@@ -123,18 +126,22 @@ namespace PokerLobby
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "                            ");
 
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, context.MoneyLeft.ToString());
+#endif
 			_firstCard = context.FirstCard.DeepClone();
 			_secondCard = context.SecondCard.DeepClone();
+#if DEBUG
 			DrawSingleCard(_row + 1, 10, _firstCard);
 			DrawSingleCard(_row + 1, 14, _secondCard);
+#endif
 
 			base.StartHand(context);
 		}
 
 		public override void StartRound(IStartRoundContext context)
 		{
-			PlayerMoney.NewRound();
+			PlayerMoney.NewRound(context.RoundType);
 			CommunityCards = context.CommunityCards;
+#if DEBUG
 			UpdateCommonRows(
 				context.CurrentPot,
 				context.CurrentMainPot.AmountOfMoney,
@@ -142,6 +149,7 @@ namespace PokerLobby
 
 			ConsoleHelper.WriteOnConsole(_row + 1, _width - 11, context.RoundType + "   ");
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
+#endif
 			base.StartRound(context);
 		}
 
@@ -153,37 +161,49 @@ namespace PokerLobby
 
 		public override PlayerAction PostingBlind(IPostingBlindContext context)
 		{
+#if DEBUG
 			UpdateCommonRows(context.CurrentPot, context.CurrentPot, new int[] { });
+#endif
 
 			var action = base.PostingBlind(context);
 
+#if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + action.Type + "(" + action.Money + ")");
+#endif
 
 			var moneyAfterAction = context.CurrentStackSize;
 
+#if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, moneyAfterAction + "   ");
+#endif
 
 			return action;
 		}
 
 		public override PlayerAction GetTurn(IGetTurnContext context)
 		{
+#if DEBUG
 			UpdateCommonRows(
 				context.CurrentPot,
 				context.MainPot.AmountOfMoney,
 				context.SidePots.Select(s => s.AmountOfMoney));
 
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, context.MoneyLeft + "   ");
+#endif
 
 			var action = base.GetTurn(context);
 
 			if (action.Type == TurnType.Fold)
 			{
+#if DEBUG
 				Muck(context.MoneyLeft);
+#endif
 			}
 
+#if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
+#endif
 
 			var lastAction = action.Type.ToString();
 
@@ -196,24 +216,31 @@ namespace PokerLobby
 				lastAction += $"({action.Money + context.MyMoneyInTheRound + context.MoneyToCall})";
 			}
 
+#if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + lastAction);
+#endif
 
 			var moneyAfterAction = action.Type == TurnType.Fold
 				? context.MoneyLeft
 				: context.MoneyLeft - action.Money - context.MoneyToCall;
 
+#if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, moneyAfterAction + "   ");
+#endif
 
 			return action;
 		}
 
 		private void Muck(int moneyLeft)
 		{
+#if DEBUG
 			DrawMuckedSingleCard(_row + 1, 10, _firstCard);
 			DrawMuckedSingleCard(_row + 1, 14, _secondCard);
+#endif
 		}
 
+#if DEBUG
 		private void UpdateCommonRows(int pot, int mainPot, IEnumerable<int> sidePots)
 		{
 			// Clear the first common row
@@ -306,5 +333,6 @@ namespace PokerLobby
 			default: throw new ArgumentException("card.Suit");
 			}
 		}
+#endif
 	}
 }

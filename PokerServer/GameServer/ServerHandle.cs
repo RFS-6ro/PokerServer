@@ -11,27 +11,15 @@ namespace GameServer
 			int clientIdCheck = packet.ReadInt();
 			string userName = packet.ReadString();
 
-			if (userName.Contains("LOBBY_NAME_"))
-			{
-				//TODO: connect input client as lobby
-				MainGameServer.Lobbies[clientIdCheck].Name = userName;
+			((PokerClient)IServer.Clients[clientIdCheck]).UserName = userName;
 
-				Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now player { fromClient } with name { userName }.");
-				if (fromClient != clientIdCheck)
-				{
-					Console.WriteLine($"Lobby \"{ userName }\" (ID: { fromClient }) has assumed the wrong ID ({ clientIdCheck })!");
-				}
-			}
-			else
+			Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now player { fromClient } with name { userName }.");
+			if (fromClient != clientIdCheck)
 			{
-				((PokerClient)IServer.Clients[clientIdCheck]).UserName = userName;
-
-				Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now player { fromClient } with name { userName }.");
-				if (fromClient != clientIdCheck)
-				{
-					Console.WriteLine($"Player \"{ userName }\" (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
-				}
+				Console.WriteLine($"Player \"{ userName }\" (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
 			}
+
+			//TODO: start async while loop, which is sending lobby list to all clients every 10 seconds 
 		}
 
 		public static void ChoseLobby(int fromClient, Packet packet)
@@ -72,6 +60,22 @@ namespace GameServer
 		}
 
 		public static void ExitLobby(int fromClient, Packet packet)
+		{
+			int clientIdCheck = packet.ReadInt();
+			string lobbyName = packet.ReadString();
+
+			Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } is connected successfully and leaving from lobby \"{ lobbyName }\".");
+
+			if (fromClient != clientIdCheck)
+			{
+				Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
+			}
+
+			MainGameServer.Instance.ExitLobby(clientIdCheck, lobbyName);
+			ServerSendHandlers.SendTCPData(fromClient, packet);
+		}
+
+		public static void AskLobbyList(int fromClient, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
 			string lobbyName = packet.ReadString();

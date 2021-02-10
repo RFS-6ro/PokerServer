@@ -46,6 +46,8 @@ namespace PokerLobby
 			// Start the hand and deal cards to each player
 			List<Card> dispence1 = new List<Card>();
 			List<Card> dispence2 = new List<Card>();
+			List<int> playerIds = new List<int>();
+
 			foreach (var player in _players)
 			{
 				Card card1 = _deck.GetNextCard();
@@ -60,6 +62,7 @@ namespace PokerLobby
 					_smallBlind,
 					_players[0].Name);
 				player.StartHand(startHandContext);
+				playerIds.Add(player.ServerId);
 			}
 
 
@@ -119,7 +122,14 @@ namespace PokerLobby
 
 			DetermineWinnerAndAddPot(_bettingLogic.Pot, _bettingLogic.MainPot, _bettingLogic.SidePots);
 
-			//TODO: send event to open cards
+#if !DEBUG
+			//CHECK: send event to open cards
+			LobbySends.ShowAllCards(LobbyClient.Instance.Id,
+									dispence1,
+									dispence2,
+									playerIds,
+									ClientSentHandlers.SendTCPData);
+#endif
 
 			await Task.Delay(2000);
 
@@ -135,11 +145,13 @@ namespace PokerLobby
 
 			for (int i = 0, j = 0; i < _players.Count; i++, j += 2)
 			{
+#if !DEBUG
 				LobbySends.GiveCard(LobbyClient.Instance.Id,
 									_players[i].ServerId,
-									type1: (int)cards[i].Type,
-									suit1: (int)cards[i].Suit,
+									type: (int)cards[i].Type,
+									suit: (int)cards[i].Suit,
 									ClientSentHandlers.SendTCPData);
+#endif
 
 				await Task.Delay(random.Next(30, 250));
 			}
@@ -261,10 +273,14 @@ namespace PokerLobby
 
 		private void GiveWin(RealPlayerDecorator player, int amount)
 		{
+#if !DEBUG
 			//CHECK: send win amount event
 			LobbySends.WinAmount(LobbyClient.Instance.Id, player.ServerId, amount, ClientSentHandlers.SendTCPData);
+#endif
 			player.PlayerMoney.Money += amount;
+#if !DEBUG
 			LobbySends.ShowMoneyLeft(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.Money, ClientSentHandlers.SendTCPData);
+#endif
 		}
 
 		private async Task PlayRound(GameRoundType gameRoundType, int[] communityCardsIndexes = null)
@@ -282,13 +298,17 @@ namespace PokerLobby
 					_communityCards.Add(card);
 				}
 
+#if !DEBUG
 				LobbySends.ShowTableCards(LobbyClient.Instance.Id, types.ToArray(), suits.ToArray(), communityCardsIndexes, ClientSentHandlers.SendTCPData);
+#endif
 			}
 
 			foreach (var player in _players)
 			{
+#if !DEBUG
 				//CHECK: Player State At Start Of Round
 				LobbySends.PlayerStateAtStartOfRound(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.Money, _bettingLogic.Pot, ClientSentHandlers.SendTCPData);
+#endif
 
 				var startRoundContext = new StartRoundContext(
 					gameRoundType,
@@ -306,8 +326,10 @@ namespace PokerLobby
 
 			if (_bettingLogic.Pot > previousBank)
 			{
+#if !DEBUG
 				//CHECK: update bank
 				LobbySends.ShowBank(LobbyClient.Instance.Id, _bettingLogic.Pot, ClientSentHandlers.SendTCPData);
+#endif
 			}
 
 			await Task.Delay(250);

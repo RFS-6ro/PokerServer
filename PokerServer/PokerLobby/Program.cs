@@ -5,40 +5,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using Network;
 using PokerSynchronisation;
-using TexasHoldem.AI.DummyPlayer;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
-using TexasHoldem.UI.Console;
 
 namespace PokerLobby
 {
 	class Program
 	{
-		private static TexasHoldemGameLogic _game;
-		private static List<IPlayer> _players;
-
-#if DEBUG
-		private const int GameWidth = 66;
-		private const int NumberOfCommonRows = 3; // place for community cards, pot, main pot, side pots
-#endif
-
-		public static List<IPlayer> Players = new List<IPlayer>();
-
 		public static int MinimumPlayersNumberToStart { get; private set; } = 5;
 
-		public static int ConnectedPlayers => Players.Count;//((x) => x.IsReady);
+		public static int ConnectedPlayers => LobbyClient.Players.Count((x) => x.IsReady);
 
 		public static async Task Main(string[] args)
 		{
-
 #if DEBUG
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-			Players.Add(new ConsolePlayer((6 * Players.Count) + NumberOfCommonRows));
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
-			Players.Add(new DummyPlayer());
+			LobbyClient.Players.Add(new RealPlayer("1", 1));
+			LobbyClient.Players.Add(new RealPlayer("2", 2));
+			LobbyClient.Players.Add(new RealPlayer("3", 3));
+			LobbyClient.Players.Add(new RealPlayer("4", 4));
+			LobbyClient.Players.Add(new RealPlayer("5", 5));
+			LobbyClient.Players.Add(new RealPlayer("6", 6));
 #else
 			string lobbyName;
 
@@ -51,9 +37,10 @@ namespace PokerLobby
 				lobbyName = DefaultSyncValues.LobbyName;
 			}
 
-			ConsoleLogger.Instance.PrintSuccess($"Starting Lobby with name { lobbyName }");
+			ConsoleLogger.Instance.Print($"Starting Lobby with name { lobbyName }");
 
 			LobbyClient.Instance.SetName(lobbyName);
+
 			LobbyClient.Instance.ConnectToServer();
 #endif
 
@@ -62,15 +49,12 @@ namespace PokerLobby
 			//System.Diagnostics.Process.Start("open", "-n -a Terminal");
 			if (ConnectedPlayers >= MinimumPlayersNumberToStart)
 			{
-				_players = AssignRealPlayersToInternalDecorators();
-
 #if !DEBUG
 				ConsoleLogger.Instance.Print("Starting Game Loop");
 #endif
+				//TODO: Initialize Game logic with small bling, buy in etc
 				// Starting Game with current players
-				_game = new TexasHoldemGameLogic(_players);
-				await _game.Start();
-				//TODO: Disconnect winner player from lobby 
+				await LobbyClient.Instance.PerformGameLoop();
 			}
 		}
 
@@ -84,7 +68,8 @@ namespace PokerLobby
 			{
 				try
 				{
-					while (ConnectedPlayers < MinimumPlayersNumberToStart || ConnectedPlayers != Players.Count)
+					while (ConnectedPlayers < MinimumPlayersNumberToStart ||
+						   ConnectedPlayers != LobbyClient.Players.Count)
 					{
 						if (previousNumber != ConnectedPlayers)
 						{
@@ -94,9 +79,6 @@ namespace PokerLobby
 
 						await Task.Delay(500);
 						waitingTime += 500;
-#if !DEBUG
-						ConsoleLogger.Instance.Print(waitingTime.ToString());
-#endif
 
 						if (waitingTime > DefaultSyncValues.LobbyWaitingLimit)
 						{
@@ -134,9 +116,6 @@ namespace PokerLobby
 						}
 
 						await Task.Delay(100);
-#if !DEBUG
-						ConsoleLogger.Instance.Print(i.ToString());
-#endif
 					}
 				}
 				catch (Exception ex)
@@ -145,26 +124,6 @@ namespace PokerLobby
 					Console.ReadKey();
 				}
 			}
-		}
-
-		private static List<IPlayer> AssignRealPlayersToInternalDecorators()
-		{
-			List<IPlayer> players = new List<IPlayer>();
-			//TODO: Add players to Holdem
-
-			for (int i = 0; i < Players.Count; i++)
-			{
-				RealPlayerDecorator decorator = new RealPlayerDecorator();
-#if DEBUG
-				decorator.DrawGameBox((6 * i) + NumberOfCommonRows, GameWidth, 1);
-				//				ConsoleUiDecorator decorator = new ConsoleUiDecorator();
-				//#else
-#endif
-				decorator.SetPlayer(Players[i]);
-				players.Add(decorator);
-			}
-
-			return players;
 		}
 	}
 }

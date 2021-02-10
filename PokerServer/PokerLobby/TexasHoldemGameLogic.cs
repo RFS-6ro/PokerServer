@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using PokerSynchronisation;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
 
@@ -43,9 +45,9 @@ namespace PokerLobby
 				throw new ArgumentNullException(nameof(players));
 			}
 
-			if (players.Count < 2 || players.Count > 7)
+			if (players.Count < 2 || players.Count > DefaultSyncValues.MaxPlayers)
 			{
-				throw new ArgumentOutOfRangeException(nameof(players), "The number of players must be from 2 to 7");
+				throw new ArgumentOutOfRangeException(nameof(players), $"The number of players must be from 2 to {DefaultSyncValues.MaxPlayers}");
 			}
 
 			if (initialMoney <= 0 || initialMoney > 200000)
@@ -57,7 +59,9 @@ namespace PokerLobby
 			for (int i = 0; i < players.Count; i++)
 			{
 				RealPlayerDecorator player = new RealPlayerDecorator();
+#if DEBUG
 				player.DrawGameBox((6 * i) + 3, 66, 1);
+#endif
 				player.SetPlayer(players.ElementAt(i));
 				_players.Add(player);
 			}

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using Network;
+using PokerSynchronisation;
 
 namespace GameServer
 {
@@ -10,11 +12,23 @@ namespace GameServer
 		public TCPBase Tcp { get; set; }
 		public string Name { get; set; }
 
+		public List<int> RegisteredPlayers = new List<int>(DefaultSyncValues.MaxPlayers);
+
 		public LobbyClient(int id)
 		{
 			Id = id;
 
 			Tcp = new TCP(Id);
+		}
+
+		public void AddConnection(int newPlayerId)
+		{
+			RegisteredPlayers.Add(newPlayerId);
+		}
+
+		public void RemoveConnection(int playerId)
+		{
+			RegisteredPlayers.Remove(playerId);
 		}
 
 		public void Disconnect()
