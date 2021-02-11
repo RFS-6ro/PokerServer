@@ -1,0 +1,107 @@
+﻿using System;
+using System.Linq;
+using Network;
+using PokerSynchronisation;
+
+namespace PokerLobby
+{
+	public static class LobbyReceiveHandle
+	{
+		public enum LobbyReceiveTypes
+		{
+			LobbyConnectionWelcome = 1,
+
+			PlayerConnection = 2,
+			PlayerReadyStateChanged = 3,
+			PlayerDisconnection = 4,
+
+			PlayersTurn = 5,
+		}
+
+		public static void LobbyConnectionWelcome(Packet packet)
+		{
+			int lobbyId = packet.ReadInt();
+			string message = packet.ReadString();
+
+			LobbyClient.Instance.Id = lobbyId;
+			ConsoleLogger.Instance.Print($"Message from server: {message}");
+			LobbySendHandle.WelcomeReceived(lobbyId, "Lobby success launch");
+		}
+
+		public static void PlayerConnect(Packet packet)
+		{
+			int lobbyId = packet.ReadInt();
+
+			//Check LobbyId
+			if (lobbyId != LobbyClient.Instance.Id)
+			{
+				return;
+			}
+
+			int playerId = packet.ReadInt();
+			string name = packet.ReadString();
+
+			if (LobbyClient.Instance.TryConnectPlayer(playerId, name))
+			{
+				LobbySendHandle.ConnectionToLobbyApprovance(lobbyId, playerId);
+			}
+			else
+			{
+				LobbySends.ConnectionToLobbyApprovance(lobbyId, playerId, "Lobby is not avaliable", ClientSentHandlers.SendTCPData);
+			}
+		}
+
+		public static void PlayerReadyStateChanged(Packet packet)
+		{
+			int lobbyId = packet.ReadInt();
+
+			//Check LobbyId
+			if (lobbyId != LobbyClient.Instance.Id)
+			{
+				return;
+			}
+
+			int playerId = packet.ReadInt();
+			bool isReady = packet.ReadBool();
+
+			LobbyClient.Instance.SetReadyState(playerId, isReady);
+		}
+
+		public static void PlayerDisconnect(Packet packet)
+		{
+			int lobbyId = packet.ReadInt();
+
+			//Check LobbyId
+			if (lobbyId != LobbyClient.Instance.Id)
+			{
+				return;
+			}
+
+			int playerId = packet.ReadInt();
+
+			LobbyClient.Instance.DisconnectPlayer(playerId);
+		}
+
+		public static void PlayerTurn(Packet packet)
+		{
+			int lobbyId = packet.ReadInt();
+
+			//Check LobbyId
+			if (lobbyId != LobbyClient.Instance.Id)
+			{
+				return;
+			}
+
+			int playerId = packet.ReadInt();
+			TurnType turn = (TurnType)packet.ReadInt();
+			int raiseAmount = packet.ReadInt();
+
+			RealPlayer turningPlayer = LobbyClient.Players.FirstOrDefault((x) => x.ServerId == playerId);
+
+			if (turningPlayer != null)
+			{
+				//TODO: Send turn event to player;	
+			}
+		}
+	}
+}

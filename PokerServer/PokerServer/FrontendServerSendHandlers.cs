@@ -1,8 +1,8 @@
 ﻿using Network;
 
-namespace GameServer
+namespace FrontendServer
 {
-	public static class ServerSendHandlers
+	public static class FrontendServerSendHandlers
 	{
 		/// <summary>Sends a packet to a client via TCP.</summary>
 		/// <param name="toClient">The client to send the packet the packet to.</param>

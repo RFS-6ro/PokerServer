@@ -24,6 +24,7 @@ namespace GameServer
 		public void AddConnection(int newPlayerId)
 		{
 			RegisteredPlayers.Add(newPlayerId);
+			//TODO: send connection event to everyone except connected player
 		}
 
 		public void RemoveConnection(int playerId)
@@ -62,7 +63,7 @@ namespace GameServer
 
 
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
-				PokerSynchronisation.ServerPacketsSend.Welcome(_id, "Welcome to the master game server", ServerSendHandlers.SendTCPData);
+				ServerPacketsSend.Welcome(_id, "Welcome to the master game server", MainGameServerSendHandlers.SendTCPData);
 			}
 
 			public override void Disconnect()

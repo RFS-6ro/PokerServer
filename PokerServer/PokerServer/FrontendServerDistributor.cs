@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Network;
-using static PokerSynchronisation.ClientPacketsSend;
+using static FrontendServer.FrontendServerReceiveHandle;
 
 namespace FrontendServer
 {
@@ -41,7 +41,7 @@ namespace FrontendServer
 
 			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()
 			{
-				{ (int)ClientPacketsToServer.WelcomeReceived, ServerHandle.WelcomeReceived },
+				{ (int)FrontendServerReceivedPacketsType.WelcomeReceived, FrontendServerReceiveHandle.WelcomeReceived },
 			};
 			Console.WriteLine("Initialized packets.");
 		}

@@ -3,8 +3,13 @@ using Network;
 
 namespace FrontendServer
 {
-	public static class ServerHandle
+	public static class FrontendServerReceiveHandle
 	{
+		public enum FrontendServerReceivedPacketsType
+		{
+			WelcomeReceived = 1,
+		}
+
 		public static void WelcomeReceived(int fromClient, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
@@ -16,7 +21,7 @@ namespace FrontendServer
 				Console.WriteLine($"Player \"{username}\" (ID: {fromClient}) has assumed the wrong client ID ({clientIdCheck})!");
 			}
 
-			PokerSynchronisation.ServerPacketsSend.ConnectToOtherServer(fromClient, ServerPoolHandler.GetClosestServer(fromClient), ServerSendHandlers.SendTCPData);
+			FrontendServerSendsHandle.ConnectToOtherServer(fromClient, ServerPoolHandler.GetClosestServer(fromClient));
 			Console.WriteLine($"Player \"{username}\" (ID: {fromClient}) is disconnecting from Frontend server");
 			GC.SuppressFinalize(IServer.Clients[fromClient]);
 			IServer.Clients[fromClient] = new FrontendClient(fromClient);

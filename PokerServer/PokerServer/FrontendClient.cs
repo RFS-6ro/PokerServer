@@ -51,7 +51,7 @@ namespace FrontendServer
 
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
 
-				PokerSynchronisation.ServerPacketsSend.Welcome(_id, "Welcome to the club, buddy", ServerSendHandlers.SendTCPData);
+				PokerSynchronisation.ServerPacketsSend.Welcome(_id, "Welcome to the club, buddy", FrontendServerSendHandlers.SendTCPData);
 			}
 
 			public override void Disconnect()

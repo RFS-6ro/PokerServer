@@ -1,0 +1,244 @@
+﻿using System;
+using System.Collections.Generic;
+using Network;
+using PokerSynchronisation;
+using TexasHoldem.Logic.Cards;
+
+namespace GameServer
+{
+	public static class MainGameServerSendsToPlayerHandle
+	{
+		public enum MainGameServerSendsToPlayerTypes
+		{
+			WelcomeToPlayer = 1,
+			LobbyList,
+			ConnectionToLobbyApprovance,
+
+			#region Game Loop
+			DealerPosition,
+			GiveCard,
+			ShowTableCards,
+			StartTurn,
+			TimerEvent,
+			TurnApprovance,
+			ShowPlayerBet,
+			ShowPlayerMoney,
+			EndTurn,
+			CollectAllBets,
+			ShowBank,
+			ShowAllCards,
+			WinAmount,
+			#endregion
+		}
+
+		public static void WelcomeToPlayer(int playerId, string welcomeMessage)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.WelcomeToPlayer))
+			{
+				packet.Write(playerId);
+				packet.Write(welcomeMessage);
+
+				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+			}
+		}
+
+		public static void SendLobbyList(int playerId, List<LobbyIdentifierData> lobbies)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.LobbyList))
+			{
+				packet.Write(playerId);
+				packet.Write(lobbies.Count);
+
+				foreach (var lobby in lobbies)
+				{
+					packet.Write(lobby.Name);
+					packet.Write(lobby.ID);
+					packet.Write(lobby.NumberOfPlayers);
+					packet.Write(lobby.SmallBlind);
+					packet.Write(lobby.BuyIn);
+				}
+
+				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+			}
+		}
+
+		public static void ConnectionToLobbyApprovance(int playerId, bool result, string message)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance))
+			{
+				packet.Write(playerId);
+				packet.Write(result);
+				packet.Write(message);
+
+				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+			}
+		}
+
+		public static void DealerPosition(int dealerId)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.DealerPosition))
+			{
+				packet.Write(dealerId);
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void GiveCard(int playerId, int type, int suit, Action<int, Packet> sendHandler)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.GiveCard))
+			{
+				packet.Write(playerId);
+				packet.Write(type);
+				packet.Write(suit);
+
+				sendHandler(playerId, packet);
+			}
+		}
+
+		public static void ShowTableCards(int[] types, int[] suits, int[] indexes)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowTableCards))
+			{
+				packet.Write(types.Length);
+				for (int i = 0; i < types.Length; i++)
+				{
+					int type = types[i];
+					int suit = suits[i];
+					int index = indexes[i];
+
+					packet.Write(type);
+					packet.Write(suit);
+					packet.Write(index);
+				}
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void StartTurn(int playerId, bool canRaise)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.StartTurn))
+			{
+				packet.Write(playerId);
+				MainGameServerSendHandlers.SendTCPDataToAll(playerId, packet);
+
+				packet.Write(canRaise);
+				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+			}
+		}
+
+		public static void TimerEvent(int playerId, bool isDecreasing, int timeLeft)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.TimerEvent))
+			{
+				packet.Write(playerId);
+				packet.Write(isDecreasing);
+				packet.Write(timeLeft);
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void TurnApprovance(int playerId, bool result)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.TurnApprovance))
+			{
+				packet.Write(playerId);
+				packet.Write(result);
+
+				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+			}
+		}
+
+		public static void ShowPlayerBet(int playerId, int amount)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowPlayerBet))
+			{
+				packet.Write(playerId);
+				packet.Write(amount);
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void ShowPlayersMoney(int[] playersIds, int[] amounts)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowPlayerMoney))
+			{
+				packet.Write(playersIds.Length);
+
+				for (int i = 0; i < playersIds.Length; i++)
+				{
+					packet.Write(playersIds[i]);
+					packet.Write(amounts[i]);
+				}
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void EndTurn(int playerId)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.EndTurn))
+			{
+				packet.Write(playerId);
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void CollectAllBets()
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.CollectAllBets))
+			{
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void ShowBank(int bank)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowBank))
+			{
+				packet.Write(bank);
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+
+		public static void ShowAllCards(int[] firstCardsTypes, int[] firstCardsSuits, int[] secondCardsTypes, int[] secondCardsSuits, List<int> playersOrderIds)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowAllCards))
+			{
+				if (firstCardsTypes.Length == firstCardsSuits.Length &&
+					firstCardsSuits.Length == secondCardsTypes.Length &&
+					secondCardsTypes.Length == secondCardsSuits.Length)
+				{
+					packet.Write(firstCardsTypes.Length);
+
+					for (int i = 0; i < playersOrderIds.Count; i++)
+					{
+						packet.Write(playersOrderIds[i]);
+						packet.Write(firstCardsTypes[i]);
+						packet.Write(firstCardsSuits[i]);
+						packet.Write(secondCardsTypes[i]);
+						packet.Write(secondCardsSuits[i]);
+					}
+
+					MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				}
+			}
+		}
+
+		public static void WinAmount(int playerId, int amount)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.WinAmount))
+			{
+				packet.Write(playerId);
+				packet.Write(amount);
+
+				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+			}
+		}
+	}
+}

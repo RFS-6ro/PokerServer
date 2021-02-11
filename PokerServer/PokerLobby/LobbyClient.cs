@@ -41,6 +41,7 @@ namespace PokerLobby
 		{
 			if (Players.Count < DefaultSyncValues.MaxPlayers)
 			{
+				//TODO: register player in lobby
 				Players.Add(new RealPlayer(name, playerId));
 
 				return true;
@@ -86,7 +87,7 @@ namespace PokerLobby
 		public void DisconnectPlayer(int playerId)
 		{
 			Players.RemoveAll((x) => x.ServerId == playerId);
-			//TODO: Send event to players about disconnecting from this server
+			//TODO: Send event to players and game loop about disconnecting from this server
 		}
 
 		/// <summary>Attempts to connect to the server.</summary>
@@ -109,11 +110,11 @@ namespace PokerLobby
 		{
 			_packetHandlers = new Dictionary<int, PacketHandler>()
 			{
-				{ (int)GameServerToLobbyPackets.Welcome, ClientReceiveHandle.Welcome },
-				{ (int)GameServerToLobbyPackets.PlayerConnect, ClientReceiveHandle.PlayerConnect },
-				{ (int)GameServerToLobbyPackets.PlayerDisconnect, ClientReceiveHandle.PlayerDisconnect },
-				{ (int)GameServerToLobbyPackets.PlayerTurn, ClientReceiveHandle.PlayerTurn },
-				{ (int)GameServerToLobbyPackets.PlayerReadyStateChanged, ClientReceiveHandle.PlayerReadyStateChanged },
+				{ (int)GameServerToLobbyPackets.Welcome, LobbyReceiveHandle.Welcome },
+				{ (int)GameServerToLobbyPackets.PlayerConnect, LobbyReceiveHandle.PlayerConnect },
+				{ (int)GameServerToLobbyPackets.PlayerDisconnect, LobbyReceiveHandle.PlayerDisconnect },
+				{ (int)GameServerToLobbyPackets.PlayerTurn, LobbyReceiveHandle.PlayerTurn },
+				{ (int)GameServerToLobbyPackets.PlayerReadyStateChanged, LobbyReceiveHandle.PlayerReadyStateChanged },
 			};
 			Logger.PrintSuccess("Initialized packets.");
 		}

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Network;
 using PokerSynchronisation;
 
 namespace GameServer
 {
-	public class ServerHandle
+	public static class MainGameServerReceivedFromPlayerHandle
 	{
 		public static void WelcomeReceived(int fromClient, Packet packet)
 		{
@@ -48,15 +50,17 @@ namespace GameServer
 			if (fromClient != playerId)
 			{
 				Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ playerId })!");
-				ServerPacketsSend.Approvance(playerId, false, ServerSendHandlers.SendTCPData);
+				ServerPacketsSend.Approvance(playerId, false, MainGameServerSendHandlers.SendTCPData);
 				return;
 			}
 
 			bool turnAvaliability = false;
 
-			//TODO: Check turn avaliability
+			//TODO: Send turn to lobby and check turn avaliability
 
-			ServerPacketsSend.Approvance(playerId, turnAvaliability, ServerSendHandlers.SendTCPData);
+
+			ServerPacketsSend.Approvance(playerId, turnAvaliability, MainGameServerSendHandlers.SendTCPData);
+			ServerPacketsSend.SendTurnToLobby(playerId, turnAvaliability, MainGameServerSendHandlers.SendTCPData);
 		}
 
 		public static void ExitLobby(int fromClient, Packet packet)
@@ -72,23 +76,34 @@ namespace GameServer
 			}
 
 			MainGameServer.Instance.ExitLobby(clientIdCheck, lobbyName);
-			ServerSendHandlers.SendTCPData(fromClient, packet);
+			MainGameServerSendHandlers.SendTCPData(fromClient, packet);
 		}
 
 		public static void AskLobbyList(int fromClient, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
-			string lobbyName = packet.ReadString();
-
-			Console.WriteLine($"{ IServer.Clients[fromClient].Tcp.Socket.Client.RemoteEndPoint } is connected successfully and leaving from lobby \"{ lobbyName }\".");
 
 			if (fromClient != clientIdCheck)
 			{
 				Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
 			}
 
-			MainGameServer.Instance.ExitLobby(clientIdCheck, lobbyName);
-			ServerSendHandlers.SendTCPData(fromClient, packet);
+			List<LobbyIdentifierData> lobbies = MainGameServer.Lobbies
+			.Where((x) => x.Value.IsAssigned)
+			.Select((x) =>
+			{
+				LobbyIdentifierData data = new LobbyIdentifierData();
+				LobbyNetworkBunch lobby = x.Value;
+
+				data.ID = lobby.ID;
+				data.Name = lobby.Name;
+				data.BuyIn = lobby.BuyIn;
+				data.SmallBlind = lobby.SmallBlind;
+				data.NumberOfPlayers = lobby.Client.RegisteredPlayers.Count;
+
+				return data;
+			}).ToList();
+			//TODO: Send data
 		}
 	}
 }
