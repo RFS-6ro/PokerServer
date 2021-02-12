@@ -7,7 +7,7 @@ namespace FrontendServer
 	{
 		public enum FrontendServerReceivedPacketsType
 		{
-			WelcomeReceived = 1,
+			WelcomeReceived = 101,
 		}
 
 		public static void WelcomeReceived(int fromClient, Packet packet)

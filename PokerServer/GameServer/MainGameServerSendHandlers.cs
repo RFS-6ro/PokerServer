@@ -1,4 +1,5 @@
-﻿using Network;
+﻿using System.Collections.Generic;
+using Network;
 
 namespace GameServer
 {
@@ -11,6 +12,18 @@ namespace GameServer
 		{
 			packet.WriteLength();
 			IServer.Clients[toClient].Tcp.SendData(packet);
+		}
+
+		/// <summary>Sends a packet to a client via TCP.</summary>
+		/// <param name="toClient">The client to send the packet the packet to.</param>
+		/// <param name="packet">The packet to send to the client.</param>
+		public static void SendTCPData(IEnumerable<int> clients, Packet packet)
+		{
+			packet.WriteLength();
+			foreach (var id in clients)
+			{
+				IServer.Clients[id].Tcp.SendData(packet);
+			}
 		}
 
 		/// <summary>Sends a packet to a client via UDP.</summary>

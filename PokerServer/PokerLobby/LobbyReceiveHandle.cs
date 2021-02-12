@@ -47,7 +47,7 @@ namespace PokerLobby
 			}
 			else
 			{
-				LobbySends.ConnectionToLobbyApprovance(lobbyId, playerId, "Lobby is not avaliable", ClientSentHandlers.SendTCPData);
+				LobbySendHandle.ConnectionToLobbyApprovance(lobbyId, playerId, "Lobby is not avaliable");
 			}
 		}
 
@@ -100,7 +100,8 @@ namespace PokerLobby
 
 			if (turningPlayer != null)
 			{
-				//TODO: Send turn event to player;	
+				//CHECK: Send turn event to player;
+				turningPlayer.ApplyExternalInput(turn, raiseAmount);
 			}
 		}
 	}

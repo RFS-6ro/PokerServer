@@ -4,8 +4,8 @@ using System.Net;
 using System.Net.Sockets;
 using Network;
 using PokerSynchronisation;
-using static PokerSynchronisation.ClientPacketsSend;
-using static PokerSynchronisation.LobbySends;
+using static GameServer.MainGameServerReceivedFromLobbyHandle;
+using static GameServer.MainGameServerReceivedFromPlayerHandle;
 
 namespace GameServer
 {
@@ -17,6 +17,7 @@ namespace GameServer
 		public LoggerBase _logger => ConsoleLogger.Instance;
 
 		public static Dictionary<int, LobbyNetworkBunch> Lobbies = new Dictionary<int, LobbyNetworkBunch>();
+		public static Dictionary<int, IServer.PacketHandler> LobbyPacketsHandlers;
 
 		public void Start(int maxPlayers, int port)
 		{
@@ -35,73 +36,74 @@ namespace GameServer
 
 			Console.WriteLine($"Server started on port {IServer.Port}.");
 
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_2", 6, 3, 600));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_3", 7, 4, 700));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_4", 5, 2, 500));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_5", 6, 3, 600));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_6", 7, 4, 700));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_7", 5, 2, 500));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_8", 6, 3, 600));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_9", 7, 4, 700));
-			//LobbyPoolhandler.Instance.CreateNewLobby(new LobbyIdentifierData("LOBBY_10", 5, 5, 500));
+			LobbyIdentifierData lobbyIdentifier = new LobbyIdentifierData();
+			lobbyIdentifier.Name = "First test lobby";
+			lobbyIdentifier.BuyIn = 300;
+			lobbyIdentifier.SmallBlind = 2;
+			LobbyProcessData lobby = LobbyPoolhandler.Instance.CreateNewLobby(lobbyIdentifier);
 		}
 
-		public void ConnectToLobby(int id, string lobbyName)
+		public void ConnectToLobby(int playerId, string playerName, int lobbyId)
 		{
-			bool result;
-
-			try
+			//CHECK: Check connect player by id to lobby
+			MainGameServerSendsToLobbyHandle.PlayerConnect(lobbyId, playerId, playerName);
+			ConsoleLogger.Instance.PrintColored($"Player \"{playerName}\", ID({playerId}) is trying to connect to lobby (id: {lobbyId})", ConsoleColor.Blue, ConsoleColor.DarkYellow);
 			{
-				LobbyProcessData lobbyProcessData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
+				//bool result;
 
-				result = false;
+				//try
+				//{
+				//LobbyNetworkBunch lobbyProcessData = Lobbies[lobbyId];
 
-				//TODO: Check connect player by id to lobby
+				//result = false;
 
-				if (result)
-				{
-					((PokerClient)IServer.Clients[id]).LobbyName = lobbyProcessData.LobbyIdentifierData.Name;
+				//if (result)
+				//{
+				//	((PokerClient)IServer.Clients[playerId]).LobbyName = lobbyProcessData.LobbyIdentifierData.Name;
 
-					//Send message about success/error of connection lobby
-					ServerPacketsSend.ConnectionToLobbyApprovance(id, lobbyProcessData.LobbyIdentifierData, MainGameServerSendHandlers.SendTCPData);
-					//Send connect message for everyone except id
-					ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, 0, true, MainGameServerSendHandlers.SendTCPDataToAll);
-					List<LobbySeatData> seatDatas = new List<LobbySeatData>();
-					//TODO: Fill lobby seats data
-					//Send all lobby info to connected player
-					ServerPacketsSend.SendLobbyData(id, seatDatas, MainGameServerSendHandlers.SendTCPData);
-				}
-				else
-				{
-					//Send message about success/error of connection lobby
-					ServerPacketsSend.ConnectionToLobbyApprovance(id, "You couldn't connect to this lobby", MainGameServerSendHandlers.SendTCPData);
-				}
+				//	//Send message about success/error of connection lobby
+				//	ServerPacketsSend.ConnectionToLobbyApprovance(playerId, lobbyProcessData.LobbyIdentifierData, MainGameServerSendHandlers.SendTCPData);
+				//	//Send connect message for everyone except id
+				//	ServerPacketsSend.SendPlayerActionToLobbyPlayers(playerId, ((PokerClient)IServer.Clients[playerId]).UserName, 0, true, MainGameServerSendHandlers.SendTCPDataToAll);
+				//	List<LobbySeatData> seatDatas = new List<LobbySeatData>();
+				//	//T0D0: Fill lobby seats data
+				//	//Send all lobby info to connected player
+				//	ServerPacketsSend.SendLobbyData(playerId, seatDatas, MainGameServerSendHandlers.SendTCPData);
+				//}
+				//else
+				//{
+				//	//Send message about success/error of connection lobby
+				//	ServerPacketsSend.ConnectionToLobbyApprovance(playerId, "You couldn't connect to this lobby", MainGameServerSendHandlers.SendTCPData);
+				//}
+				//}
+				//catch (Exception ex)
+				//{
+				//	result = false;
+				//	_logger.PrintError($"Player by ID: {playerId} invoked error with connecting to lobby.");
+				//	_logger.PrintError(ex.ToString());
+				//	//Send message about success/error of connection lobby
+				//	ServerPacketsSend.ConnectionToLobbyApprovance(playerId, "Some errors were occured with connecting", MainGameServerSendHandlers.SendTCPData);
+				//}
 			}
-			catch (Exception ex)
-			{
-				result = false;
-				_logger.PrintError($"Player by ID: {id} invoked error with connecting to lobby.");
-				_logger.PrintError(ex.ToString());
-				//Send message about success/error of connection lobby
-				ServerPacketsSend.ConnectionToLobbyApprovance(id, "Some errors were occured with connecting", MainGameServerSendHandlers.SendTCPData);
-			}
-
-			ConsoleLogger.Instance.PrintColored(result.ToString(), ConsoleColor.Blue, ConsoleColor.DarkYellow);
 		}
 
-		public void ExitLobby(int id, string lobbyName)
+		public void ExitLobby(int playerId, int lobbyId)
 		{
-			try
+			//CHECK: Disconnect player by id from lobby
+			MainGameServerSendsToLobbyHandle.PlayerDisconnect(lobbyId, playerId);
+			Lobbies[lobbyId].Client.RemoveConnection(playerId);
 			{
-				LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
-				//Send disconnect message for everyone except id
-				ServerPacketsSend.SendPlayerActionToLobbyPlayers(id, ((PokerClient)IServer.Clients[id]).UserName, 0, false, MainGameServerSendHandlers.SendTCPDataToAll);
-			}
-			catch { }
+				//try
+				//{
+				//	LobbyProcessData lobbyData = LobbyPoolhandler.Instance.GetLobbyByName(lobbyName);
+				//	//Send disconnect message for everyone except id
+				//	ServerPacketsSend.SendPlayerActionToLobbyPlayers(playerId, ((PokerClient)IServer.Clients[playerId]).UserName, 0, false, MainGameServerSendHandlers.SendTCPDataToAll);
+				//}
+				//catch { }
 
-			((PokerClient)IServer.Clients[id]).LobbyName = null;
-			//TODO: Disconnect player by id from lobby
-			//GameServerSends.PlayerDisconnect()
+				//((PokerClient)IServer.Clients[playerId]).LobbyName = null;
+				//GameServerSends.PlayerDisconnect()
+			}
 		}
 
 		public void InitializeServerData()
@@ -111,7 +113,7 @@ namespace GameServer
 				IServer.Clients.Add(i, new PokerClient(i));
 			}
 
-			for (int i = 1; i <= IServer.MaxPlayers / 3; i++)
+			for (int i = 1; i <= 1; i++)//IServer.MaxPlayers / 3; i++)
 			{
 				LobbyNetworkBunch bunch = new LobbyNetworkBunch(i, new LobbyClient(i));
 				bunch.ResetLobby();
@@ -121,30 +123,31 @@ namespace GameServer
 
 			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()
 			{
-				#region Client
-				{ (int)ClientPacketsToServer.WelcomeReceived,   MainGameServerReceivedFromPlayerHandle.WelcomeReceived },
-				{ (int)ClientPacketsToServer.MakeTurn,          MainGameServerReceivedFromPlayerHandle.TurnReceive },
-				{ (int)ClientPacketsToServer.ExitLobby,         MainGameServerReceivedFromPlayerHandle.ExitLobby },
-				{ (int)ClientPacketsToServer.ConnectToLobby,    MainGameServerReceivedFromPlayerHandle.ChoseLobby },
-				{ (int)ClientPacketsToServer.AskLobbiesList,    MainGameServerReceivedFromPlayerHandle.AskLobbyList },
-				#endregion
-				#region Lobby
-				{ (int)LobbyPacketsToGameServer.WelcomeReceived,                MainGameServerReceivedFromLobbyHandle.WelcomeReceived              },
-				{ (int)LobbyPacketsToGameServer.TimerEvent,                     MainGameServerReceivedFromLobbyHandle.TimerEvent                   },
-				{ (int)LobbyPacketsToGameServer.TurnApprovance,                 MainGameServerReceivedFromLobbyHandle.TurnApprovance               },
-				{ (int)LobbyPacketsToGameServer.StartTurn,                      MainGameServerReceivedFromLobbyHandle.StartTurn                    },
-				{ (int)LobbyPacketsToGameServer.ShowBank,                       MainGameServerReceivedFromLobbyHandle.ShowBank                     },
-				{ (int)LobbyPacketsToGameServer.ConnectionToLobbyApprovance,    MainGameServerReceivedFromLobbyHandle.ConnectionToLobbyApprovance  },
-				{ (int)LobbyPacketsToGameServer.ShowMoneyLeft,                  MainGameServerReceivedFromLobbyHandle.ShowPlayerMoney              },
-				{ (int)LobbyPacketsToGameServer.Dealer,                         MainGameServerReceivedFromLobbyHandle.Dealer                       },
-				{ (int)LobbyPacketsToGameServer.GiveCard,                       MainGameServerReceivedFromLobbyHandle.GiveCard                     },
-				{ (int)LobbyPacketsToGameServer.ShowTableCard,                  MainGameServerReceivedFromLobbyHandle.ShowTableCard                },
-				{ (int)LobbyPacketsToGameServer.WinAmount,                      MainGameServerReceivedFromLobbyHandle.WinAmount                    },
-				{ (int)LobbyPacketsToGameServer.ShowPlayerBet,                  MainGameServerReceivedFromLobbyHandle.ShowPlayerBet                },
-				{ (int)LobbyPacketsToGameServer.EndTurn,                        MainGameServerReceivedFromLobbyHandle.EndTurn                      },
-				{ (int)LobbyPacketsToGameServer.CollectAllBets,                 MainGameServerReceivedFromLobbyHandle.CollectAllBets               },
-				{ (int)LobbyPacketsToGameServer.ShowAllCards,                   MainGameServerReceivedFromLobbyHandle.ShowAllCards                 },
-				#endregion
+				{ (int)MainGameServerReceivedFromPlayerType.WelcomeReceived,            MainGameServerReceivedFromPlayerHandle.WelcomeReceived      },
+				{ (int)MainGameServerReceivedFromPlayerType.PlayerConnection,           PlayerConnection                                            },
+				{ (int)MainGameServerReceivedFromPlayerType.PlayerReadyStateChanged,    PlayerReadyStateChanged                                     },
+				{ (int)MainGameServerReceivedFromPlayerType.PlayerDisconnection,        PlayerDisconnection                                         },
+				{ (int)MainGameServerReceivedFromPlayerType.PlayersTurn,                TurnReceive                                                 },
+				{ (int)MainGameServerReceivedFromPlayerType.AskLobbyList,               AskLobbyList                                                },
+			};
+
+			LobbyPacketsHandlers = new Dictionary<int, IServer.PacketHandler>()
+			{
+				{ (int)MainGameServerReceivedFromLobbyTypes.WelcomeReceived,                MainGameServerReceivedFromLobbyHandle.WelcomeReceived   },
+				{ (int)MainGameServerReceivedFromLobbyTypes.ConnectionToLobbyApprovance,    ConnectionToLobbyApprovance                             },
+				{ (int)MainGameServerReceivedFromLobbyTypes.DealerPosition,                 Dealer                                                  },
+				{ (int)MainGameServerReceivedFromLobbyTypes.GiveCard,                       GiveCard                                                },
+				{ (int)MainGameServerReceivedFromLobbyTypes.ShowTableCards,                 ShowTableCard                                           },
+				{ (int)MainGameServerReceivedFromLobbyTypes.StartTurn,                      StartTurn                                               },
+				{ (int)MainGameServerReceivedFromLobbyTypes.TimerEvent,                     TimerEvent                                              },
+				{ (int)MainGameServerReceivedFromLobbyTypes.TurnApprovance,                 TurnApprovance                                          },
+				{ (int)MainGameServerReceivedFromLobbyTypes.ShowPlayerBet,                  ShowPlayerBet                                           },
+				{ (int)MainGameServerReceivedFromLobbyTypes.ShowPlayerMoney,                ShowPlayerMoney                                         },
+				{ (int)MainGameServerReceivedFromLobbyTypes.EndTurn,                        EndTurn                                                 },
+				{ (int)MainGameServerReceivedFromLobbyTypes.CollectAllBets,                 CollectAllBets                                          },
+				{ (int)MainGameServerReceivedFromLobbyTypes.ShowBank,                       ShowBank                                                },
+				{ (int)MainGameServerReceivedFromLobbyTypes.ShowAllCards,                   ShowAllCards                                            },
+				{ (int)MainGameServerReceivedFromLobbyTypes.WinAmount,                      WinAmount                                               },
 			};
 			Console.WriteLine("Initialized packets.");
 		}

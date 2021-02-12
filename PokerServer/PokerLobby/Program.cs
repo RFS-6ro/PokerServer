@@ -28,9 +28,16 @@ namespace PokerLobby
 #else
 			string lobbyName;
 
+			LobbyIdentifierData data = new LobbyIdentifierData();
+			data.FromString(args[0]);
+
 			try
 			{
-				lobbyName = args[0];
+				lobbyName = data.Name;
+				if (data.NumberOfPlayers != 0)
+				{
+					MinimumPlayersNumberToStart = data.NumberOfPlayers;
+				}
 			}
 			catch
 			{
@@ -52,9 +59,9 @@ namespace PokerLobby
 #if !DEBUG
 				ConsoleLogger.Instance.Print("Starting Game Loop");
 #endif
-				//TODO: Initialize Game logic with small bling, buy in etc
+				//CHECK: Initialize Game logic with small bling, buyIn etc
 				// Starting Game with current players
-				await LobbyClient.Instance.PerformGameLoop();
+				await LobbyClient.Instance.PerformGameLoop(data.BuyIn, data.SmallBlind);
 			}
 		}
 
@@ -93,7 +100,8 @@ namespace PokerLobby
 					Console.ReadKey();
 				}
 
-				//TODO: Show 10 sec Timer to players and await for it's ending
+				//CHECK: Show 10 sec Timer to players and await for it's ending
+				LobbySendHandle.TimerEvent(LobbyClient.Instance.Id, DefaultSyncValues.LobbyTimerId, true, DefaultSyncValues.StartDelay);
 #if !DEBUG
 				ConsoleLogger.Instance.Print("waiting 10 sec");
 #endif

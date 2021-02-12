@@ -322,7 +322,7 @@ namespace GameServer
 		//	int money = packet.ReadInt();
 		//	int currentlyInPot = packet.ReadInt();
 
-		//	//TODO: Send check event to all lobby players
+		//	//T0D0: Send check event to all lobby players
 		//}
 	}
 }

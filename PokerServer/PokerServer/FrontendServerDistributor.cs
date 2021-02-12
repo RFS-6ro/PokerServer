@@ -41,7 +41,7 @@ namespace FrontendServer
 
 			IServer.PacketHandlers = new Dictionary<int, IServer.PacketHandler>()
 			{
-				{ (int)FrontendServerReceivedPacketsType.WelcomeReceived, FrontendServerReceiveHandle.WelcomeReceived },
+				{ (int)FrontendServerReceivedPacketsType.WelcomeReceived, WelcomeReceived },
 			};
 			Console.WriteLine("Initialized packets.");
 		}

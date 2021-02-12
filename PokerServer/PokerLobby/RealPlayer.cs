@@ -1,9 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using PokerSynchronisation;
-using TexasHoldem.Logic.Extensions;
+﻿using PokerSynchronisation;
 using TexasHoldem.Logic.Players;
-//using TexasHoldem.UI.Console;
 
 namespace PokerLobby
 {
@@ -16,6 +12,9 @@ namespace PokerLobby
 		public bool IsReady { get; set; } = false;
 
 		public readonly int ServerId;
+
+		private TurnType _currentType = TurnType.None;
+		private int _raiseAmount = -1;
 
 		public RealPlayer(string name, int serverId) : base()
 		{
@@ -30,41 +29,48 @@ namespace PokerLobby
 
 		public override PlayerAction GetTurn(IGetTurnContext context)
 		{
-			/*
-			//TODO: replace by TurnType
-			var key = Console.ReadKey(true);
 			PlayerAction action = null;
-			
-			switch (key.Key)
+
+			if (_currentType != TurnType.None)
 			{
-			case ConsoleKey.C:
-				action = PlayerAction.CheckOrCall();
-				break;
-			case ConsoleKey.R:
-				if (!context.CanRaise)
+				switch (_currentType)
 				{
-					return null;
-				}
+				case TurnType.Raise:
+					if (!context.CanRaise)
+					{
+						ResetExternalInput();
+						return null;
+					}
 
-				action = PlayerAction.Raise(RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound));
-				break;
-			case ConsoleKey.F:
-				action = PlayerAction.Fold();
-				break;
-			case ConsoleKey.A:
-				if (!context.CanRaise)
-				{
-					return null;
-				}
+					action = PlayerAction.Raise(RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound));
+					ResetExternalInput();
+					break;
+				case TurnType.Fold:
+					action = PlayerAction.Fold();
+					ResetExternalInput();
+					break;
+				case TurnType.AllIn:
+					if (!context.CanRaise)
+					{
+						ResetExternalInput();
+						return null;
+					}
 
-				action = context.MoneyLeft > 0
-							 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
-							 : PlayerAction.CheckOrCall();
-				break;
+					action = context.MoneyLeft > 0
+								 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
+								 : PlayerAction.CheckOrCall();
+					ResetExternalInput();
+					break;
+				default:
+					ResetExternalInput();
+					break;
+				}
 			}
 
 			return action;
-			*/
+
+
+			/*
 
 			var chanceForAction = RandomProvider.Next(1, 101);
 			if (chanceForAction == 1 && context.MoneyLeft > 0)
@@ -110,6 +116,19 @@ namespace PokerLobby
 				// Fold
 				return PlayerAction.Fold();
 			}
+			*/
+		}
+
+		public void ApplyExternalInput(TurnType type, int amount)
+		{
+			_currentType = type;
+			_raiseAmount = amount;
+		}
+
+		private void ResetExternalInput()
+		{
+			_currentType = TurnType.None;
+			_raiseAmount = -1;
 		}
 
 		private int RaiseAmount(int moneyLeft, int minRaise, int moneyToCall, int myMoneyInTheRound)
@@ -121,28 +140,17 @@ namespace PokerLobby
 				return moneyLeft - moneyToCall;
 			}
 
-			do
+			if (_raiseAmount < wholeMinRaise)
 			{
-				var text = Console.ReadLine();
-				//TODO: paste raise amount here
-				int result;
-
-				if (int.TryParse(text, out result))
-				{
-					if (result < wholeMinRaise)
-					{
-						return minRaise;
-					}
-					else if (result >= moneyLeft + myMoneyInTheRound)
-					{
-						// Raise All-in
-						return moneyLeft - moneyToCall;
-					}
-
-					return result - (myMoneyInTheRound + moneyToCall);
-				}
+				return minRaise;
 			}
-			while (true);
+			else if (_raiseAmount >= moneyLeft + myMoneyInTheRound)
+			{
+				// Raise All-in
+				return moneyLeft - moneyToCall;
+			}
+
+			return _raiseAmount - (myMoneyInTheRound + moneyToCall);
 		}
 	}
 }

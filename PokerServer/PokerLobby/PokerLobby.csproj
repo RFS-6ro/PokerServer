@@ -5,18 +5,9 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="Network">
-            <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\Network.dll</HintPath>
-        </Reference>
-        <Reference Include="PokerSynchronisation">
-            <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\PokerSynchronisation.dll</HintPath>
-        </Reference>
-        <Reference Include="TexasHoldem.Logic">
-          <HintPath>..\..\..\TexasHoldemEngine\src\TexasHoldem.Logic\bin\Debug\netstandard2.0\TexasHoldem.Logic.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-    <ItemGroup>
       <ProjectReference Include="..\..\..\TexasHoldemEngine\src\TexasHoldem.Logic\TexasHoldem.Logic.csproj" />
       <ProjectReference Include="..\..\..\TexasHoldemEngine\src\UI\TexasHoldem.UI.Console\TexasHoldem.UI.Console.csproj" />
+      <ProjectReference Include="..\..\..\ServerNetworkDLL\PokerSync\PokerSynchronisation.csproj" />
+      <ProjectReference Include="..\..\..\ServerNetworkDLL\Network\Network.csproj" />
     </ItemGroup>
 </Project>

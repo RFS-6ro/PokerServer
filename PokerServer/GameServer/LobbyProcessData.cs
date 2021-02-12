@@ -14,7 +14,7 @@ namespace GameServer
 
 		public bool IsResponsable => Process.Responding;
 
-		public LobbyIdentifierData LobbyIdentifierData { get; set; }
+		public LobbyIdentifierData LobbyIdentifierData { get; private set; }
 
 		public LobbyProcessData(LobbyIdentifierData data, string[] args)
 		{
@@ -25,7 +25,7 @@ namespace GameServer
 				process.StartInfo.UseShellExecute = false;
 				process.StartInfo.FileName = "/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/bin/Release/net5.0/osx.10.12-x64/PokerLobby";
 
-				string linedAttributes = data.Name;
+				string linedAttributes = data.ToString();
 
 				if (args != null)
 				{

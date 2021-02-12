@@ -7,8 +7,8 @@ namespace FrontendServer
 	{
 		public enum FrontendServerSendingPacketsType
 		{
-			WelcomeToPlayer = 1,
-			BestGameServerAddress = 2,
+			WelcomeToPlayer = 101,
+			BestGameServerAddress = 102,
 		}
 
 		public static void Welcome(int playerId, string message)

@@ -203,7 +203,6 @@ namespace PokerLobby
 
 #if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
-#endif
 
 			var lastAction = action.Type.ToString();
 
@@ -216,7 +215,6 @@ namespace PokerLobby
 				lastAction += $"({action.Money + context.MyMoneyInTheRound + context.MoneyToCall})";
 			}
 
-#if DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + lastAction);
 #endif
@@ -232,15 +230,13 @@ namespace PokerLobby
 			return action;
 		}
 
+#if DEBUG
 		private void Muck(int moneyLeft)
 		{
-#if DEBUG
 			DrawMuckedSingleCard(_row + 1, 10, _firstCard);
 			DrawMuckedSingleCard(_row + 1, 14, _secondCard);
-#endif
 		}
-
-#if DEBUG
+		
 		private void UpdateCommonRows(int pot, int mainPot, IEnumerable<int> sidePots)
 		{
 			// Clear the first common row

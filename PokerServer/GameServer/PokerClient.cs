@@ -54,7 +54,7 @@ namespace GameServer
 
 
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
-				PokerSynchronisation.ServerPacketsSend.Welcome(_id, "Welcome to the master game server", MainGameServerSendHandlers.SendTCPData);
+				MainGameServerSendsToPlayerHandle.WelcomeToPlayer(_id, "Welcome to the master game server");
 			}
 
 			public override void Disconnect()

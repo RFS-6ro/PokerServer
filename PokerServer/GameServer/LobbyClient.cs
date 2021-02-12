@@ -63,7 +63,7 @@ namespace GameServer
 
 
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
-				ServerPacketsSend.Welcome(_id, "Welcome to the master game server", MainGameServerSendHandlers.SendTCPData);
+				MainGameServerSendsToLobbyHandle.Welcome(_id, "Welcome to the master game server");
 			}
 
 			public override void Disconnect()
@@ -82,7 +82,7 @@ namespace GameServer
 
 			protected override void HandleData(int packetId, Packet packet)
 			{
-				IServer.PacketHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
+				MainGameServer.LobbyPacketsHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
 			}
 		}
 	}

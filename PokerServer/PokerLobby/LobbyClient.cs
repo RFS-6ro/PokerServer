@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Network;
 using PokerSynchronisation;
 using TexasHoldem.Logic.Players;
-using static PokerSynchronisation.GameServerSends;
+using static PokerLobby.LobbyReceiveHandle;
+//using static PokerSynchronisation.GameServerSends;
 
 namespace PokerLobby
 {
@@ -41,7 +42,7 @@ namespace PokerLobby
 		{
 			if (Players.Count < DefaultSyncValues.MaxPlayers)
 			{
-				//TODO: register player in lobby
+				//CHECK: register player in lobby
 				Players.Add(new RealPlayer(name, playerId));
 
 				return true;
@@ -59,16 +60,16 @@ namespace PokerLobby
 			}
 		}
 
-		public async Task PerformGameLoop()
+		public async Task PerformGameLoop(int buyIn, int smallBlind)
 		{
 			AssignRealPlayersToInternalDecorators();
 
-			_game = new TexasHoldemGameLogic(Decorators.Cast<IPlayer>().ToList());
+			_game = new TexasHoldemGameLogic(Decorators.Cast<IPlayer>().ToList(), buyIn, smallBlind);
 			RealPlayerDecorator winner = (RealPlayerDecorator)await _game.Start();
 
 			//CHECK: Disconnect winner player from lobby
 			Players.RemoveAll((x) => x.ServerId == winner.ServerId);
-			//TODO: Send event to players about disconnecting from this server
+			//TODO: Send event to player about disconnecting from this server
 		}
 
 		private static void AssignRealPlayersToInternalDecorators()
@@ -110,11 +111,11 @@ namespace PokerLobby
 		{
 			_packetHandlers = new Dictionary<int, PacketHandler>()
 			{
-				{ (int)GameServerToLobbyPackets.Welcome, LobbyReceiveHandle.Welcome },
-				{ (int)GameServerToLobbyPackets.PlayerConnect, LobbyReceiveHandle.PlayerConnect },
-				{ (int)GameServerToLobbyPackets.PlayerDisconnect, LobbyReceiveHandle.PlayerDisconnect },
-				{ (int)GameServerToLobbyPackets.PlayerTurn, LobbyReceiveHandle.PlayerTurn },
-				{ (int)GameServerToLobbyPackets.PlayerReadyStateChanged, LobbyReceiveHandle.PlayerReadyStateChanged },
+				{ (int)LobbyReceiveTypes.LobbyConnectionWelcome,    LobbyConnectionWelcome  },
+				{ (int)LobbyReceiveTypes.PlayerConnection,          PlayerConnect           },
+				{ (int)LobbyReceiveTypes.PlayerReadyStateChanged,   PlayerReadyStateChanged },
+				{ (int)LobbyReceiveTypes.PlayerDisconnection,       PlayerDisconnect        },
+				{ (int)LobbyReceiveTypes.PlayersTurn,               PlayerTurn              },
 			};
 			Logger.PrintSuccess("Initialized packets.");
 		}

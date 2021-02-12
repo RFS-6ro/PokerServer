@@ -21,10 +21,11 @@ namespace PokerLobby
 		private readonly ICollection<RealPlayerDecorator> _players;
 
 		private int _initialMoney;
+		private int _smallBlindStartIndex;
 
 		public int HandsPlayed { get; private set; }
 
-		public TexasHoldemGameLogic(IList<IPlayer> players, int initialMoney = 200)
+		public TexasHoldemGameLogic(IList<IPlayer> players, int initialMoney = 200, int smallBlind = 0)
 			: this((ICollection<IPlayer>)players, initialMoney)
 		{
 			// Ensure the players have unique names
@@ -36,6 +37,8 @@ namespace PokerLobby
 			{
 				throw new ArgumentException($"Players have the same name: \"{string.Join(" ", duplicateNames.ToArray())}\"");
 			}
+
+			_smallBlindStartIndex = smallBlind;
 		}
 
 		private TexasHoldemGameLogic(ICollection<IPlayer> players, int initialMoney = 1000)
@@ -122,7 +125,7 @@ namespace PokerLobby
 				HandsPlayed++;
 
 				// Every 10 hands the blind increases
-				var smallBlind = SmallBlinds[(HandsPlayed - 1) / 10];
+				var smallBlind = SmallBlinds[_smallBlindStartIndex + (HandsPlayed - 1) / 10];
 				//var smallBlind = SmallBlinds[0];
 
 				// Players are shifted in order of priority to make a move
