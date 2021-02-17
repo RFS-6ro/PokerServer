@@ -151,12 +151,13 @@ namespace GameServer
 			}
 		}
 
-		public static void ShowPlayerBet(int playerId, int amount)
+		public static void ShowPlayerBet(int playerId, int amount, int currentlyInPot)
 		{
 			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowPlayerBet))
 			{
 				packet.Write(playerId);
 				packet.Write(amount);
+				packet.Write(currentlyInPot);
 
 				MainGameServerSendHandlers.SendTCPDataToAll(packet);
 			}

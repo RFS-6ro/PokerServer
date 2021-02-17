@@ -36,7 +36,7 @@ namespace GameServer
 			string message = packet.ReadString();
 
 			////CHECK: connect input client as lobby
-			//MainGameServer.Lobbies[lobbyId].Name = message;
+			//MainGameServer.Lobbies[lobbyId].ID = lobbyId;
 
 			Console.WriteLine($"{ IServer.Clients[fromLobby].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now lobby { fromLobby } with message { message }.");
 			if (fromLobby != lobbyId)
@@ -192,9 +192,10 @@ namespace GameServer
 
 			int playerId = packet.ReadInt();
 			int betAmount = packet.ReadInt();
+			int currentlyInPot = packet.ReadInt();
 
 			//CHECK: send event about bet and it's amount to everyone
-			MainGameServerSendsToPlayerHandle.ShowPlayerBet(playerId, betAmount);
+			MainGameServerSendsToPlayerHandle.ShowPlayerBet(playerId, betAmount, currentlyInPot);
 
 		}
 
