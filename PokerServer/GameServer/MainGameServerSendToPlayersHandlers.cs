@@ -3,7 +3,7 @@ using Network;
 
 namespace GameServer
 {
-	public static class MainGameServerSendHandlers
+	public static class MainGameServerSendToPlayersHandlers
 	{
 		/// <summary>Sends a packet to a client via TCP.</summary>
 		/// <param name="toClient">The client to send the packet the packet to.</param>

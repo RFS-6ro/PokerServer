@@ -8,20 +8,21 @@ namespace GameServer
 {
 	public static class MainGameServerReceivedFromPlayerHandle
 	{
-		public enum MainGameServerReceivedFromPlayerType
+		public enum MainGameServerReceivedFromPlayerTypes
 		{
-			WelcomeReceived = 1,
+			WelcomeReceived = 101,
 
-			PlayerConnection = 2,
-			PlayerReadyStateChanged = 3,
-			PlayerDisconnection = 4,
+			PlayerConnection = 102,
+			PlayerReadyStateChanged = 103,
+			PlayerDisconnection = 104,
 
-			PlayersTurn = 5,
-			AskLobbyList = 6,
+			PlayersTurn = 105,
+			AskLobbyList = 106,
 		}
 
 		public static void WelcomeReceived(int fromClient, Packet packet)
 		{
+			ConsoleLogger.Instance.Print("FUCK");
 			int clientIdCheck = packet.ReadInt();
 			string userName = packet.ReadString();
 

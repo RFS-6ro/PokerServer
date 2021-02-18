@@ -11,38 +11,46 @@ namespace GameServer
 		public enum MainGameServerReceivedFromLobbyTypes
 		{
 			WelcomeReceived = 1,
-			ConnectionToLobbyApprovance,
+			ConnectionToLobbyApprovance = 2,
 
 			#region Game Loop
-			DealerPosition,
-			GiveCard,
-			ShowTableCards,
-			StartTurn,
-			TimerEvent,
-			TurnApprovance,
-			ShowPlayerBet,
-			ShowPlayerMoney,
-			EndTurn,
-			CollectAllBets,
-			ShowBank,
-			ShowAllCards,
-			WinAmount,
+			DealerPosition = 3,
+			GiveCard = 4,
+			ShowTableCards = 5,
+			StartTurn = 6,
+			TimerEvent = 7,
+			TurnApprovance = 8,
+			ShowPlayerBet = 9,
+			ShowPlayerMoney = 10,
+			EndTurn = 11,
+			CollectAllBets = 12,
+			ShowBank = 13,
+			ShowAllCards = 14,
+			WinAmount = 15,
 			#endregion
 		}
 
 		public static void WelcomeReceived(int fromLobby, Packet packet)
 		{
+			ConsoleLogger.Instance.Print("fuck");
 			int lobbyId = packet.ReadInt();
 			string message = packet.ReadString();
 
-			////CHECK: connect input client as lobby
-			//MainGameServer.Lobbies[lobbyId].ID = lobbyId;
+			//CHECK: connect input client as lobby
 
-			Console.WriteLine($"{ IServer.Clients[fromLobby].Tcp.Socket.Client.RemoteEndPoint } connected successfully and is now lobby { fromLobby } with message { message }.");
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies.ToString());
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby].ToString());
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client.ToString());
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.ToString());
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.ToString());
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.Client?.ToString());
+			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.Client?.RemoteEndPoint.ToString());
+			Console.WriteLine($"{ MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.Client?.RemoteEndPoint } connected successfully and is now lobby { fromLobby } with message { message }.");
 			if (fromLobby != lobbyId)
 			{
 				Console.WriteLine($"Lobby \"{ message }\" (ID: { fromLobby }) has assumed the wrong ID ({ lobbyId })!");
 			}
+			MainGameServer.Lobbies[fromLobby].Client.IsConnected = true;
 		}
 
 		public static void ConnectionToLobbyApprovance(int fromLobby, Packet packet)
@@ -102,9 +110,9 @@ namespace GameServer
 			int suit = packet.ReadInt();
 
 			//CHECK: send concrete values directly to player
-			MainGameServerSendsToPlayerHandle.GiveCard(playerId, type, suit, MainGameServerSendHandlers.SendTCPData);
+			MainGameServerSendsToPlayerHandle.GiveCard(playerId, type, suit, MainGameServerSendToPlayersHandlers.SendTCPData);
 			//CHECK: send fake values to everyone except player
-			MainGameServerSendsToPlayerHandle.GiveCard(playerId, (int)CardType.Count, (int)CardSuit.Shirt, MainGameServerSendHandlers.SendTCPDataToAll);
+			MainGameServerSendsToPlayerHandle.GiveCard(playerId, (int)CardType.Count, (int)CardSuit.Shirt, MainGameServerSendToPlayersHandlers.SendTCPDataToAll);
 		}
 
 		public static void ShowTableCard(int fromLobby, Packet packet)

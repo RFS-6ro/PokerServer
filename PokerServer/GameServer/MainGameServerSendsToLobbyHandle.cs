@@ -24,7 +24,7 @@ namespace GameServer
 				packet.Write(lobbyId);
 				packet.Write(message);
 
-				MainGameServerSendHandlers.SendTCPData(lobbyId, packet);
+				MainGameServerSendToLobbiesHandlers.SendTCPData(lobbyId, packet);
 			}
 		}
 
@@ -36,7 +36,7 @@ namespace GameServer
 				packet.Write(playerId);
 				packet.Write(playerName);
 
-				MainGameServerSendHandlers.SendTCPData(lobbyId, packet);
+				MainGameServerSendToLobbiesHandlers.SendTCPData(lobbyId, packet);
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace GameServer
 				packet.Write(playerId);
 				packet.Write(isReady);
 
-				MainGameServerSendHandlers.SendTCPData(lobbyId, packet);
+				MainGameServerSendToLobbiesHandlers.SendTCPData(lobbyId, packet);
 			}
 		}
 
@@ -59,7 +59,7 @@ namespace GameServer
 				packet.Write(lobbyId);
 				packet.Write(playerId);
 
-				MainGameServerSendHandlers.SendTCPData(lobbyId, packet);
+				MainGameServerSendToLobbiesHandlers.SendTCPData(lobbyId, packet);
 			}
 		}
 
@@ -72,7 +72,7 @@ namespace GameServer
 				packet.Write((int)turn);
 				packet.Write(raiseAmount);
 
-				MainGameServerSendHandlers.SendTCPData(lobbyId, packet);
+				MainGameServerSendToLobbiesHandlers.SendTCPData(lobbyId, packet);
 			}
 		}
 	}

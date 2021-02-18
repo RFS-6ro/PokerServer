@@ -59,7 +59,6 @@ namespace GameServer
 
 			public override void Disconnect()
 			{
-				_logger.PrintWarning(Thread.CurrentThread.ToString());
 				Socket.Close();
 				_stream = null;
 				_receivedPacket = null;
@@ -74,7 +73,7 @@ namespace GameServer
 
 			protected override void HandleData(int packetId, Packet packet)
 			{
-				_logger.PrintWarning(Thread.CurrentThread.ToString());
+				_logger.PrintWarning(packetId.ToString());
 				IServer.PacketHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
 			}
 

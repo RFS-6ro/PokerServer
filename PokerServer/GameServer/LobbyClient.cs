@@ -14,6 +14,8 @@ namespace GameServer
 
 		public List<int> RegisteredPlayers = new List<int>(DefaultSyncValues.MaxPlayers);
 
+		public bool IsConnected = false;
+
 		public LobbyClient(int id)
 		{
 			Id = id;
@@ -35,7 +37,7 @@ namespace GameServer
 		public void Disconnect()
 		{
 			Console.WriteLine($"{Tcp.Socket.Client.RemoteEndPoint} has disconnected.");
-
+			IsConnected = false;
 			Tcp.Disconnect();
 		}
 
@@ -73,6 +75,7 @@ namespace GameServer
 				_receivedPacket = null;
 				_receiveBuffer = null;
 				Socket = null;
+				MainGameServer.Lobbies[_id].Client.IsConnected = false;
 			}
 
 			protected override void DisconnectClient()
@@ -82,7 +85,7 @@ namespace GameServer
 
 			protected override void HandleData(int packetId, Packet packet)
 			{
-				MainGameServer.LobbyPacketsHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
+				IServer.PacketHandlers[packetId](_id, packet); // Call appropriate method to handle the packet
 			}
 		}
 	}

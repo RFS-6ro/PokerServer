@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -7,7 +8,6 @@ using Network;
 using PokerSynchronisation;
 using TexasHoldem.Logic.Players;
 using static PokerLobby.LobbyReceiveHandle;
-//using static PokerSynchronisation.GameServerSends;
 
 namespace PokerLobby
 {
@@ -16,7 +16,7 @@ namespace PokerLobby
 		private string _ip { get; set; }
 		private int _port { get; set; }
 		public int Id = 0;
-		public TCPBase Tcp;
+		public TCP Tcp;
 
 
 		private static TexasHoldemGameLogic _game;
@@ -25,7 +25,7 @@ namespace PokerLobby
 		public static List<RealPlayerDecorator> Decorators = new List<RealPlayerDecorator>();
 
 
-		private bool isConnected = false;
+		public bool IsConnected { get; set; } = false;
 
 		public string Name { get; private set; }
 		public LoggerBase Logger => ConsoleLogger.Instance;
@@ -103,8 +103,8 @@ namespace PokerLobby
 
 			InitializeClientData();
 
-			isConnected = true;
 			Tcp.Connect(); // Connect tcp, udp gets connected once tcp is done
+			IsConnected = true;
 		}
 
 		private void InitializeClientData()
@@ -122,20 +122,27 @@ namespace PokerLobby
 
 		private void Disconnect()
 		{
-			if (isConnected)
+			if (IsConnected)
 			{
-				isConnected = false;
+				IsConnected = false;
 				Tcp?.Socket?.Close();
 
 				Logger.PrintWarning("Disconnected from server.");
 			}
 		}
 
-		private class TCP : TCPBase
+		public class TCP
 		{
-			public override LoggerBase _logger => ConsoleLogger.Instance;
+			public TcpClient Socket;
 
-			public override void Connect(TcpClient socket = null)
+			private NetworkStream _stream;
+			private Packet _receivedPacket;
+			private byte[] _receiveBuffer;
+
+			private Action OnConnectCallback = null;
+
+			/// <summary>Attempts to connect to the server via TCP.</summary>
+			public void Connect(Action onConnectCallback = null)
 			{
 				Socket = new TcpClient
 				{
@@ -145,52 +152,165 @@ namespace PokerLobby
 
 				_receiveBuffer = new byte[NetworkSettings.DATA_BUFFER_SIZE];
 
-				_logger.PrintWarning("begin connect");
+				OnConnectCallback = onConnectCallback;
 				Socket.BeginConnect(_instance._ip, _instance._port, ConnectCallback, Socket);
 			}
 
+			/// <summary>Initializes the newly connected client's TCP-related info.</summary>
 			private void ConnectCallback(IAsyncResult result)
 			{
-				_logger.PrintWarning("check connect");
-
+				ConsoleLogger.Instance.Print("1");
 				Socket.EndConnect(result);
 
 				if (!Socket.Connected)
 				{
-					_logger.PrintError("no connection");
 					return;
 				}
+				ConsoleLogger.Instance.Print("2");
 
-				_logger.PrintWarning("begin read");
 				_stream = Socket.GetStream();
 
 				_receivedPacket = new Packet();
+				ConsoleLogger.Instance.Print("3");
 
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
-
-				_logger.PrintSuccess("Lobby did successfully connected to server and ready to use");
+				ConsoleLogger.Instance.Print("4");
+				OnConnectCallback?.Invoke();
 			}
 
-			public override void Disconnect()
+			/// <summary>Sends data to the client via TCP.</summary>
+			/// <param name="packet">The packet to send.</param>
+			public void SendData(Packet packet)
 			{
-				_logger.PrintError("disconnecting");
-				DisconnectClient();
+				try
+				{
+					if (Socket != null)
+					{
+						_stream.BeginWrite(packet.ToArray(), 0, packet.Length, null, null); // Send data to server
+					}
+				}
+				catch (Exception ex)
+				{
+				}
+			}
+
+			/// <summary>Reads incoming data from the stream.</summary>
+			private void ReceiveCallback(IAsyncResult result)
+			{
+				ConsoleLogger.Instance.Print("5");
+				try
+				{
+					int byteLength = _stream.EndRead(result);
+					if (byteLength <= 0)
+					{
+						Instance.Disconnect();
+						return;
+					}
+
+					ConsoleLogger.Instance.Print("6");
+
+					byte[] data = new byte[byteLength];
+					Array.Copy(_receiveBuffer, data, byteLength);
+
+
+					ConsoleLogger.Instance.Print("7");
+					_receivedPacket.Reset(HandleData(data)); // Reset receivedData if all data was handled
+					try
+					{
+						ConsoleLogger.Instance.Print("8");
+						_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
+					}
+					catch (Exception ex)
+					{
+						Disconnect();
+					}
+					ConsoleLogger.Instance.Print("9");
+				}
+				catch (Exception ex)
+				{
+					ConsoleLogger.Instance.Print("10");
+					Disconnect();
+				}
+				ConsoleLogger.Instance.Print("11");
+			}
+
+			/// <summary>Prepares received data to be used by the appropriate packet handler methods.</summary>
+			/// <param name="data">The recieved data.</param>
+			private bool HandleData(byte[] data)
+			{
+				ConsoleLogger.Instance.Print("12");
+				int packetLength = 0;
+
+				_receivedPacket.SetBytes(data);
+
+				if (_receivedPacket.UnreadLength >= 4)
+				{
+					ConsoleLogger.Instance.Print("13");
+					// If client's received data contains a packet
+					byte[] allBytes = _receivedPacket.ReadBytes(_receivedPacket.UnreadLength, false);
+
+					packetLength = _receivedPacket.ReadInt();
+					if (packetLength <= 0)
+					{
+						ConsoleLogger.Instance.Print("14");
+						// If packet contains no data
+						return true; // Reset _receivedPacket instance to allow it to be reused
+					}
+				}
+
+				while (packetLength > 0 && packetLength <= _receivedPacket.UnreadLength)
+				{
+					// While packet contains data AND packet data length doesn't exceed the length of the packet we're reading
+					byte[] packetBytes = _receivedPacket.ReadBytes(packetLength);
+					ConsoleLogger.Instance.Print("15");
+					//IThreadManager.ExecuteOnMainThread(() =>
+					//{
+					ConsoleLogger.Instance.Print("16");
+					using (Packet packet = new Packet(packetBytes))
+					{
+						ConsoleLogger.Instance.Print("17");
+						int packetId = packet.ReadInt();
+						_packetHandlers[packetId](packet);
+					}
+					//});
+
+					ConsoleLogger.Instance.Print("18");
+					packetLength = 0; // Reset packet length
+					if (_receivedPacket.UnreadLength >= 4)
+					{
+						ConsoleLogger.Instance.Print("19");
+						// If client's received data contains another packet
+						packetLength = _receivedPacket.ReadInt();
+						if (packetLength <= 0)
+						{
+							ConsoleLogger.Instance.Print("20");
+							// If packet contains no data
+							return true; // Reset _receivedPacket instance to allow it to be reused
+						}
+					}
+				}
+
+				if (packetLength <= 1)
+				{
+					ConsoleLogger.Instance.Print("21");
+					return true; // Reset _receivedPacket instance to allow it to be reused
+				}
+				ConsoleLogger.Instance.Print("22");
+
+				return false;
+			}
+
+			/// <summary>Disconnects from the server and cleans up the TCP connection.</summary>
+			private void Disconnect()
+			{
+				_instance.Disconnect();
 
 				_stream = null;
 				_receivedPacket = null;
 				_receiveBuffer = null;
 				Socket = null;
 			}
-
-			protected override void DisconnectClient()
-			{
-				_instance.Disconnect();
-			}
-
-			protected override void HandleData(int packetId, Packet packet)
-			{
-				_packetHandlers[packetId](packet);
-			}
 		}
+
 	}
 }

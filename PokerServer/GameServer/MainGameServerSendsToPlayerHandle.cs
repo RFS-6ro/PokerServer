@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Network;
 using PokerSynchronisation;
-using TexasHoldem.Logic.Cards;
 
 namespace GameServer
 {
@@ -11,23 +10,24 @@ namespace GameServer
 		public enum MainGameServerSendsToPlayerTypes
 		{
 			WelcomeToPlayer = 1,
-			LobbyList,
-			ConnectionToLobbyApprovance,
+			LobbyList = 2,
+			ConnectionToLobbyApprovance = 3,
 
 			#region Game Loop
-			DealerPosition,
-			GiveCard,
-			ShowTableCards,
-			StartTurn,
-			TimerEvent,
-			TurnApprovance,
-			ShowPlayerBet,
-			ShowPlayerMoney,
-			EndTurn,
-			CollectAllBets,
-			ShowBank,
-			ShowAllCards,
-			WinAmount,
+			DealerPosition = 4,
+			GiveCard = 5,
+			ShowTableCards = 6,
+			StartTurn = 7,
+			TimerEvent = 8,
+			TurnApprovance = 9,
+			ShowPlayerBet = 10,
+			ShowPlayersMoney = 11,
+			EndTurn = 12,
+			CollectAllBets = 13,
+			ShowBank = 14,
+			ShowAllCards = 15,
+			WinAmount = 16,
+			DisconnectFromLobby = 17,
 			#endregion
 		}
 
@@ -38,7 +38,7 @@ namespace GameServer
 				packet.Write(playerId);
 				packet.Write(welcomeMessage);
 
-				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
 			}
 		}
 
@@ -58,7 +58,17 @@ namespace GameServer
 					packet.Write(lobby.BuyIn);
 				}
 
-				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
+			}
+		}
+
+		public static void DisconnectFromLobby(int playerId)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.DisconnectFromLobby))
+			{
+				packet.Write(playerId);
+
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
 			}
 		}
 
@@ -70,7 +80,7 @@ namespace GameServer
 				packet.Write(result);
 				packet.Write(message);
 
-				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
 			}
 		}
 
@@ -80,7 +90,7 @@ namespace GameServer
 			{
 				packet.Write(dealerId);
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -112,7 +122,7 @@ namespace GameServer
 					packet.Write(index);
 				}
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -121,10 +131,10 @@ namespace GameServer
 			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.StartTurn))
 			{
 				packet.Write(playerId);
-				MainGameServerSendHandlers.SendTCPDataToAll(playerId, packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(playerId, packet);
 
 				packet.Write(canRaise);
-				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
 			}
 		}
 
@@ -136,7 +146,7 @@ namespace GameServer
 				packet.Write(isDecreasing);
 				packet.Write(timeLeft);
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -147,7 +157,7 @@ namespace GameServer
 				packet.Write(playerId);
 				packet.Write(result);
 
-				MainGameServerSendHandlers.SendTCPData(playerId, packet);
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
 			}
 		}
 
@@ -159,13 +169,13 @@ namespace GameServer
 				packet.Write(amount);
 				packet.Write(currentlyInPot);
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
 		public static void ShowPlayersMoney(int[] playersIds, int[] amounts)
 		{
-			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowPlayerMoney))
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ShowPlayersMoney))
 			{
 				packet.Write(playersIds.Length);
 
@@ -175,7 +185,7 @@ namespace GameServer
 					packet.Write(amounts[i]);
 				}
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -185,7 +195,7 @@ namespace GameServer
 			{
 				packet.Write(playerId);
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -193,7 +203,7 @@ namespace GameServer
 		{
 			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.CollectAllBets))
 			{
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -203,7 +213,7 @@ namespace GameServer
 			{
 				packet.Write(bank);
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 
@@ -226,7 +236,7 @@ namespace GameServer
 						packet.Write(secondCardsSuits[i]);
 					}
 
-					MainGameServerSendHandlers.SendTCPDataToAll(packet);
+					MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 				}
 			}
 		}
@@ -238,7 +248,7 @@ namespace GameServer
 				packet.Write(playerId);
 				packet.Write(amount);
 
-				MainGameServerSendHandlers.SendTCPDataToAll(packet);
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(packet);
 			}
 		}
 	}

@@ -38,6 +38,7 @@ namespace PokerLobby
 				return;
 			}
 
+			ConsoleLogger.Instance.Print("Player is connecting");
 			int playerId = packet.ReadInt();
 			string name = packet.ReadString();
 
