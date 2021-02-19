@@ -32,7 +32,7 @@ namespace PokerLobby
 			_potCreator = new PotCreator<RealPlayerDecorator>(_players);
 			_minRaise = new MinRaise(_smallBlind);
 
-#if !DEBUG
+#if DEBUG
 			//CHECK: send dealer's server index event
 			//CHECK: move dealerButton
 			LobbySendHandle.DealerPosition(LobbyClient.Instance.Id, _players[_initialPlayerIndex].ServerId);
@@ -135,7 +135,7 @@ namespace PokerLobby
 							SidePots);
 
 				int lastBet = player.PlayerMoney.CurrentRoundBet;
-#if !DEBUG
+#if DEBUG
 				//CHECK: Send start turn event
 				LobbySendHandle.StartTurn(LobbyClient.Instance.Id, player.ServerId, turnContext.CanRaise);
 #endif
@@ -146,7 +146,7 @@ namespace PokerLobby
 
 				if (lastBet <= player.PlayerMoney.CurrentRoundBet)
 				{
-#if !DEBUG
+#if DEBUG
 					//CHECK: need bet animation
 					LobbySendHandle.ShowPlayerBet(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.CurrentRoundBet - lastBet);
 #endif
@@ -169,7 +169,7 @@ namespace PokerLobby
 				player.PlayerMoney.ShouldPlayInRound = false;
 				playerIndex++;
 
-#if !DEBUG
+#if DEBUG
 				//CHECK: Send end turn event
 				LobbySendHandle.EndTurn(LobbyClient.Instance.Id, player.ServerId);
 #endif
@@ -198,7 +198,7 @@ namespace PokerLobby
 		private async Task<PlayerAction> GettingTurn(RealPlayerDecorator player, GetTurnContext turnContext, int awaitTime = 10000)
 		{
 			int timeLeft = awaitTime;
-#if !DEBUG
+#if DEBUG
 			//CHECK: send start turn timer event
 			LobbySendHandle.TimerEvent(LobbyClient.Instance.Id, player.ServerId, true, timeLeft);
 #endif
@@ -217,7 +217,7 @@ namespace PokerLobby
 
 				if (timeLeft <= 0)
 				{
-#if !DEBUG
+#if DEBUG
 					//CHECK: send stop turn timer event
 					LobbySendHandle.TimerEvent(LobbyClient.Instance.Id, player.ServerId, false, timeLeft);
 #endif
@@ -227,14 +227,14 @@ namespace PokerLobby
 				if (approveTimerDelta <= 0)
 				{
 					approveTimerDelta = 300;
-#if !DEBUG
+#if DEBUG
 					//CHECK: send timer approvance event
 					LobbySendHandle.TimerEvent(LobbyClient.Instance.Id, player.ServerId, true, timeLeft);
 #endif
 				}
 			}
 
-#if !DEBUG
+#if DEBUG
 			//CHECK: send stop turn timer event
 			LobbySendHandle.TimerEvent(LobbyClient.Instance.Id, player.ServerId, false, timeLeft);
 #endif
@@ -244,7 +244,7 @@ namespace PokerLobby
 		public async Task PlaceBlinds()
 		{
 			await Task.Delay(300);
-#if !DEBUG
+#if DEBUG
 			//CHECK: send small blind posting event
 			LobbySendHandle.ShowPlayerBet(LobbyClient.Instance.Id, _players[_initialPlayerIndex].ServerId, _smallBlind);
 #endif
@@ -261,7 +261,7 @@ namespace PokerLobby
 			await Task.Delay(300);
 
 			// Big blind
-#if !DEBUG
+#if DEBUG
 			//CHECK: send big blind posting event
 			LobbySendHandle.ShowPlayerBet(LobbyClient.Instance.Id, _players[_initialPlayerIndex + 1].ServerId, 2 * _smallBlind);
 #endif
@@ -297,7 +297,7 @@ namespace PokerLobby
 
 		private void UpdateBank()
 		{
-#if !DEBUG
+#if DEBUG
 			//CHECK: Update bank and send event
 			LobbySendHandle.ShowBank(LobbyClient.Instance.Id, Pot);
 #endif

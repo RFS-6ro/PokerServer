@@ -20,7 +20,7 @@ namespace PokerLobby
 			Thread mainThread = new Thread(new ThreadStart(MainThread));
 			mainThread.Start();
 
-#if DEBUG
+#if !DEBUG
 			LobbyClient.Players.Add(new RealPlayer("1", 1));
 			LobbyClient.Players.Add(new RealPlayer("2", 2));
 			LobbyClient.Players.Add(new RealPlayer("3", 3));
@@ -70,13 +70,13 @@ namespace PokerLobby
 			//System.Diagnostics.Process.Start("open", "-n -a Terminal");
 			if (ConnectedPlayers >= MinimumPlayersNumberToStart)
 			{
-#if !DEBUG
+#if DEBUG
 				ConsoleLogger.Instance.Print("Starting Game Loop");
 #endif
 				// Starting Game with current players
 				//CHECK: Initialize Game logic with small bling, buyIn etc
 				await LobbyClient.Instance.PerformGameLoop(
-#if !DEBUG
+#if DEBUG
 					data.BuyIn, data.SmallBlind
 #else
 					300, 3

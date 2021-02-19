@@ -121,7 +121,7 @@ namespace PokerLobby
 
 			DetermineWinnerAndAddPot(_bettingLogic.Pot, _bettingLogic.MainPot, _bettingLogic.SidePots);
 
-#if !DEBUG
+#if DEBUG
 			//CHECK: send event to open cards
 			LobbySendHandle.ShowAllCards(LobbyClient.Instance.Id, dispence1, dispence2, playerIds);
 #endif
@@ -140,7 +140,7 @@ namespace PokerLobby
 
 			for (int i = 0, j = 0; i < _players.Count; i++, j += 2)
 			{
-#if !DEBUG
+#if DEBUG
 				LobbySendHandle.GiveCard(LobbyClient.Instance.Id, _players[i].ServerId, (int)cards[i].Type, (int)cards[i].Suit);
 #endif
 
@@ -264,12 +264,12 @@ namespace PokerLobby
 
 		private void GiveWin(RealPlayerDecorator player, int amount)
 		{
-#if !DEBUG
+#if DEBUG
 			//CHECK: send win amount event
 			LobbySendHandle.WinAmount(LobbyClient.Instance.Id, player.ServerId, amount);
 #endif
 			player.PlayerMoney.Money += amount;
-#if !DEBUG
+#if DEBUG
 			LobbySendHandle.ShowPlayerMoney(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.Money);
 #endif
 		}
@@ -289,14 +289,14 @@ namespace PokerLobby
 					_communityCards.Add(card);
 				}
 
-#if !DEBUG
+#if DEBUG
 				LobbySendHandle.ShowTableCards(LobbyClient.Instance.Id, types.ToArray(), suits.ToArray(), communityCardsIndexes);
 #endif
 			}
 
 			foreach (var player in _players)
 			{
-#if !DEBUG
+#if DEBUG
 				//TODO: Player State At Start Of Round
 				//LobbySendHandle.stat(LobbyClient.Instance.Id, player.ServerId, player.PlayerMoney.Money, _bettingLogic.Pot);
 #endif
@@ -317,7 +317,7 @@ namespace PokerLobby
 
 			if (_bettingLogic.Pot > previousBank)
 			{
-#if !DEBUG
+#if DEBUG
 				//CHECK: update bank
 				LobbySendHandle.ShowBank(LobbyClient.Instance.Id, _bettingLogic.Pot);
 #endif

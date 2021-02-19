@@ -15,7 +15,7 @@ namespace GameServer
 
 			Thread mainThread = new Thread(new ThreadStart(MainThread));
 			mainThread.Start();
-			MainGameServer.Instance.Start(10000, NetworkSettings.TEST_SERVERPORT);
+			MainGameServer.Instance.Start(10, NetworkSettings.TEST_SERVERPORT);
 
 			Console.ReadLine();
 		}

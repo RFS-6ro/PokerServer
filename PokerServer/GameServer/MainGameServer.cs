@@ -11,7 +11,8 @@ namespace GameServer
 {
 	public class MainGameServer : SingletonBase<MainGameServer>, IServer, INeedLogger
 	{
-		protected static TcpListener _tcpListener;
+		protected static TcpListener _playersTcpListener;
+		protected static TcpListener _lobbiesTcpListener;
 		protected static UdpClient _udpListener;
 
 		public LoggerBase _logger => ConsoleLogger.Instance;
@@ -26,12 +27,16 @@ namespace GameServer
 			Console.WriteLine("Starting server...");
 			InitializeServerData();
 
-			_tcpListener = new TcpListener(IPAddress.Any, IServer.Port);
-			_tcpListener.Start();
-			_tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
+			_lobbiesTcpListener = new TcpListener(IPAddress.Any, NetworkSettings.LOBBY_CONNECTION_PORT);
+			_lobbiesTcpListener.Start();
+			_lobbiesTcpListener.BeginAcceptTcpClient(LobbyTCPConnectCallback, null);
 
-			_udpListener = new UdpClient(IServer.Port);
-			_udpListener.BeginReceive(UDPReceiveCallback, null);
+			_playersTcpListener = new TcpListener(IPAddress.Any, IServer.Port);
+			_playersTcpListener.Start();
+			_playersTcpListener.BeginAcceptTcpClient(PlayerTCPConnectCallback, null);
+
+			//_udpListener = new UdpClient(IServer.Port);
+			//_udpListener.BeginReceive(UDPReceiveCallback, null);
 
 			Console.WriteLine($"Server started on port {IServer.Port}.");
 
@@ -153,17 +158,35 @@ namespace GameServer
 			Console.WriteLine("Initialized packets.");
 		}
 
-		void TCPConnectCallback(IAsyncResult result)
+		void PlayerTCPConnectCallback(IAsyncResult result)
 		{
-			TcpClient client = _tcpListener.EndAcceptTcpClient(result);
-			_tcpListener.BeginAcceptTcpClient(TCPConnectCallback, null);
+			TcpClient client = _playersTcpListener.EndAcceptTcpClient(result);
+			_playersTcpListener.BeginAcceptTcpClient(PlayerTCPConnectCallback, null);
 			Console.WriteLine($"Incoming connection from {client.Client.RemoteEndPoint}...");
 
-			for (int i = 1; i <= IServer.MaxPlayers; i++)
+			for (int i = 1; i <= IServer.Clients.Count; i++)
 			{
 				if (IServer.Clients[i].Tcp.Socket == null)
 				{
 					IServer.Clients[i].Tcp.Connect(client);
+					return;
+				}
+			}
+
+			Console.WriteLine($"{client.Client.RemoteEndPoint} failed to connect: Server full!");
+		}
+
+		void LobbyTCPConnectCallback(IAsyncResult result)
+		{
+			TcpClient client = _lobbiesTcpListener.EndAcceptTcpClient(result);
+			_lobbiesTcpListener.BeginAcceptTcpClient(LobbyTCPConnectCallback, null);
+			Console.WriteLine($"Incoming connection from {client.Client.RemoteEndPoint}...");
+
+			for (int i = 1; i <= Lobbies.Count; i++)
+			{
+				if (Lobbies[i].Client.Tcp.Socket == null)
+				{
+					Lobbies[i].Client.Tcp.Connect(client);
 					return;
 				}
 			}

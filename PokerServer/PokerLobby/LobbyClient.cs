@@ -77,7 +77,7 @@ namespace PokerLobby
 			for (int i = 0; i < Players.Count; i++)
 			{
 				RealPlayerDecorator decorator = new RealPlayerDecorator();
-#if DEBUG
+#if !DEBUG
 				decorator.DrawGameBox((6 * i) + 3, 66, 1);
 #endif
 				decorator.SetPlayer(Players[i]);
@@ -92,12 +92,14 @@ namespace PokerLobby
 		}
 
 		/// <summary>Attempts to connect to the server.</summary>
-		public void ConnectToServer(string ip = NetworkSettings.LOCAL_HOST_IP, int port = NetworkSettings.TEST_SERVERPORT)
+		public void ConnectToServer(string ip = NetworkSettings.LOCAL_HOST_IP, int port = NetworkSettings.LOBBY_CONNECTION_PORT)
 		{
 			Disconnect();
 
 			_ip = ip;
 			_port = port;
+
+			Logger.PrintWarning(_port.ToString());
 
 			Tcp = new TCP();
 
@@ -159,22 +161,18 @@ namespace PokerLobby
 			/// <summary>Initializes the newly connected client's TCP-related info.</summary>
 			private void ConnectCallback(IAsyncResult result)
 			{
-				ConsoleLogger.Instance.Print("1");
 				Socket.EndConnect(result);
 
 				if (!Socket.Connected)
 				{
 					return;
 				}
-				ConsoleLogger.Instance.Print("2");
 
 				_stream = Socket.GetStream();
 
 				_receivedPacket = new Packet();
-				ConsoleLogger.Instance.Print("3");
 
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
-				ConsoleLogger.Instance.Print("4");
 				OnConnectCallback?.Invoke();
 			}
 
@@ -197,7 +195,6 @@ namespace PokerLobby
 			/// <summary>Reads incoming data from the stream.</summary>
 			private void ReceiveCallback(IAsyncResult result)
 			{
-				ConsoleLogger.Instance.Print("5");
 				try
 				{
 					int byteLength = _stream.EndRead(result);
@@ -207,52 +204,43 @@ namespace PokerLobby
 						return;
 					}
 
-					ConsoleLogger.Instance.Print("6");
 
 					byte[] data = new byte[byteLength];
 					Array.Copy(_receiveBuffer, data, byteLength);
 
 
-					ConsoleLogger.Instance.Print("7");
 					_receivedPacket.Reset(HandleData(data)); // Reset receivedData if all data was handled
 					try
 					{
-						ConsoleLogger.Instance.Print("8");
 						_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
 					}
 					catch (Exception ex)
 					{
 						Disconnect();
 					}
-					ConsoleLogger.Instance.Print("9");
 				}
 				catch (Exception ex)
 				{
-					ConsoleLogger.Instance.Print("10");
 					Disconnect();
 				}
-				ConsoleLogger.Instance.Print("11");
 			}
 
 			/// <summary>Prepares received data to be used by the appropriate packet handler methods.</summary>
 			/// <param name="data">The recieved data.</param>
 			private bool HandleData(byte[] data)
 			{
-				ConsoleLogger.Instance.Print("12");
 				int packetLength = 0;
 
 				_receivedPacket.SetBytes(data);
 
 				if (_receivedPacket.UnreadLength >= 4)
 				{
-					ConsoleLogger.Instance.Print("13");
 					// If client's received data contains a packet
 					byte[] allBytes = _receivedPacket.ReadBytes(_receivedPacket.UnreadLength, false);
 
 					packetLength = _receivedPacket.ReadInt();
 					if (packetLength <= 0)
 					{
-						ConsoleLogger.Instance.Print("14");
 						// If packet contains no data
 						return true; // Reset _receivedPacket instance to allow it to be reused
 					}
@@ -262,28 +250,22 @@ namespace PokerLobby
 				{
 					// While packet contains data AND packet data length doesn't exceed the length of the packet we're reading
 					byte[] packetBytes = _receivedPacket.ReadBytes(packetLength);
-					ConsoleLogger.Instance.Print("15");
 					//IThreadManager.ExecuteOnMainThread(() =>
 					//{
-					ConsoleLogger.Instance.Print("16");
 					using (Packet packet = new Packet(packetBytes))
 					{
-						ConsoleLogger.Instance.Print("17");
 						int packetId = packet.ReadInt();
 						_packetHandlers[packetId](packet);
 					}
 					//});
 
-					ConsoleLogger.Instance.Print("18");
 					packetLength = 0; // Reset packet length
 					if (_receivedPacket.UnreadLength >= 4)
 					{
-						ConsoleLogger.Instance.Print("19");
 						// If client's received data contains another packet
 						packetLength = _receivedPacket.ReadInt();
 						if (packetLength <= 0)
 						{
-							ConsoleLogger.Instance.Print("20");
 							// If packet contains no data
 							return true; // Reset _receivedPacket instance to allow it to be reused
 						}
@@ -292,10 +274,8 @@ namespace PokerLobby
 
 				if (packetLength <= 1)
 				{
-					ConsoleLogger.Instance.Print("21");
 					return true; // Reset _receivedPacket instance to allow it to be reused
 				}
-				ConsoleLogger.Instance.Print("22");
 
 				return false;
 			}

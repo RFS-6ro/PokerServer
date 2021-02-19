@@ -38,13 +38,6 @@ namespace GameServer
 
 			//CHECK: connect input client as lobby
 
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies.ToString());
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby].ToString());
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client.ToString());
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.ToString());
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.ToString());
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.Client?.ToString());
-			ConsoleLogger.Instance.PrintWarning(MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.Client?.RemoteEndPoint.ToString());
 			Console.WriteLine($"{ MainGameServer.Lobbies?[fromLobby]?.Client?.Tcp?.Socket?.Client?.RemoteEndPoint } connected successfully and is now lobby { fromLobby } with message { message }.");
 			if (fromLobby != lobbyId)
 			{

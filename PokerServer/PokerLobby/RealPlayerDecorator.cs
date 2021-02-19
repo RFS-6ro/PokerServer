@@ -5,7 +5,7 @@ using PokerSynchronisation;
 using TexasHoldem.Logic.Cards;
 using TexasHoldem.Logic.Extensions;
 using TexasHoldem.Logic.Players;
-#if DEBUG
+#if !DEBUG
 using TexasHoldem.UI.Console;
 #endif
 
@@ -118,7 +118,7 @@ namespace PokerLobby
 
 			PlayerMoney.NewHand();
 
-#if DEBUG
+#if !DEBUG
 			UpdateCommonRows(0, 0, new int[] { });
 			var dealerSymbol = context.FirstPlayerName == Player.Name ? "D" : " ";
 
@@ -129,7 +129,7 @@ namespace PokerLobby
 #endif
 			_firstCard = context.FirstCard.DeepClone();
 			_secondCard = context.SecondCard.DeepClone();
-#if DEBUG
+#if !DEBUG
 			DrawSingleCard(_row + 1, 10, _firstCard);
 			DrawSingleCard(_row + 1, 14, _secondCard);
 #endif
@@ -141,7 +141,7 @@ namespace PokerLobby
 		{
 			PlayerMoney.NewRound(context.RoundType);
 			CommunityCards = context.CommunityCards;
-#if DEBUG
+#if !DEBUG
 			UpdateCommonRows(
 				context.CurrentPot,
 				context.CurrentMainPot.AmountOfMoney,
@@ -161,20 +161,20 @@ namespace PokerLobby
 
 		public override PlayerAction PostingBlind(IPostingBlindContext context)
 		{
-#if DEBUG
+#if !DEBUG
 			UpdateCommonRows(context.CurrentPot, context.CurrentPot, new int[] { });
 #endif
 
 			var action = base.PostingBlind(context);
 
-#if DEBUG
+#if !DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + action.Type + "(" + action.Money + ")");
 #endif
 
 			var moneyAfterAction = context.CurrentStackSize;
 
-#if DEBUG
+#if !DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, moneyAfterAction + "   ");
 #endif
 
@@ -183,7 +183,7 @@ namespace PokerLobby
 
 		public override PlayerAction GetTurn(IGetTurnContext context)
 		{
-#if DEBUG
+#if !DEBUG
 			UpdateCommonRows(
 				context.CurrentPot,
 				context.MainPot.AmountOfMoney,
@@ -196,12 +196,12 @@ namespace PokerLobby
 
 			if (action.Type == TurnType.Fold)
 			{
-#if DEBUG
+#if !DEBUG
 				Muck(context.MoneyLeft);
 #endif
 			}
 
-#if DEBUG
+#if !DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
 
 			var lastAction = action.Type.ToString();
@@ -223,14 +223,14 @@ namespace PokerLobby
 				? context.MoneyLeft
 				: context.MoneyLeft - action.Money - context.MoneyToCall;
 
-#if DEBUG
+#if !DEBUG
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, moneyAfterAction + "   ");
 #endif
 
 			return action;
 		}
 
-#if DEBUG
+#if !DEBUG
 		private void Muck(int moneyLeft)
 		{
 			DrawMuckedSingleCard(_row + 1, 10, _firstCard);

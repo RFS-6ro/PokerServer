@@ -63,7 +63,8 @@ namespace GameServer
 				_receivedPacket = new Packet();
 				_receiveBuffer = new byte[NetworkSettings.DATA_BUFFER_SIZE];
 
-
+				var a = MainGameServer.Instance;
+				var b = IServer.Clients;
 				_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
 				MainGameServerSendsToLobbyHandle.Welcome(_id, "Welcome to the master game server");
 			}
