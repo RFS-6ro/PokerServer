@@ -72,15 +72,28 @@ namespace GameServer
 			}
 		}
 
-		public static void ConnectionToLobbyApprovance(int playerId, bool result, string message)
+		public static Packet ConnectionToLobbyApprovance(int playerId, string userName, int serverSideIndex)
 		{
 			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance))
 			{
 				packet.Write(playerId);
-				packet.Write(result);
+				packet.Write(true);
+				packet.Write(userName);
+				packet.Write(serverSideIndex);
+
+				return packet;
+			}
+		}
+
+		public static Packet ConnectionToLobbyApprovance(int playerId, string message)
+		{
+			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance))
+			{
+				packet.Write(playerId);
+				packet.Write(false);
 				packet.Write(message);
 
-				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, packet);
+				return packet;
 			}
 		}
 

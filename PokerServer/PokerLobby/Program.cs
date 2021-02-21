@@ -110,7 +110,7 @@ namespace PokerLobby
 						if (waitingTime > DefaultSyncValues.LobbyWaitingLimit)
 						{
 							//TODO: terminate lobby and free it
-							return;
+							//return;
 						}
 					}
 				}

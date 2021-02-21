@@ -21,7 +21,7 @@ namespace PokerLobby
 
 		private static TexasHoldemGameLogic _game;
 
-		public static List<RealPlayer> Players = new List<RealPlayer>();
+		public static Dictionary<int, RealPlayer> Players = new Dictionary<int, RealPlayer>();
 		public static List<RealPlayerDecorator> Decorators = new List<RealPlayerDecorator>();
 
 
@@ -38,22 +38,28 @@ namespace PokerLobby
 			Name = name;
 		}
 
-		public bool TryConnectPlayer(int playerId, string name)
+		public bool TryConnectPlayer(int playerId, string name, out int serverSideIndex)
 		{
 			if (Players.Count < DefaultSyncValues.MaxPlayers)
 			{
 				//CHECK: register player in lobby
-				Players.Add(new RealPlayer(name, playerId));
-
-				return true;
+				for (int i = 0; i < 7; i++)
+				{
+					if (Players.ContainsKey(i) == false)
+					{
+						Players.Add(i, new RealPlayer(name, playerId));
+						serverSideIndex = i;
+						return true;
+					}
+				}
 			}
-
+			serverSideIndex = -1;
 			return false;
 		}
 
 		public void SetReadyState(int playerId, bool state)
 		{
-			RealPlayer player = Players.FirstOrDefault((x) => x.ServerId == playerId);
+			RealPlayer player = Players.FirstOrDefault((x) => x.Value.ServerId == playerId).Value;
 			if (player != null)
 			{
 				player.IsReady = state;
@@ -68,7 +74,7 @@ namespace PokerLobby
 			RealPlayerDecorator winner = (RealPlayerDecorator)await _game.Start();
 
 			//CHECK: Disconnect winner player from lobby
-			Players.RemoveAll((x) => x.ServerId == winner.ServerId);
+			DisconnectPlayer(winner.ServerId);
 			//TODO: Send event to player about disconnecting from this server
 		}
 
@@ -87,7 +93,15 @@ namespace PokerLobby
 
 		public void DisconnectPlayer(int playerId)
 		{
-			Players.RemoveAll((x) => x.ServerId == playerId);
+			try
+			{
+				Players.Remove(Players.Where((x) => x.Value.ServerId == playerId).ElementAt(0).Key);
+			}
+			catch (Exception ex)
+			{
+				//TODO: write in log that lobby is trying to disconnect missing player
+				return;
+			}
 			//TODO: Send event to players and game loop about disconnecting from this server
 		}
 

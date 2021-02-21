@@ -31,6 +31,7 @@ namespace PokerLobby
 
 		public static void WelcomeReceived(int id, string name)
 		{
+			ConsoleLogger.Instance.Print($"Sending welcome receive message to server {id}");
 			using (Packet packet = new Packet((int)LobbySendTypes.WelcomeReceived))
 			{
 				packet.Write(id);
@@ -40,13 +41,15 @@ namespace PokerLobby
 			}
 		}
 
-		public static void ConnectionToLobbyApprovance(int connectedLobbyId, int connectedPlayerId)
+		public static void ConnectionToLobbyApprovance(int connectedLobbyId, int connectedPlayerId, int serverSideIndex)
 		{
+			ConsoleLogger.Instance.Print($"Sending approvance to player {connectedPlayerId} from lobby {connectedLobbyId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.ConnectionToLobbyApprovance))
 			{
 				packet.Write(connectedLobbyId);
 				packet.Write(connectedPlayerId);
 				packet.Write(true);
+				packet.Write(serverSideIndex);
 
 				ClientSentHandlers.SendTCPData(packet);
 			}
@@ -54,6 +57,7 @@ namespace PokerLobby
 
 		public static void ConnectionToLobbyApprovance(int connectedLobbyId, int connectedPlayerId, string message)
 		{
+			ConsoleLogger.Instance.Print($"Sending discard of connection to player {connectedPlayerId} from lobby {connectedLobbyId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.ConnectionToLobbyApprovance))
 			{
 				packet.Write(connectedLobbyId);
@@ -67,6 +71,7 @@ namespace PokerLobby
 
 		public static void DealerPosition(int lobbyId, int dealerPlayerId)
 		{
+			ConsoleLogger.Instance.Print($"Sending dealer id: {dealerPlayerId} to everyone in lobby {lobbyId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.DealerPosition))
 			{
 				packet.Write(lobbyId);
@@ -78,6 +83,7 @@ namespace PokerLobby
 
 		public static void GiveCard(int lobbyId, int playerId, int type, int suit)
 		{
+			ConsoleLogger.Instance.Print($"Giving card to player {playerId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.GiveCard))
 			{
 				packet.Write(lobbyId);
@@ -91,6 +97,7 @@ namespace PokerLobby
 
 		public static void ShowTableCards(int lobbyId, int[] types, int[] suits, int[] indexes)
 		{
+			ConsoleLogger.Instance.Print($"Sending opening cards information to all players int lobby {lobbyId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.ShowTableCards))
 			{
 				packet.Write(lobbyId);
@@ -113,6 +120,7 @@ namespace PokerLobby
 
 		public static void StartTurn(int lobbyId, int playerId, bool canRaise)
 		{
+			ConsoleLogger.Instance.Print($"Sending start turn event to player {playerId} in lobby {lobbyId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.StartTurn))
 			{
 				packet.Write(lobbyId);
@@ -125,6 +133,7 @@ namespace PokerLobby
 
 		public static void TimerEvent(int lobbyId, int playerId, bool isDecreasing, int timeLeft)
 		{
+			ConsoleLogger.Instance.Print($"Sending timer event of player {playerId} to all players in lobby {lobbyId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.TimerEvent))
 			{
 				packet.Write(lobbyId);
@@ -138,6 +147,7 @@ namespace PokerLobby
 
 		public static void TurnApprovance(int lobbyId, int playerId, bool result)
 		{
+			ConsoleLogger.Instance.Print($"Sending turn check result to player {playerId}");
 			using (Packet packet = new Packet((int)LobbySendTypes.TurnApprovance))
 			{
 				packet.Write(lobbyId);
@@ -150,6 +160,7 @@ namespace PokerLobby
 
 		public static void ShowPlayerBet(int lobbyId, int playerId, int betAmount)
 		{
+			ConsoleLogger.Instance.Print($"Sending player's bet (id: {playerId}) in amount of {betAmount}");
 			using (Packet packet = new Packet((int)LobbySendTypes.ShowPlayerBet))
 			{
 				packet.Write(lobbyId);
@@ -162,6 +173,7 @@ namespace PokerLobby
 
 		public static void ShowPlayerMoney(int lobbyId, int playerId, int amount)
 		{
+			ConsoleLogger.Instance.Print($"Sending player's (id: {playerId}) money: {amount}");
 			using (Packet packet = new Packet((int)LobbySendTypes.ShowPlayerMoney))
 			{
 				packet.Write(lobbyId);
@@ -174,6 +186,7 @@ namespace PokerLobby
 
 		public static void EndTurn(int lobbyId, int playerId)
 		{
+			ConsoleLogger.Instance.Print($"Sending end of player {playerId} turn event to everyone");
 			using (Packet packet = new Packet((int)LobbySendTypes.EndTurn))
 			{
 				packet.Write(lobbyId);

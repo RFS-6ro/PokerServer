@@ -61,17 +61,20 @@ namespace GameServer
 
 			if (result)
 			{
+				int serverSideIndex = packet.ReadInt();
 				message = "Welcome to the lobby";
 				MainGameServer.Lobbies[lobbyId].Client.AddConnection(playerId);
-				//TODO: ask or receive here data about everyone in lobby ad send it to connected player only
+				//CHECK: ask or receive here data about everyone in lobby and send it to connected player only
+				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(playerId,
+					MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId,
+						((PokerClient)IServer.Clients[playerId]).UserName, serverSideIndex));
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId, message, serverSideIndex));
 			}
 			else
 			{
 				message = packet.ReadString();
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId, message));
 			}
-
-			//CHECK: send message event to player
-			MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId, result, message);
 		}
 
 		public static void Dealer(int fromLobby, Packet packet)

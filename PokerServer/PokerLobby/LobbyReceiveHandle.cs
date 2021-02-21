@@ -38,13 +38,13 @@ namespace PokerLobby
 				return;
 			}
 
-			ConsoleLogger.Instance.Print("Player is connecting");
 			int playerId = packet.ReadInt();
 			string name = packet.ReadString();
+			ConsoleLogger.Instance.Print($"Player ID:{playerId} {name} is connecting");
 
-			if (LobbyClient.Instance.TryConnectPlayer(playerId, name))
+			if (LobbyClient.Instance.TryConnectPlayer(playerId, name, out int serverSideIndex))
 			{
-				LobbySendHandle.ConnectionToLobbyApprovance(lobbyId, playerId);
+				LobbySendHandle.ConnectionToLobbyApprovance(lobbyId, playerId, serverSideIndex);
 			}
 			else
 			{
@@ -65,6 +65,8 @@ namespace PokerLobby
 			int playerId = packet.ReadInt();
 			bool isReady = packet.ReadBool();
 
+
+			ConsoleLogger.Instance.Print($"Player {playerId} is {(isReady ? "ready" : "not ready")}.");
 			LobbyClient.Instance.SetReadyState(playerId, isReady);
 		}
 
@@ -79,6 +81,7 @@ namespace PokerLobby
 			}
 
 			int playerId = packet.ReadInt();
+			ConsoleLogger.Instance.Print($"Player {playerId} is disconnecting");
 
 			LobbyClient.Instance.DisconnectPlayer(playerId);
 		}
@@ -97,6 +100,7 @@ namespace PokerLobby
 			TurnType turn = (TurnType)packet.ReadInt();
 			int raiseAmount = packet.ReadInt();
 
+			ConsoleLogger.Instance.Print($"Player {playerId} turn is {turn} with raise amount {raiseAmount}");
 			RealPlayer turningPlayer = LobbyClient.Players.FirstOrDefault((x) => x.ServerId == playerId);
 
 			if (turningPlayer != null)
