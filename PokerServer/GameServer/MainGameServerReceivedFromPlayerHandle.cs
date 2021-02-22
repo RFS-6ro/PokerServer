@@ -22,7 +22,7 @@ namespace GameServer
 
 		public static void WelcomeReceived(int fromClient, Packet packet)
 		{
-			ConsoleLogger.Instance.Print("FUCK");
+			ConsoleLogger.Instance.Print($"Player {fromClient} is trying to connect");
 			int clientIdCheck = packet.ReadInt();
 			string userName = packet.ReadString();
 
@@ -37,6 +37,7 @@ namespace GameServer
 
 		public static void PlayerConnection(int fromClient, Packet packet)
 		{
+			ConsoleLogger.Instance.Print($"Player {fromClient} is trying to connect to lobby");
 			int clientIdCheck = packet.ReadInt();
 			string playerName = packet.ReadString();
 			int lobbyId = packet.ReadInt();
@@ -49,48 +50,52 @@ namespace GameServer
 			MainGameServer.Instance.ConnectToLobby(clientIdCheck, playerName, lobbyId);
 		}
 
-		public static void PlayerDisconnection(int playerId, Packet packet)
+		public static void PlayerDisconnection(int fromClient, Packet packet)
 		{
+			ConsoleLogger.Instance.Print($"Player {fromClient} is diconnecting");
 			int clientIdCheck = packet.ReadInt();
 			//CHECK: Get lobby id by player Id
-			int lobbyId = -1;
+			int lobbyId;
 			try
 			{
-				lobbyId = GetLobbyBy(playerId);
+				lobbyId = GetLobbyBy(fromClient);
 
-				if (playerId != clientIdCheck)
+				if (fromClient != clientIdCheck)
 				{
-					Console.WriteLine($"Player (ID: { playerId }) has assumed the wrong client ID ({ clientIdCheck })!");
+					Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
 				}
 
 				MainGameServer.Instance.ExitLobby(clientIdCheck, lobbyId);
 			}
 			catch (Exception ex)
 			{
-
+				ConsoleLogger.Instance.Print("Exception was caught in PlayerDisconnection");
+				ConsoleLogger.Instance.Print(ex.StackTrace);
 			}
 		}
 
-		public static void PlayerReadyStateChanged(int playerId, Packet packet)
+		public static void PlayerReadyStateChanged(int fromClient, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
 			bool isReady = packet.ReadBool();
+			ConsoleLogger.Instance.Print($"Player {fromClient} is changing ready state to {isReady}");
 			//CHECK: Get lobby id by player Id
-			int lobbyId = -1;
+			int lobbyId;
 			try
 			{
-				lobbyId = GetLobbyBy(playerId);
+				lobbyId = GetLobbyBy(fromClient);
 
-				if (playerId != clientIdCheck)
+				if (fromClient != clientIdCheck)
 				{
-					Console.WriteLine($"Player (ID: { playerId }) has assumed the wrong client ID ({ clientIdCheck })!");
+					Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
 				}
 
 				MainGameServerSendsToLobbyHandle.PlayerReadyStateChanged(lobbyId, clientIdCheck, isReady);
 			}
 			catch (Exception ex)
 			{
-
+				ConsoleLogger.Instance.Print("Exception was caught in PlayerReadyStateChanged");
+				ConsoleLogger.Instance.Print(ex.StackTrace);
 			}
 		}
 
@@ -100,6 +105,7 @@ namespace GameServer
 			TurnType turnType = (TurnType)packet.ReadInt();
 			int amount = packet.ReadInt();
 
+			ConsoleLogger.Instance.Print($"Player {fromClient} is turning {turnType} with amount {amount}");
 			if (fromClient != playerId)
 			{
 				Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ playerId })!");
@@ -108,7 +114,7 @@ namespace GameServer
 			}
 
 			//CHECK: Get lobby id by player Id
-			int lobbyId = -1;
+			int lobbyId;
 			try
 			{
 				lobbyId = GetLobbyBy(playerId);
@@ -123,13 +129,30 @@ namespace GameServer
 			}
 			catch (Exception ex)
 			{
+				ConsoleLogger.Instance.Print("Exception was caught in TurnReceive");
+				ConsoleLogger.Instance.Print(ex.StackTrace);
 				MainGameServerSendsToPlayerHandle.TurnApprovance(playerId, false);
 			}
 		}
 
 		private static int GetLobbyBy(int playerId)
 		{
-			return MainGameServer.Lobbies.FirstOrDefault((x) => x.Value.IsAssigned && x.Value.Client.RegisteredPlayers.Select((x) => x.Item1 == playerId).Count() > 0).Key;
+			int lobbyId = MainGameServer.Lobbies.FirstOrDefault((x) =>
+			{
+				LobbyNetworkBunch lobby = x.Value;
+				if (lobby.IsAssigned)
+				{
+					IEnumerable<int> registeredPlayersIds = lobby.Client.RegisteredPlayers.Select((y) => y.Item1);
+					if (registeredPlayersIds.Contains(playerId))
+					{
+						return true;
+					}
+				}
+
+				return false;
+			}).Key;
+			ConsoleLogger.Instance.Print(lobbyId.ToString());
+			return lobbyId;
 		}
 
 		public static void AskLobbyList(int fromClient, Packet packet)

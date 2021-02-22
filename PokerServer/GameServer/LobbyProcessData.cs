@@ -23,7 +23,7 @@ namespace GameServer
 				Process process = new Process();
 				process.StartInfo.CreateNoWindow = false;
 				process.StartInfo.UseShellExecute = false;
-				process.StartInfo.FileName = "/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/bin/Release/net5.0/osx.10.12-x64/PokerLobby";
+				process.StartInfo.FileName = "/Users/RFS_6ro/Documents/GitHub/PokerServer/PokerServer/PokerLobby/bin/Debug/net5.0/osx.10.12-x64/PokerLobby";
 
 				string linedAttributes = data.ToString();
 

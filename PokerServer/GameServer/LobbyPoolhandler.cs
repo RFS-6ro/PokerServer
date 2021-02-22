@@ -31,7 +31,7 @@ namespace GameServer
 		public LobbyProcessData CreateNewLobby(LobbyIdentifierData data, string[] args = null)
 		{
 			LobbyProcessData lobbyData = new LobbyProcessData(data, args);
-			//_lobbiesContainer.Add(data, lobbyData);
+			_lobbiesContainer.Add(data, lobbyData);
 
 			return lobbyData;
 		}

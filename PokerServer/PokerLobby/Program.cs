@@ -52,18 +52,6 @@ namespace PokerLobby
 			LobbyClient.Instance.SetName(lobbyName);
 
 			LobbyClient.Instance.ConnectToServer();
-#endif
-			//await Task.Run(() =>
-			//{
-			//	while (true)
-			//	{
-			//		Task.Delay(100);
-			//		if (LobbyClient.Instance.IsConnected == true)
-			//		{
-			//			return;
-			//		}
-			//	}
-			//});
 
 			await PlayersConnection();
 

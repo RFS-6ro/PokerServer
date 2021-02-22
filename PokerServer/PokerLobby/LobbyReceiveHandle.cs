@@ -31,15 +31,16 @@ namespace PokerLobby
 		public static void PlayerConnect(Packet packet)
 		{
 			int lobbyId = packet.ReadInt();
+			int playerId = packet.ReadInt();
+			string name = packet.ReadString();
 
 			//Check LobbyId
 			if (lobbyId != LobbyClient.Instance.Id)
 			{
+				LobbySendHandle.ConnectionToLobbyApprovance(lobbyId, playerId, "Lobby is not avaliable");
 				return;
 			}
 
-			int playerId = packet.ReadInt();
-			string name = packet.ReadString();
 			ConsoleLogger.Instance.Print($"Player ID:{playerId} {name} is connecting");
 
 			if (LobbyClient.Instance.TryConnectPlayer(playerId, name, out int serverSideIndex))

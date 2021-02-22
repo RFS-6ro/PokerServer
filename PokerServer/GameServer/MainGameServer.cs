@@ -41,8 +41,12 @@ namespace GameServer
 			Console.WriteLine($"Server started on port {IServer.Port}.");
 
 			LobbyIdentifierData lobbyIdentifier = new LobbyIdentifierData();
-			//LobbyProcessData lobby = LobbyPoolhandler.Instance.CreateNewLobby(lobbyIdentifier);
-			//Lobbies[1].AssignNewLobby("First test lobby", 3, 300, null);
+			lobbyIdentifier.Name = "La-lo-li-le-lo";
+			lobbyIdentifier.SmallBlind = 7;
+			lobbyIdentifier.BuyIn = 402;
+			lobbyIdentifier.NumberOfPlayers = 2;
+			LobbyProcessData lobby = LobbyPoolhandler.Instance.CreateNewLobby(lobbyIdentifier);
+			Lobbies[1].AssignNewLobby(lobbyIdentifier);
 		}
 
 		public void ConnectToLobby(int playerId, string playerName, int lobbyId)

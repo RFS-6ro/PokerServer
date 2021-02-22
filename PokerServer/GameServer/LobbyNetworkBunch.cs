@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using PokerSynchronisation;
 
 namespace GameServer
 {
@@ -20,6 +21,15 @@ namespace GameServer
 		{
 			ID = id;
 			Client = client ?? throw new ArgumentNullException(nameof(client));
+		}
+
+		public void AssignNewLobby(LobbyIdentifierData data)
+		{
+			Name = data.Name;
+			SmallBlind = data.SmallBlind;
+			BuyIn = data.BuyIn;
+			//Process = process ?? throw new ArgumentNullException(nameof(process));
+			IsAssigned = true;
 		}
 
 		public void AssignNewLobby(string name, int smallBlind, int buyIn, LobbyProcessData process)
