@@ -12,7 +12,11 @@ namespace GameServer
 		public TCPBase Tcp { get; set; }
 		public string Name { get; set; }
 
-		public List<int> RegisteredPlayers = new List<int>(DefaultSyncValues.MaxPlayers);
+		/// <summary>
+		/// first is id
+		/// second is server side index
+		/// </summary>
+		public List<Tuple<int, int>> RegisteredPlayers = new List<Tuple<int, int>>(DefaultSyncValues.MaxPlayers);
 
 		public bool IsConnected = false;
 
@@ -23,15 +27,14 @@ namespace GameServer
 			Tcp = new TCP(Id);
 		}
 
-		public void AddConnection(int newPlayerId)
+		public void AddConnection(int newPlayerId, int serverSideIndex)
 		{
-			RegisteredPlayers.Add(newPlayerId);
-			//TODO: send connection event to everyone except connected player
+			RegisteredPlayers.Add(new Tuple<int, int>(newPlayerId, serverSideIndex));
 		}
 
 		public void RemoveConnection(int playerId)
 		{
-			RegisteredPlayers.Remove(playerId);
+			RegisteredPlayers.RemoveAll((x) => x.Item1 == playerId);
 		}
 
 		public void Disconnect()

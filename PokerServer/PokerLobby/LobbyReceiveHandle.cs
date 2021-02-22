@@ -101,7 +101,7 @@ namespace PokerLobby
 			int raiseAmount = packet.ReadInt();
 
 			ConsoleLogger.Instance.Print($"Player {playerId} turn is {turn} with raise amount {raiseAmount}");
-			RealPlayer turningPlayer = LobbyClient.Players.FirstOrDefault((x) => x.ServerId == playerId);
+			RealPlayer turningPlayer = LobbyClient.Players.FirstOrDefault((x) => x.Value.ServerId == playerId).Value;
 
 			if (turningPlayer != null)
 			{

@@ -49,18 +49,18 @@ namespace GameServer
 			MainGameServer.Instance.ConnectToLobby(clientIdCheck, playerName, lobbyId);
 		}
 
-		public static void PlayerDisconnection(int fromClient, Packet packet)
+		public static void PlayerDisconnection(int playerId, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
 			//CHECK: Get lobby id by player Id
 			int lobbyId = -1;
 			try
 			{
-				lobbyId = MainGameServer.Lobbies.FirstOrDefault((x) => x.Value.IsAssigned && x.Value.Client.RegisteredPlayers.Contains(clientIdCheck)).Key;
+				lobbyId = GetLobbyBy(playerId);
 
-				if (fromClient != clientIdCheck)
+				if (playerId != clientIdCheck)
 				{
-					Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
+					Console.WriteLine($"Player (ID: { playerId }) has assumed the wrong client ID ({ clientIdCheck })!");
 				}
 
 				MainGameServer.Instance.ExitLobby(clientIdCheck, lobbyId);
@@ -71,7 +71,7 @@ namespace GameServer
 			}
 		}
 
-		public static void PlayerReadyStateChanged(int fromClient, Packet packet)
+		public static void PlayerReadyStateChanged(int playerId, Packet packet)
 		{
 			int clientIdCheck = packet.ReadInt();
 			bool isReady = packet.ReadBool();
@@ -79,11 +79,11 @@ namespace GameServer
 			int lobbyId = -1;
 			try
 			{
-				lobbyId = MainGameServer.Lobbies.FirstOrDefault((x) => x.Value.IsAssigned && x.Value.Client.RegisteredPlayers.Contains(clientIdCheck)).Key;
+				lobbyId = GetLobbyBy(playerId);
 
-				if (fromClient != clientIdCheck)
+				if (playerId != clientIdCheck)
 				{
-					Console.WriteLine($"Player (ID: { fromClient }) has assumed the wrong client ID ({ clientIdCheck })!");
+					Console.WriteLine($"Player (ID: { playerId }) has assumed the wrong client ID ({ clientIdCheck })!");
 				}
 
 				MainGameServerSendsToLobbyHandle.PlayerReadyStateChanged(lobbyId, clientIdCheck, isReady);
@@ -111,7 +111,7 @@ namespace GameServer
 			int lobbyId = -1;
 			try
 			{
-				lobbyId = MainGameServer.Lobbies.FirstOrDefault((x) => x.Value.IsAssigned && x.Value.Client.RegisteredPlayers.Contains(playerId)).Key;
+				lobbyId = GetLobbyBy(playerId);
 
 				if (fromClient != playerId)
 				{
@@ -125,6 +125,11 @@ namespace GameServer
 			{
 				MainGameServerSendsToPlayerHandle.TurnApprovance(playerId, false);
 			}
+		}
+
+		private static int GetLobbyBy(int playerId)
+		{
+			return MainGameServer.Lobbies.FirstOrDefault((x) => x.Value.IsAssigned && x.Value.Client.RegisteredPlayers.Select((x) => x.Item1 == playerId).Count() > 0).Key;
 		}
 
 		public static void AskLobbyList(int fromClient, Packet packet)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace GameServer
 {
@@ -13,7 +14,7 @@ namespace GameServer
 		public LobbyClient Client { get; set; }
 		public LobbyProcessData Process { get; set; }
 		public bool IsAssigned { get; private set; }
-		public List<int> CurrentPlayersIDs => Client?.RegisteredPlayers;
+		public IEnumerable<int> CurrentPlayersIDs => Client?.RegisteredPlayers?.Select((x) => x.Item1);
 
 		public LobbyNetworkBunch(int id, LobbyClient client)
 		{

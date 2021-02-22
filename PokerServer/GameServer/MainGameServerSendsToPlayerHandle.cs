@@ -74,27 +74,23 @@ namespace GameServer
 
 		public static Packet ConnectionToLobbyApprovance(int playerId, string userName, int serverSideIndex)
 		{
-			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance))
-			{
-				packet.Write(playerId);
-				packet.Write(true);
-				packet.Write(userName);
-				packet.Write(serverSideIndex);
+			Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance);
+			packet.Write(playerId);
+			packet.Write(true);
+			packet.Write(userName);
+			packet.Write(serverSideIndex);
 
-				return packet;
-			}
+			return packet;
 		}
 
 		public static Packet ConnectionToLobbyApprovance(int playerId, string message)
 		{
-			using (Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance))
-			{
-				packet.Write(playerId);
-				packet.Write(false);
-				packet.Write(message);
+			Packet packet = new Packet((int)MainGameServerSendsToPlayerTypes.ConnectionToLobbyApprovance);
+			packet.Write(playerId);
+			packet.Write(false);
+			packet.Write(message);
 
-				return packet;
-			}
+			return packet;
 		}
 
 		public static void DealerPosition(int dealerId)

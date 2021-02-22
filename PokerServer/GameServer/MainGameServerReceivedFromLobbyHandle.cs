@@ -63,12 +63,29 @@ namespace GameServer
 			{
 				int serverSideIndex = packet.ReadInt();
 				message = "Welcome to the lobby";
-				MainGameServer.Lobbies[lobbyId].Client.AddConnection(playerId);
+				var lobby = MainGameServer.Lobbies[lobbyId].Client;
+				lobby.AddConnection(playerId, serverSideIndex);
+
+
 				//CHECK: ask or receive here data about everyone in lobby and send it to connected player only
 				MainGameServerSendToPlayersHandlers.SendTCPDataToAll(playerId,
 					MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId,
 						((PokerClient)IServer.Clients[playerId]).UserName, serverSideIndex));
+
+
 				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId, message, serverSideIndex));
+
+
+				foreach (var playerIdentificator in lobby.RegisteredPlayers)
+				{
+					if (playerIdentificator.Item1 == playerId)
+					{
+						return;
+					}
+
+					ConsoleLogger.Instance.Print($"sending information about seat (index: {playerIdentificator.Item2}, playerId: {playerIdentificator.Item1}) to player {playerId}");
+					MainGameServerSendToPlayersHandlers.SendTCPData(playerId, MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerIdentificator.Item1, ((PokerClient)IServer.Clients[playerIdentificator.Item1]).UserName, playerIdentificator.Item2));
+				}
 			}
 			else
 			{

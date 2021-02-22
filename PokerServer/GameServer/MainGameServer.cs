@@ -57,7 +57,7 @@ namespace GameServer
 			else
 			{
 				ConsoleLogger.Instance.PrintError("lobby is not responding");
-				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId, false, "Lobby is not assigned"));
+				MainGameServerSendToPlayersHandlers.SendTCPData(playerId, MainGameServerSendsToPlayerHandle.ConnectionToLobbyApprovance(playerId, "Lobby is not assigned"));
 			}
 			{
 				//bool result;

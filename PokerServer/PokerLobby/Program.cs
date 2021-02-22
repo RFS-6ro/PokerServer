@@ -11,7 +11,7 @@ namespace PokerLobby
 	{
 		public static int MinimumPlayersNumberToStart { get; private set; } = 5;
 
-		public static int ConnectedPlayers => LobbyClient.Players.Count((x) => x.IsReady);
+		public static int ConnectedPlayers => LobbyClient.Players.Count((x) => x.Value.IsReady);
 
 		private static bool _isRunning = false;
 
