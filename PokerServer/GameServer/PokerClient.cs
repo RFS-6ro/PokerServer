@@ -146,7 +146,7 @@ namespace GameServer
 				int packetLength = data.ReadInt();
 				byte[] packetBytes = data.ReadBytes(packetLength);
 
-				IThreadManager.ExecuteOnMainThread(() =>
+				ThreadManager.ExecuteOnMainThread(() =>
 				{
 					using (Packet packet = new Packet(packetBytes))
 					{

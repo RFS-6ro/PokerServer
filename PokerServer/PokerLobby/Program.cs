@@ -27,7 +27,7 @@ namespace PokerLobby
 			LobbyClient.Players.Add(new RealPlayer("4", 4));
 			LobbyClient.Players.Add(new RealPlayer("5", 5));
 			LobbyClient.Players.Add(new RealPlayer("6", 6));
-#else
+#endif
 			string lobbyName;
 
 			LobbyIdentifierData data = new LobbyIdentifierData();
@@ -152,7 +152,7 @@ namespace PokerLobby
 				while (_nextLoop < DateTime.Now)
 				{
 					// If the time for the next loop is in the past, aka it's time to execute another tick
-					IThreadManager.UpdateMain(); // Execute game logic
+					ThreadManager.UpdateMain(); // Execute game logic
 
 					_nextLoop = _nextLoop.AddMilliseconds(1000f / 30); // Calculate at what point in time the next tick should be executed
 
