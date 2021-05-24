@@ -122,7 +122,7 @@ namespace PokerLobby
 
 				var maxMoneyPerPlayer = _players.Max(x => x.PlayerMoney.CurrentRoundBet);
 
-				GetTurnContext turnContext = new GetTurnContext(
+				IGetTurnContext turnContext = new GetTurnContext(
 							gameRoundType,
 							RoundBets.AsReadOnly(),
 							_smallBlind,
@@ -195,7 +195,7 @@ namespace PokerLobby
 			UpdateBank();
 		}
 
-		private async Task<PlayerAction> GettingTurn(RealPlayerDecorator player, GetTurnContext turnContext, int awaitTime = 10000)
+		private async Task<PlayerAction> GettingTurn(RealPlayerDecorator player, IGetTurnContext turnContext, int awaitTime = 10000)
 		{
 			int timeLeft = awaitTime;
 #if DEBUG
