@@ -1,4 +1,4 @@
-﻿namespace UniCastCommonData
+﻿namespace UniCastCommonData.Handlers
 {
 	public enum SenderType
 	{

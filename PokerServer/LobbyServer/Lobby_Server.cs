@@ -18,5 +18,7 @@ namespace LobbyServer
 		public Lobby_Server(string address, int port) : base(address, port)
 		{
 		}
+
+		public SenderType Type => throw new NotImplementedException();
 	}
 }

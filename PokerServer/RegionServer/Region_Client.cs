@@ -18,5 +18,7 @@ namespace RegionServer
 		public Region_Client(string address, int port) : base(address, port)
 		{
 		}
+
+		public SenderType Type => throw new NotImplementedException();
 	}
 }

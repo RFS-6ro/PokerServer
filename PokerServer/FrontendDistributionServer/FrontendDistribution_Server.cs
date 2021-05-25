@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using NetCoreServer;
 using UniCastCommonData;
@@ -7,16 +8,32 @@ namespace FrontendDistributionServer
 {
 	public class FrontendDistribution_Server : TcpServer, IAsyncReceiver, IAsyncSender
 	{
-		public FrontendDistribution_Server(IPEndPoint endpoint) : base(endpoint)
+		private static bool _isRunning = false;
+		public static bool IsRunning => _isRunning;
+
+		public FrontendDistribution_Server(IPAddress address, int port) : base(address, port) { }
+
+		public SenderType Type => throw new NotImplementedException();
+
+		public override bool Start()
 		{
+			_isRunning = base.Start();
+			Sessions.First(
+				(x) =>
+					(x.Value as FrontendDistribution_Session).Type == SenderType.Client)
+				.Value.SendAsync(new byte[] { });
+			return _isRunning;
 		}
 
-		public FrontendDistribution_Server(IPAddress address, int port) : base(address, port)
+		protected override TcpSession CreateSession()
 		{
+			return new FrontendDistribution_Session(this);
 		}
 
-		public FrontendDistribution_Server(string address, int port) : base(address, port)
+		public override bool Stop()
 		{
+			_isRunning = base.Stop();
+			return _isRunning;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UniCastCommonData.Wrappers;
 
 namespace UniCastCommonData
 {
@@ -8,29 +9,96 @@ namespace UniCastCommonData
 	{
 		private List<byte> _buffer;
 		private byte[] _readableBuffer;
-
 		private int _readPosition;
+		private bool disposed = false;
 
-		/// <summary>Gets the length of the packet's content.</summary>
-		public int Length => _buffer.Count; // Return the length of buffer
+		public int Length => _buffer.Count;
+		public int UnreadLength => Length - _readPosition;
 
-		/// <summary>Gets the length of the unread data contained in the packet.</summary>
-		public int UnreadLength => Length - _readPosition; // Return the remaining length (unread)
-
-		public UniCastPacket(SenderType type, int id) : base()
+		public UniCastPacket(SenderType sender, int id) : base()
 		{
 			_buffer = new List<byte>();
 			_readPosition = 0;
-
-
+			Write(BitConverter.GetBytes((int)sender));
+			Write(BitConverter.GetBytes(id));
 		}
 
 		public UniCastPacket(byte[] data)
 		{
 			_buffer = new List<byte>();
+			_readPosition = 0;
+			SetBytes(data);
 		}
 
-		private bool disposed = false;
+		private void SetBytes(byte[] data)
+		{
+			Write(data);
+			_readableBuffer = _buffer.ToArray();
+		}
+
+		public void WriteLength()
+		{
+			_buffer.InsertRange(0, BitConverter.GetBytes(_buffer.Count));
+		}
+
+		public void InsertInt(int value)
+		{
+			_buffer.InsertRange(0, BitConverter.GetBytes(value));
+		}
+
+		public void Write<T>(T data) where T : IBasePacketDataWrapper
+		{
+			Write(data.GetRawData());
+		}
+
+		public void Write(byte[] data)
+		{
+			_buffer.AddRange(data);
+		}
+
+		public T Read<T>(bool moveReadPos = true) where T : IBasePacketDataWrapper, new()
+		{
+			T data = new T();
+			data.SetTypedData(Read(data.RawDataLength, moveReadPos));
+			return data;
+		}
+
+		public byte[] Read(int length, bool moveReadPos = true)
+		{
+			if (_buffer.Count > _readPosition)
+			{
+				byte[] value = _buffer.GetRange(_readPosition, length).ToArray();
+				if (moveReadPos)
+				{
+					_readPosition += length;
+				}
+				return value;
+			}
+			else
+			{
+				throw new Exception("Could not read value of type 'byte[]'!");
+			}
+		}
+
+		public byte[] ToArray()
+		{
+			_readableBuffer = _buffer.ToArray();
+			return _readableBuffer;
+		}
+
+		public void Reset(bool shouldReset = true)
+		{
+			if (shouldReset)
+			{
+				_buffer.Clear(); // Clear buffer
+				_readableBuffer = null;
+				_readPosition = 0; // Reset readPos
+			}
+			else
+			{
+				_readPosition -= 4; // "Unread" the last read int
+			}
+		}
 
 		protected virtual void Dispose(bool disposing)
 		{
@@ -45,16 +113,6 @@ namespace UniCastCommonData
 
 				disposed = true;
 			}
-		}
-
-		public void Write(byte[] data)
-		{
-
-		}
-
-		public byte[] Read()
-		{
-			return null;
 		}
 
 		public void Dispose()
