@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Net.Sockets;
-using NetCoreServer;
+using UniCastCommonData.Network;
 using UniCastCommonData;
 
 namespace FrontendDistributionServer
 {
-	public class FrontendDistribution_Session : TcpSession, IAsyncSender
+	public class FrontendDistribution_Session : TcpSession
 	{
 		public FrontendDistribution_Session(TcpServer server) : base(server)
 		{
 		}
-
-		public SenderType Type => throw new NotImplementedException();
 
 		public override long Receive(byte[] buffer, long offset, long size)
 		{

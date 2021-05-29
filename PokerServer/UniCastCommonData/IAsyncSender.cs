@@ -1,8 +1,12 @@
-﻿using System;
+﻿using UniCastCommonData.Handlers;
+
 namespace UniCastCommonData
 {
-	public interface IAsyncSender
+	public interface IAsyncSender<HANDLER, ENUM>
+		where HANDLER : ISendMessageHandler<ENUM>, new()
 	{
-		SenderType Type { get; }
+		ActorType SenderType { get; }
+
+		HANDLER SendHandler { get; }
 	}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.Handlers
+namespace LobbyServer.Handlers
 {
 	public enum clientTOlobby
 	{
@@ -12,11 +12,11 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class SendToLobbyHandler : ISendMessageHandler<clientTOlobby>
+	public class ReceiveFromClientHandler : IReceivedMessageHandler<clientTOlobby>
 	{
 		public Dictionary<clientTOlobby, Action<UniCastPacket>> Handlers { get; }
 
-		public SendToLobbyHandler()
+		public ReceiveFromClientHandler()
 		{
 			//Handlers.Add((int)clientTOlobby., (x) => { });
 		}

@@ -1,6 +1,6 @@
 ﻿namespace UniCastCommonData.Handlers
 {
-	public enum SenderType
+	public enum ActorType
 	{
 		Client = 0,
 		FrontendDistributionServer = 1,

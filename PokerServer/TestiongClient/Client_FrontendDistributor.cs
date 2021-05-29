@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Net;
-using NetCoreServer;
+using UniCastCommonData.Network;
+using TestingClient.Handlers;
 using UniCastCommonData;
+using UniCastCommonData.Handlers;
 
 namespace TestingClient
 {
-	public class Client_FrontendDistributor : TcpClient, IAsyncReceiver, IAsyncSender
+	public class Client_FrontendDistributor : AbstractTCPClient<ReceiveFromFrontendDistributionHandler, SendToFrontendDistributionHandler>
 	{
-		public Client_FrontendDistributor(IPEndPoint endpoint) : base(endpoint)
-		{
-		}
+		public override ActorType SenderType => ActorType.FrontendDistributionServer;
+
+		public override ActorType ReceiverType => ActorType.Client;
 
 		public Client_FrontendDistributor(IPAddress address, int port) : base(address, port)
 		{
@@ -18,7 +20,5 @@ namespace TestingClient
 		public Client_FrontendDistributor(string address, int port) : base(address, port)
 		{
 		}
-
-		public SenderType Type => throw new NotImplementedException();
 	}
 }

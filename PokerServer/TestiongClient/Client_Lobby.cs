@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Net;
-using NetCoreServer;
+using UniCastCommonData.Network;
+using TestingClient.Handlers;
 using UniCastCommonData;
+using UniCastCommonData.Handlers;
 
 namespace TestingClient
 {
-	public class Client_Lobby : TcpClient, IAsyncReceiver, IAsyncSender
+	public class Client_Lobby : AbstractTCPClient<ReceiveFromLobbyHandler, lobbyTOclient, SendToLobbyHandler, clientTOlobby>
 	{
-		public Client_Lobby(IPEndPoint endpoint) : base(endpoint)
-		{
-		}
+		public override ActorType SenderType => ActorType.LobbyServer;
+
+		public override ActorType ReceiverType => ActorType.Client;
 
 		public Client_Lobby(IPAddress address, int port) : base(address, port)
 		{
@@ -18,7 +20,5 @@ namespace TestingClient
 		public Client_Lobby(string address, int port) : base(address, port)
 		{
 		}
-
-		public SenderType Type => throw new NotImplementedException();
 	}
 }

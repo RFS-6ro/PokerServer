@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.Handlers
+namespace RegionServer.Handlers
 {
 	public enum clientTOregion
 	{
@@ -12,11 +12,11 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class SendToRegionHandler : ISendMessageHandler<clientTOregion>
+	public class ReceiveFromClientHandler : IReceivedMessageHandler<clientTOregion>
 	{
 		public Dictionary<clientTOregion, Action<UniCastPacket>> Handlers { get; }
 
-		public SendToRegionHandler()
+		public ReceiveFromClientHandler()
 		{
 			//Handlers.Add((int)clientTOregion., (x) => { });
 		}

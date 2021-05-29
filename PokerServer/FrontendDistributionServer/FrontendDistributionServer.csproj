@@ -6,9 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetCoreServer" Version="5.0.17" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\UniCastCommonData\UniCastCommonData.csproj" />
   </ItemGroup>
 </Project>

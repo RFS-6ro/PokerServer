@@ -7,21 +7,21 @@ namespace TestingClient.Handlers
 {
 	public class HandlersKeeper : IHandlersKeeper
 	{
-		public Dictionary<SenderType, IReceivedMessageHandler> TypedReceiveHandlers { get; } =
-			new Dictionary<SenderType, IReceivedMessageHandler>();
+		public Dictionary<ActorType, IReceivedMessageHandler> TypedReceiveHandlers { get; } =
+			new Dictionary<ActorType, IReceivedMessageHandler>();
 
-		public Dictionary<SenderType, ISendMessageHandler> TypedSendHandlers { get; } =
-			new Dictionary<SenderType, ISendMessageHandler>();
+		public Dictionary<ActorType, ISendMessageHandler> TypedSendHandlers { get; } =
+			new Dictionary<ActorType, ISendMessageHandler>();
 
 		public HandlersKeeper()
 		{
-			TypedReceiveHandlers.Add(SenderType.FrontendDistributionServer, new FrontendDistributionReceiveHandler());
-			TypedReceiveHandlers.Add(SenderType.RegionServer, new RegionReceiveHandler());
-			TypedReceiveHandlers.Add(SenderType.LobbyServer, new LobbyReceiveHandler());
+			TypedReceiveHandlers.Add(ActorType.FrontendDistributionServer, new ReceiveFromFrontendDistributionHandler());
+			TypedReceiveHandlers.Add(ActorType.RegionServer, new ReceiveFromRegionHandler());
+			TypedReceiveHandlers.Add(ActorType.LobbyServer, new ReceiveFromLobbyHandler());
 
-			TypedReceiveHandlers.Add(SenderType.FrontendDistributionServer, new FrontendDistributionReceiveHandler());
-			TypedReceiveHandlers.Add(SenderType.RegionServer, new RegionReceiveHandler());
-			TypedReceiveHandlers.Add(SenderType.LobbyServer, new LobbyReceiveHandler());
+			TypedSendHandlers.Add(ActorType.FrontendDistributionServer, new SendToFrontendDistributionHandler());
+			TypedSendHandlers.Add(ActorType.RegionServer, new SendToRegionHandler());
+			TypedSendHandlers.Add(ActorType.LobbyServer, new SendToLobbyHandler());
 		}
 	}
 }

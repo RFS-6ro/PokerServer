@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.Handlers
+namespace FrontendDistributionServer.Handlers
 {
 	public enum clientTOfrontend
 	{
@@ -12,11 +12,11 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class SendToFrontendDistributionHandler : ISendMessageHandler<clientTOfrontend>
+	public class ReceiveFromClientHandler : IReceivedMessageHandler<clientTOfrontend>
 	{
 		public Dictionary<clientTOfrontend, Action<UniCastPacket>> Handlers { get; }
 
-		public SendToFrontendDistributionHandler()
+		public ReceiveFromClientHandler()
 		{
 			//Handlers.Add((int)clientTOfrontend., (x) => { });
 		}

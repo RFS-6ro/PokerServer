@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace UniCastCommonData.Handlers
 {
-	public interface IReceivedMessageHandler
+	public interface IReceivedMessageHandler<T>
 	{
-		Dictionary<int, Action<UniCastPacket>> Handlers { get; }
+		Dictionary<T, Action<UniCastPacket>> Handlers { get; }
 	}
 }
