@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Net;
 using UniCastCommonData.Handlers;
-using UniCastCommonData.Network;
 
-namespace UniCastCommonData
+namespace UniCastCommonData.Network
 {
-	public abstract class AbstractTCPServer<SESSION, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM>
+	public abstract class AbstractTCPServer<SESSION_BUILDER, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM>
 		: TcpServer,
 		  IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>,
 		  IAsyncSender<SEND_HANDLER, SEND_ENUM>
-		where SESSION : TcpSession
+		where SESSION_BUILDER : ITCPSessionBuilder, new()
 		where RECEIVE_HANDLER : IReceivedMessageHandler<RECEIVE_ENUM>, new()
 		where SEND_HANDLER : ISendMessageHandler<SEND_ENUM>, new()
 	{
+		protected ITCPSessionBuilder _builder { get; set; }
+
 		protected static bool _isRunning = false;
 		public static bool IsRunning => _isRunning;
 
-		public abstract ActorType ReceiverType { get; }
-		public abstract ActorType SenderType { get; }
+		public abstract ActorType ServerType { get; }
+		public abstract ActorType ClientType { get; }
 
 		RECEIVE_HANDLER IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>.ReceiveHandler { get; } = new RECEIVE_HANDLER();
 		SEND_HANDLER IAsyncSender<SEND_HANDLER, SEND_ENUM>.SendHandler { get; } = new SEND_HANDLER();
@@ -46,9 +47,19 @@ namespace UniCastCommonData
 			return _isRunning;
 		}
 
+		protected virtual void ConfigBuilder(ITCPSessionBuilder builder)
+		{
+			_builder = builder;
+		}
+
 		protected override TcpSession CreateSession()
 		{
-			return new FrontendDistribution_Session(this);
+			if (_builder == null)
+			{
+				_builder = new SESSION_BUILDER();
+			}
+
+			return _builder.Create(this);
 		}
 
 		public override bool Stop()

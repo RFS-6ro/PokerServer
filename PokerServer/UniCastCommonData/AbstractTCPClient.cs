@@ -10,8 +10,8 @@ namespace UniCastCommonData.Network
 		where RECEIVE_HANDLER : IReceivedMessageHandler<RECEIVE_ENUM>, new()
 		where SEND_HANDLER : ISendMessageHandler<SEND_ENUM>, new()
 	{
-		public abstract ActorType ReceiverType { get; }
-		public abstract ActorType SenderType { get; }
+		public abstract ActorType ServerType { get; }
+		public abstract ActorType ClientType { get; }
 
 		RECEIVE_HANDLER IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>.ReceiveHandler { get; } = new RECEIVE_HANDLER();
 		SEND_HANDLER IAsyncSender<SEND_HANDLER, SEND_ENUM>.SendHandler { get; } = new SEND_HANDLER();

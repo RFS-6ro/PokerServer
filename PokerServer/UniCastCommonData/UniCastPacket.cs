@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UniCastCommonData.Handlers;
 using UniCastCommonData.Wrappers;
 
 namespace UniCastCommonData
@@ -15,7 +16,7 @@ namespace UniCastCommonData
 		public int Length => _buffer.Count;
 		public int UnreadLength => Length - _readPosition;
 
-		public UniCastPacket(SenderType sender, int id) : base()
+		public UniCastPacket(ActorType sender, int id) : base()
 		{
 			_buffer = new List<byte>();
 			_readPosition = 0;

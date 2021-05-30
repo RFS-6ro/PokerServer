@@ -9,9 +9,9 @@ namespace TestingClient
 {
 	public class Client_Region : AbstractTCPClient<ReceiveFromRegionHandler, regionTOclient, SendToRegionHandler, clientTOregion>
 	{
-		public override ActorType SenderType => ActorType.RegionServer;
+		public override ActorType ClientType => ActorType.RegionServer;
 
-		public override ActorType ReceiverType => ActorType.Client;
+		public override ActorType ServerType => ActorType.Client;
 
 		public Client_Region(IPAddress address, int port) : base(address, port)
 		{

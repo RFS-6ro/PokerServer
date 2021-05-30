@@ -17,9 +17,9 @@ namespace TestingClient
 
 internal sealed class Client : AbstractTCPClient<ReceiveFromLobbyHandler, SendToLobbyHandler, lobbyTOclient, clientTOlobby>
 {
-	public override ActorType SenderType => throw new NotImplementedException();
+	public override ActorType ClientType => throw new NotImplementedException();
 
-	public override ActorType ReceiverType => throw new NotImplementedException();
+	public override ActorType ServerType => throw new NotImplementedException();
 
 	public Client(IPAddress address, int port) : base(address, port)
 	{
