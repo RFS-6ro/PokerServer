@@ -14,7 +14,7 @@ namespace TestingClient.Handlers
 
 	public class SendToRegionHandler : ISendMessageHandler<clientTOregion>
 	{
-		public Dictionary<clientTOregion, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<clientTOregion, Action<Guid>> Handlers { get; }
 
 		public SendToRegionHandler()
 		{

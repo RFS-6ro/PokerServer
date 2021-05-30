@@ -16,6 +16,13 @@ namespace UniCastCommonData
 		public int Length => _buffer.Count;
 		public int UnreadLength => Length - _readPosition;
 
+		public UniCastPacket(ActorType sender) : base()
+		{
+			_buffer = new List<byte>();
+			_readPosition = 0;
+			Write(BitConverter.GetBytes((int)sender));
+		}
+
 		public UniCastPacket(ActorType sender, int id) : base()
 		{
 			_buffer = new List<byte>();
@@ -39,12 +46,17 @@ namespace UniCastCommonData
 
 		public void WriteLength()
 		{
-			_buffer.InsertRange(0, BitConverter.GetBytes(_buffer.Count));
+			_buffer.InsertRange(0, BitConverter.GetBytes(Length));
 		}
 
 		public void InsertInt(int value)
 		{
 			_buffer.InsertRange(0, BitConverter.GetBytes(value));
+		}
+
+		public void Write(int value)
+		{
+			_buffer.AddRange(value.ToByteArray());
 		}
 
 		public void Write<T>(T data) where T : IBasePacketDataWrapper
@@ -55,6 +67,11 @@ namespace UniCastCommonData
 		public void Write(byte[] data)
 		{
 			_buffer.AddRange(data);
+		}
+
+		public int ReadInt(bool moveReadPos = true)
+		{
+			return Read(4, moveReadPos).ToInt32();
 		}
 
 		public T Read<T>(bool moveReadPos = true) where T : IBasePacketDataWrapper, new()

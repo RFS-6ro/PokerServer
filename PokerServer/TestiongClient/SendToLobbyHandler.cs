@@ -14,7 +14,7 @@ namespace TestingClient.Handlers
 
 	public class SendToLobbyHandler : ISendMessageHandler<clientTOlobby>
 	{
-		public Dictionary<clientTOlobby, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<clientTOlobby, Action<Guid>> Handlers { get; }
 
 		public SendToLobbyHandler()
 		{

@@ -7,11 +7,16 @@ using LobbyServer.Handlers;
 
 namespace LobbyServer
 {
-	public class Lobby_Region : AbstractTCPClient<ReceiveFromRegionHandler, SendToRegionHandler>
+	public class Lobby_Region : AbstractTCPClient<
+		ReceiveFromRegionHandler,
+		regionTOlobby,
+		SendToRegionHandler,
+		lobbyTOregion,
+		Lobby_Region>
 	{
-		public override ActorType SenderType => ActorType.RegionServer;
+		public override ActorType ServerType => ActorType.RegionServer;
 
-		public override ActorType ReceiverType => ActorType.LobbyServer;
+		public override ActorType ClientType => ActorType.LobbyServer;
 
 		public Lobby_Region(IPAddress address, int port) : base(address, port)
 		{

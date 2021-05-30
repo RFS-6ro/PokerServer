@@ -6,7 +6,13 @@ using UniCastCommonData.Handlers;
 
 namespace FrontendDistributionServer
 {
-	public class FrontendDistribution_Region_Server : AbstractTCPServer<RegionSessionBuilder, ReceiveFromRegionHandler, regionTOfrontend, SendToRegionHandler, frontendTOregion>
+	public class FrontendDistribution_Region_Server : AbstractTCPServer<
+		RegionSessionBuilder,
+		ReceiveFromRegionHandler,
+		regionTOfrontend,
+		SendToRegionHandler,
+		frontendTOregion,
+		FrontendDistribution_Region_Server>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;
 

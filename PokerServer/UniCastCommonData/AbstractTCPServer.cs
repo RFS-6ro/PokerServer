@@ -4,18 +4,18 @@ using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData.Network
 {
-	public abstract class AbstractTCPServer<SESSION_BUILDER, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM>
+	public abstract class AbstractTCPServer<SESSION_BUILDER, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM, INSTANCE_TYPE>
 		: TcpServer,
 		  IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>,
 		  IAsyncSender<SEND_HANDLER, SEND_ENUM>
 		where SESSION_BUILDER : ITCPSessionBuilder, new()
 		where RECEIVE_HANDLER : IReceivedMessageHandler<RECEIVE_ENUM>, new()
 		where SEND_HANDLER : ISendMessageHandler<SEND_ENUM>, new()
+		where INSTANCE_TYPE : AbstractTCPServer<SESSION_BUILDER, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM, INSTANCE_TYPE>
 	{
-		protected ITCPSessionBuilder _builder { get; set; }
+		public static INSTANCE_TYPE Instance { get; protected set; }
 
-		protected static bool _isRunning = false;
-		public static bool IsRunning => _isRunning;
+		protected ITCPSessionBuilder _builder { get; set; }
 
 		public abstract ActorType ServerType { get; }
 		public abstract ActorType ClientType { get; }
@@ -30,21 +30,22 @@ namespace UniCastCommonData.Network
 
 		public AbstractTCPServer(IPAddress address, int port) : base(address, port) { InitReferences(); }
 		public AbstractTCPServer(string address, int port) : base(address, port) { InitReferences(); }
+		protected AbstractTCPServer(IPEndPoint endpoint) : base(endpoint) { InitReferences(); }
 
 		protected virtual void InitReferences()
 		{
+			Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER, SEND_ENUM>)this).SendHandler;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>)this).ReceiveHandler;
 		}
 
 		public override bool Start()
 		{
-			_isRunning = base.Start();
+			return base.Start();
 			//Sessions.First(
 			//	(x) =>
 			//		(x.Value as FrontendDistribution_Session).Type == SenderType.Client)
 			//	.Value.SendAsync(new byte[] { });
-			return _isRunning;
 		}
 
 		protected virtual void ConfigBuilder(ITCPSessionBuilder builder)
@@ -60,12 +61,6 @@ namespace UniCastCommonData.Network
 			}
 
 			return _builder.Create(this);
-		}
-
-		public override bool Stop()
-		{
-			_isRunning = base.Stop();
-			return _isRunning;
 		}
 	}
 }

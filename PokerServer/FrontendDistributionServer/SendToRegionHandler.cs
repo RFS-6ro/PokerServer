@@ -14,7 +14,7 @@ namespace FrontendDistributionServer.Handlers
 
 	public class SendToRegionHandler : ISendMessageHandler<frontendTOregion>
 	{
-		public Dictionary<frontendTOregion, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<frontendTOregion, Action<Guid>> Handlers { get; }
 
 		public SendToRegionHandler()
 		{

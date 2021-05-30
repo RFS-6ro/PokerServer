@@ -7,7 +7,12 @@ using UniCastCommonData.Handlers;
 
 namespace TestingClient
 {
-	public class Client_Region : AbstractTCPClient<ReceiveFromRegionHandler, regionTOclient, SendToRegionHandler, clientTOregion>
+	public class Client_Region : AbstractTCPClient<
+		ReceiveFromRegionHandler,
+		regionTOclient,
+		SendToRegionHandler,
+		clientTOregion,
+		Client_Region>
 	{
 		public override ActorType ClientType => ActorType.RegionServer;
 
@@ -15,6 +20,7 @@ namespace TestingClient
 
 		public Client_Region(IPAddress address, int port) : base(address, port)
 		{
+
 		}
 
 		public Client_Region(string address, int port) : base(address, port)

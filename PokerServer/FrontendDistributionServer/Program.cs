@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace FrontendDistributionServer
 {
@@ -21,6 +22,18 @@ namespace FrontendDistributionServer
 			Console.WriteLine($"Frontend Distribution TCP server port: {port}");
 
 			Console.WriteLine();
+
+			var server = new FrontendDistribution_Client_Server(IPAddress.Any, port);
+			// server.OptionNoDelay = true;
+			server.OptionReuseAddress = true;
+			// Start the server
+			Console.Write("Server starting...");
+			server.Start();
+
+			while (true)
+			{
+				Console.ReadLine();
+			}
 		}
 	}
 }

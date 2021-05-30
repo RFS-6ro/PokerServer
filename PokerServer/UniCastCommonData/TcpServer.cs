@@ -327,7 +327,7 @@ namespace UniCastCommonData.Network
 		/// Create TCP session factory method
 		/// </summary>
 		/// <returns>TCP session</returns>
-		protected virtual TcpSession CreateSession() { return new TcpSession(this); }
+		protected virtual TcpSession CreateSession() { throw new NotImplementedException(); }
 
 		#endregion
 

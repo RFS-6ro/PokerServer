@@ -280,6 +280,13 @@ namespace UniCastCommonData.Network
 		/// Send data to the client (asynchronous)
 		/// </summary>
 		/// <param name="buffer">Buffer to send</param>
+		/// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
+		public virtual bool SendAsync(UniCastPacket packet) { return SendAsync(packet.ToArray(), 0, packet.Length); }
+
+		/// <summary>
+		/// Send data to the client (asynchronous)
+		/// </summary>
+		/// <param name="buffer">Buffer to send</param>
 		/// <param name="offset">Buffer offset</param>
 		/// <param name="size">Buffer size</param>
 		/// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>

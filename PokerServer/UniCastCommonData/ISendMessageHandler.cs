@@ -5,6 +5,6 @@ namespace UniCastCommonData.Handlers
 {
 	public interface ISendMessageHandler<T>
 	{
-		Dictionary<T, Action<UniCastPacket>> Handlers { get; }
+		Dictionary<T, Action<Guid>> Handlers { get; }
 	}
 }

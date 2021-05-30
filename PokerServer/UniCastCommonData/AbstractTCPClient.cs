@@ -3,13 +3,17 @@ using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData.Network
 {
-	public abstract class AbstractTCPClient<RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM>
+	public abstract class AbstractTCPClient<RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM, INSTANCE_TYPE>
 		: TcpClient,
 		  IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>,
 		  IAsyncSender<SEND_HANDLER, SEND_ENUM>
+
 		where RECEIVE_HANDLER : IReceivedMessageHandler<RECEIVE_ENUM>, new()
 		where SEND_HANDLER : ISendMessageHandler<SEND_ENUM>, new()
+		where INSTANCE_TYPE : AbstractTCPClient<RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM, INSTANCE_TYPE>
 	{
+		public static INSTANCE_TYPE Instance { get; protected set; }
+
 		public abstract ActorType ServerType { get; }
 		public abstract ActorType ClientType { get; }
 
@@ -23,9 +27,11 @@ namespace UniCastCommonData.Network
 
 		public AbstractTCPClient(IPAddress address, int port) : base(address, port) { InitReferences(); }
 		public AbstractTCPClient(string address, int port) : base(address, port) { InitReferences(); }
+		protected AbstractTCPClient(IPEndPoint endpoint) : base(endpoint) { InitReferences(); }
 
 		protected virtual void InitReferences()
 		{
+			Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER, SEND_ENUM>)this).SendHandler;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>)this).ReceiveHandler;
 		}

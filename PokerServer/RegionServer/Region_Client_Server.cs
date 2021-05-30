@@ -6,7 +6,13 @@ using UniCastCommonData.Handlers;
 
 namespace RegionServer
 {
-	public class Region_Client_Server : AbstractTCPServer<ClientSessionBuilder, ReceiveFromClientHandler, clientTOregion, SendToClientHandler, regionTOclient>
+	public class Region_Client_Server : AbstractTCPServer<
+		ClientSessionBuilder,
+		ReceiveFromClientHandler,
+		clientTOregion,
+		SendToClientHandler,
+		regionTOclient,
+		Region_Client_Server>
 	{
 		public override ActorType ServerType => ActorType.RegionServer;
 

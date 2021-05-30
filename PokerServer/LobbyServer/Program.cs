@@ -1,4 +1,5 @@
 ﻿using System;
+using UniCastCommonData;
 
 namespace LobbyServer
 {
@@ -20,6 +21,11 @@ namespace LobbyServer
 			Console.WriteLine($"Lobby TCP server port: {port}");
 
 			Console.WriteLine();
+
+			//using (UniCastPacket packet = new UniCastPacket()
+			//{
+			//	Lobby_Client_Server.Instance.SendHandler.Handlers[Handlers.lobbyTOclient.Count]?.Invoke()
+			//}
 		}
 	}
 }

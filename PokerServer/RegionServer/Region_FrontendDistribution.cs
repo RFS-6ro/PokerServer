@@ -1,17 +1,20 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using RegionServer.Handlers;
-using UniCastCommonData;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network;
 
 namespace RegionServer
 {
-	public class Region_FrontendDistribution : AbstractTCPClient<ReceiveFromFrontendDistributionHandler, SendToFrontendDistributionHandler>
+	public class Region_FrontendDistribution : AbstractTCPClient<
+		ReceiveFromFrontendDistributionHandler,
+		frontendTOregion,
+		SendToFrontendDistributionHandler,
+		regionTOfrontend,
+		Region_FrontendDistribution>
 	{
-		public override ActorType SenderType => ActorType.FrontendDistributionServer;
+		public override ActorType ServerType => ActorType.FrontendDistributionServer;
 
-		public override ActorType ReceiverType => ActorType.RegionServer;
+		public override ActorType ClientType => ActorType.Client;
 
 		public Region_FrontendDistribution(IPAddress address, int port) : base(address, port)
 		{
