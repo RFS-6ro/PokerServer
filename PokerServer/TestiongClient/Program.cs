@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Net;
-using TestingClient.Handlers;
+using TestingClient.FrontendDistributionSide.Handlers;
+using TestingClient.FrontendDistributionSide;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
-using UniCastCommonData.Network;
 
 namespace TestingClient
 {
@@ -26,28 +25,6 @@ namespace TestingClient
 			{
 				Console.ReadLine();
 			}
-			return;
-			byte[] vector = { 146, 64, 191, 111, 23, 3, 113, 119, 231, 121, 221, 112, 79, 32, 114, 156 };
-			byte[] vector2 = { 146, 64, 191, 111, 23, 3, 113, 119, 231, 121, 221, 112, 79, 32, 114, 156 };
-
-			for (int i = 0; i < vector.Length; i++)
-			{
-				for (int j = vector.Length / 4; j < vector.Length / 2; j++)
-				{
-					vector2[i] = (byte)(vector[i] ^ vector[j]);
-				}
-			}
-
-			for (int i = 0; i < vector2.Length; i++)
-			{
-				for (int j = vector2.Length / 4; j < vector2.Length / 2; j++)
-				{
-					vector[i] = (byte)(vector2[i] ^ vector2[j]);
-				}
-			}
-
-			Console.ReadKey();
-			Console.ReadKey();
 		}
 	}
 }

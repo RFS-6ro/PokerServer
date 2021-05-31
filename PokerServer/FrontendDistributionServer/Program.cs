@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using FrontendDistributionServer.ClientSide;
 
 namespace FrontendDistributionServer
 {
@@ -14,7 +15,7 @@ namespace FrontendDistributionServer
 				address = args[0];
 
 			// TCP server port
-			int port = 6378;
+			int port = 1111;
 			if (args.Length > 1)
 				port = int.Parse(args[1]);
 
@@ -29,8 +30,6 @@ namespace FrontendDistributionServer
 			// Start the server
 			Console.Write("Server starting...");
 			server.Start();
-
-			var session = new FrontendDistribution_Client_Session(server);
 
 			while (true)
 			{

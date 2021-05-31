@@ -4,4 +4,12 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Network\" />
+    <Folder Include="Packet\" />
+    <Folder Include="Network\Message Handlers\" />
+    <Folder Include="Handlers\" />
+    <Folder Include="Safety\" />
+    <Folder Include="Server Pool\" />
+  </ItemGroup>
 </Project>

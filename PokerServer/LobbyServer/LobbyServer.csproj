@@ -8,4 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\UniCastCommonData\UniCastCommonData.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Client\" />
+    <Folder Include="Region\" />
+  </ItemGroup>
 </Project>
