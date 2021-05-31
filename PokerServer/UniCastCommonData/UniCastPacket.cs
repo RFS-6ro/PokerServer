@@ -6,7 +6,7 @@ using UniCastCommonData.Wrappers;
 
 namespace UniCastCommonData
 {
-	public class UniCastPacket : IDisposable
+	public class UniCastPacket : IDisposable, IByteArrayConvertable
 	{
 		private List<byte> _buffer;
 		private byte[] _readableBuffer;
@@ -59,9 +59,9 @@ namespace UniCastCommonData
 			_buffer.AddRange(value.ToByteArray());
 		}
 
-		public void Write<T>(T data) where T : IBasePacketDataWrapper
+		public void Write<T>(T data) where T : IByteArrayConvertable
 		{
-			Write(data.GetRawData());
+			Write(data.GetRawBytes());
 		}
 
 		public void Write(byte[] data)
@@ -98,7 +98,7 @@ namespace UniCastCommonData
 			}
 		}
 
-		public byte[] ToArray()
+		public byte[] GetRawBytes()
 		{
 			_readableBuffer = _buffer.ToArray();
 			return _readableBuffer;

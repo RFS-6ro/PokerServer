@@ -12,9 +12,9 @@ namespace RegionServer.Handlers
 		Count
 	}
 
-	public class SendToFrontendDistributionHandler : ISendMessageHandler<regionTOfrontend>
+	public class SendToFrontendDistributionHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<regionTOfrontend, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToFrontendDistributionHandler()
 		{

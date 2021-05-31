@@ -12,9 +12,9 @@ namespace FrontendDistributionServer.Handlers
 		Count
 	}
 
-	public class SendToRegionHandler : ISendMessageHandler<frontendTOregion>
+	public class SendToRegionHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<frontendTOregion, Action<Guid>> Handlers { get; }
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToRegionHandler()
 		{

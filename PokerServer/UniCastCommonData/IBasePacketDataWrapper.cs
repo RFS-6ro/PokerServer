@@ -1,10 +1,8 @@
 ﻿namespace UniCastCommonData.Wrappers
 {
-	public interface IBasePacketDataWrapper
+	public interface IBasePacketDataWrapper : IByteArrayConvertable
 	{
 		int RawDataLength { get; }
-
-		byte[] GetRawData();
 
 		void SetTypedData(byte[] rawData);
 	}

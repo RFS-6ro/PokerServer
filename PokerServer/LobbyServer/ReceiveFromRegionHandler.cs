@@ -12,9 +12,9 @@ namespace LobbyServer.Handlers
 		Count
 	}
 
-	public class ReceiveFromRegionHandler : IReceivedMessageHandler<regionTOlobby>
+	public class ReceiveFromRegionHandler : IReceivedMessageHandler<int>
 	{
-		public Dictionary<regionTOlobby, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
 
 		public ReceiveFromRegionHandler()
 		{

@@ -12,30 +12,30 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class SendToFrontendDistributionHandler : ISendMessageHandler<clientTOfrontend>
+	public class SendToFrontendDistributionHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<clientTOfrontend, Action<Guid>> Handlers { get; } = new Dictionary<clientTOfrontend, Action<Guid>>();
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToFrontendDistributionHandler()
 		{
-			Handlers.Add(clientTOfrontend.None, Test);
+			Handlers.Add((int)clientTOfrontend.None, Test);
 		}
 
-		private void Test(Guid id)
+		private void Test(InitialSendingData data)
 		{
 			using (UniCastPacket packet = new UniCastPacket(Client_FrontendDistributor.Instance.ClientType))
 			{
-				packet.Write((int)clientTOfrontend.None);
-
 				Console.WriteLine("|||");
+				Console.WriteLine("|||" + data);
+				packet.Write(data.GetRawBytes());
+
+				packet.Write((int)clientTOfrontend.None);
 				Console.WriteLine("|||" + Client_FrontendDistributor.Instance.ClientType);
 				Console.WriteLine("|||" + clientTOfrontend.None);
-				Console.WriteLine("|||" + id);
-				packet.Write(id.ToByteArray());
 				Console.WriteLine("|||" + packet.Length);
 				packet.WriteLength();
 				Console.WriteLine("|||");
-				Client_FrontendDistributor.Instance.SendAsync(packet.ToArray());
+				Client_FrontendDistributor.Instance.SendAsync(packet.GetRawBytes());
 			}
 		}
 	}

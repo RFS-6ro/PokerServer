@@ -12,9 +12,9 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class SendToLobbyHandler : ISendMessageHandler<clientTOlobby>
+	public class SendToLobbyHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<clientTOlobby, Action<Guid>> Handlers { get; }
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToLobbyHandler()
 		{

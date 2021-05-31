@@ -13,23 +13,23 @@ namespace FrontendDistributionServer.Handlers
 		Count
 	}
 
-	public class SendToClientHandler : ISendMessageHandler<frontendTOclient>
+	public class SendToClientHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<frontendTOclient, Action<Guid>> Handlers { get; } = new Dictionary<frontendTOclient, Action<Guid>>();
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToClientHandler()
 		{
-			Handlers.Add(frontendTOclient.Count, Test);
+			Handlers.Add((int)frontendTOclient.Count, Test);
 		}
 
-		private void Test(Guid id)
+		private void Test(InitialSendingData id)
 		{
 			using (UniCastPacket packet = new UniCastPacket(FrontendDistribution_Client_Server.Instance.ServerType))
 			{
 				frontendTOclient action = frontendTOclient.Count;
 				Console.WriteLine(action);
 				packet.Write((int)action);
-				packet.Write(id.ToByteArray());
+				packet.Write(id.GetRawBytes());
 				Console.WriteLine(id);
 
 				string message = "Test message";
@@ -40,7 +40,7 @@ namespace FrontendDistributionServer.Handlers
 				Console.WriteLine(packet.Length);
 				packet.WriteLength();
 
-				FrontendDistribution_Client_Server.Instance.FindSession(id).SendAsync(packet.ToArray());
+				FrontendDistribution_Client_Server.Instance.FindSession(id.Guid).SendAsync(packet.GetRawBytes());
 			}
 		}
 	}

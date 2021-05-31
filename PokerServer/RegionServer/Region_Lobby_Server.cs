@@ -8,10 +8,8 @@ namespace RegionServer
 {
 	public class Region_Lobby_Server : AbstractTCPServer<
 		ClientSessionBuilder,
-		ReceiveFromLobbyHandler,
-		lobbyTOregion,
-		SendToLobbyHandler,
-		regionTOlobby,
+		ReceiveFromLobbyHandler, int,
+		SendToLobbyHandler, int,
 		Region_Lobby_Server>
 	{
 		public override ActorType ServerType => ActorType.RegionServer;

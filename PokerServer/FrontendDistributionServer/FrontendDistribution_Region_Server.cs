@@ -8,10 +8,8 @@ namespace FrontendDistributionServer
 {
 	public class FrontendDistribution_Region_Server : AbstractTCPServer<
 		RegionSessionBuilder,
-		ReceiveFromRegionHandler,
-		regionTOfrontend,
-		SendToRegionHandler,
-		frontendTOregion,
+		ReceiveFromRegionHandler, int,
+		SendToRegionHandler, int,
 		FrontendDistribution_Region_Server>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;

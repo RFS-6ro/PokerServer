@@ -7,12 +7,10 @@ using UniCastCommonData.Handlers;
 namespace FrontendDistributionServer
 {
 	public class FrontendDistribution_Client_Server : AbstractTCPServer<
-			ClientSessionBuilder,
-			ReceiveFromClientHandler,
-			clientTOfrontend,
-			SendToClientHandler,
-			frontendTOclient,
-			FrontendDistribution_Client_Server>
+		ClientSessionBuilder,
+		ReceiveFromClientHandler, int,
+		SendToClientHandler, int,
+		FrontendDistribution_Client_Server>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;
 

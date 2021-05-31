@@ -12,9 +12,9 @@ namespace RegionServer.Handlers
 		Count
 	}
 
-	public class SendToClientHandler : ISendMessageHandler<regionTOclient>
+	public class SendToClientHandler : ISendMessageHandler<InitialSendingData>
 	{
-		public Dictionary<regionTOclient, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<InitialSendingData, Action<InitialSendingData>> Handlers { get; } = new Dictionary<InitialSendingData, Action<InitialSendingData>>();
 
 		public SendToClientHandler()
 		{

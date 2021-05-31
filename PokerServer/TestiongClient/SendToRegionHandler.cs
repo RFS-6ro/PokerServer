@@ -12,9 +12,9 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class SendToRegionHandler : ISendMessageHandler<clientTOregion>
+	public class SendToRegionHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<clientTOregion, Action<Guid>> Handlers { get; }
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToRegionHandler()
 		{

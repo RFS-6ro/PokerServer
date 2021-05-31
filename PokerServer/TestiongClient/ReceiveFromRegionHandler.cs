@@ -12,9 +12,9 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class ReceiveFromRegionHandler : IReceivedMessageHandler<regionTOclient>
+	public class ReceiveFromRegionHandler : IReceivedMessageHandler<int>
 	{
-		public Dictionary<regionTOclient, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
 
 		public ReceiveFromRegionHandler()
 		{

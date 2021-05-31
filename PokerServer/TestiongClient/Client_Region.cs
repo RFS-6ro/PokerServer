@@ -8,10 +8,8 @@ using UniCastCommonData.Handlers;
 namespace TestingClient
 {
 	public class Client_Region : AbstractTCPClient<
-		ReceiveFromRegionHandler,
-		regionTOclient,
-		SendToRegionHandler,
-		clientTOregion,
+		ReceiveFromRegionHandler, int,
+		SendToRegionHandler, int,
 		Client_Region>
 	{
 		public override ActorType ClientType => ActorType.RegionServer;

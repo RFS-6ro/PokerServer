@@ -12,9 +12,9 @@ namespace RegionServer.Handlers
 		Count
 	}
 
-	public class SendToLobbyHandler : ISendMessageHandler<regionTOlobby>
+	public class SendToLobbyHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<regionTOlobby, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToLobbyHandler()
 		{

@@ -12,9 +12,9 @@ namespace LobbyServer.Handlers
 		Count
 	}
 
-	public class ReceiveFromClientHandler : IReceivedMessageHandler<clientTOlobby>
+	public class ReceiveFromClientHandler : IReceivedMessageHandler<int>
 	{
-		public Dictionary<clientTOlobby, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
 
 		public ReceiveFromClientHandler()
 		{

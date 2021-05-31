@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
+using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData.Network
 {
@@ -281,7 +283,7 @@ namespace UniCastCommonData.Network
 		/// </summary>
 		/// <param name="buffer">Buffer to send</param>
 		/// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
-		public virtual bool SendAsync(UniCastPacket packet) { return SendAsync(packet.ToArray(), 0, packet.Length); }
+		public virtual bool SendAsync(UniCastPacket packet) { return SendAsync(packet.GetRawBytes(), 0, packet.Length); }
 
 		/// <summary>
 		/// Send data to the client (asynchronous)
@@ -624,14 +626,17 @@ namespace UniCastCommonData.Network
 		/// Handle client connecting notification
 		/// </summary>
 		protected virtual void OnConnecting() { }
+
 		/// <summary>
 		/// Handle client connected notification
 		/// </summary>
 		protected virtual void OnConnected() { }
+
 		/// <summary>
 		/// Handle client disconnecting notification
 		/// </summary>
 		protected virtual void OnDisconnecting() { }
+
 		/// <summary>
 		/// Handle client disconnected notification
 		/// </summary>
@@ -646,7 +651,38 @@ namespace UniCastCommonData.Network
 		/// <remarks>
 		/// Notification is called when another chunk of buffer was received from the client
 		/// </remarks>
-		protected virtual void OnReceived(byte[] buffer, long offset, long size) { }
+		protected virtual bool OnReceived(byte[] buffer, long offset, long size)
+		{
+			using (UniCastPacket packet = new UniCastPacket(buffer))
+			{
+				int length = packet.ReadInt();
+
+				if (length <= 0)
+				{
+					return false;
+				}
+
+				ActorType receivedActor = (ActorType)packet.ReadInt();
+
+				ActorType currentActor = (ActorType)(Server.GetType().GetProperty("ClientType").GetValue(Server));
+
+				if (receivedActor != currentActor)
+				{
+					return false;
+				}
+
+				int action = packet.ReadInt();
+
+				object receiveHandler = (Server.GetType().GetProperty("ReceiveHandler").GetValue(Server));
+				object? handlers = receiveHandler.GetType().GetProperty("Handlers").GetValue(receiveHandler);
+				PropertyInfo pairs = handlers.GetType().GetProperty("Item");
+				Action<UniCastPacket> value = (Action<UniCastPacket>)pairs.GetValue(handlers, new[] { (object?)action });
+				value?.Invoke(packet);
+
+				return true;
+			}
+		}
+
 		/// <summary>
 		/// Handle buffer sent notification
 		/// </summary>

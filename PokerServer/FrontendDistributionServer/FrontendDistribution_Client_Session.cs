@@ -10,37 +10,20 @@ namespace FrontendDistributionServer
 	{
 		public FrontendDistribution_Client_Session(TcpServer server) : base(server)
 		{
+			using (UniCastPacket packet = new UniCastPacket(ActorType.Client))
+			{
+				packet.Write((int)clientTOfrontend.Count);
+
+				packet.WriteLength();
+				OnReceived(packet.GetRawBytes(), 0, 8);
+			}
 		}
 
 		protected override void OnConnected()
 		{
 			Console.WriteLine("Connected");
 
-			FrontendDistribution_Client_Server.Instance.SendHandler.Handlers[frontendTOclient.Count]?.Invoke(Id);
-		}
-
-		protected override void OnReceived(byte[] buffer, long offset, long size)
-		{
-			using (UniCastPacket packet = new UniCastPacket(buffer))
-			{
-				Console.WriteLine("|||");
-				int length = packet.ReadInt();
-				Console.WriteLine("|||" + length);
-
-				ActorType actor = (ActorType)packet.ReadInt();
-				Console.WriteLine("|||" + actor);
-
-				if (actor != FrontendDistribution_Client_Server.Instance.ClientType)
-				{
-					return;
-				}
-
-				clientTOfrontend action = (clientTOfrontend)packet.ReadInt();
-				Console.WriteLine("|||" + action);
-
-				FrontendDistribution_Client_Server.Instance.ReceiveHandler.Handlers[action]?.Invoke(packet);
-
-			}
+			//FrontendDistribution_Client_Server.Instance.SendHandler.Handlers[frontendTOclient.Count]?.Invoke(Id);
 		}
 	}
 }

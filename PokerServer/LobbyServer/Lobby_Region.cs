@@ -8,10 +8,8 @@ using LobbyServer.Handlers;
 namespace LobbyServer
 {
 	public class Lobby_Region : AbstractTCPClient<
-		ReceiveFromRegionHandler,
-		regionTOlobby,
-		SendToRegionHandler,
-		lobbyTOregion,
+		ReceiveFromRegionHandler, int,
+		SendToRegionHandler, int,
 		Lobby_Region>
 	{
 		public override ActorType ServerType => ActorType.RegionServer;

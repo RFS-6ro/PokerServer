@@ -8,10 +8,8 @@ using UniCastCommonData.Handlers;
 namespace TestingClient
 {
 	public class Client_FrontendDistributor : AbstractTCPClient<
-		ReceiveFromFrontendDistributionHandler,
-		frontendTOclient,
-		SendToFrontendDistributionHandler,
-		clientTOfrontend,
+		ReceiveFromFrontendDistributionHandler, int,
+		SendToFrontendDistributionHandler, int,
 		Client_FrontendDistributor>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;
@@ -30,11 +28,12 @@ namespace TestingClient
 		{
 			Console.WriteLine("Connected");
 
-			SendHandler.Handlers[clientTOfrontend.None]?.Invoke(Id);
+			//SendHandler.Handlers[clientTOfrontend.None]?.Invoke(Id);
 		}
 
-		protected override void OnReceived(byte[] buffer, long offset, long size)
+		public override bool OnReceived(byte[] buffer, long offset, long size)
 		{
+			return base.OnReceived(buffer, offset, size);
 			using (UniCastPacket packet = new UniCastPacket(buffer))
 			{
 				int length = packet.ReadInt();
@@ -44,7 +43,7 @@ namespace TestingClient
 				ActorType type = (ActorType)packet.ReadInt();
 				Console.WriteLine(type);
 
-				frontendTOclient action = (frontendTOclient)packet.ReadInt();
+				int action = packet.ReadInt();
 				Console.WriteLine(action);
 
 				ReceiveHandler.Handlers[action]?.Invoke(packet);

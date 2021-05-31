@@ -13,17 +13,19 @@ namespace TestingClient.Handlers
 		Count
 	}
 
-	public class ReceiveFromFrontendDistributionHandler : IReceivedMessageHandler<frontendTOclient>
+	public class ReceiveFromFrontendDistributionHandler : IReceivedMessageHandler<int>
 	{
-		public Dictionary<frontendTOclient, Action<UniCastPacket>> Handlers { get; } = new Dictionary<frontendTOclient, Action<UniCastPacket>>();
+		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
 
 		public ReceiveFromFrontendDistributionHandler()
 		{
-			Handlers.Add(frontendTOclient.Count, Test);
+			Handlers.Add((int)frontendTOclient.Count, Test);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
+			Console.WriteLine("!@#$#@!@#$#@!");
+			return;
 			Guid id = new Guid(packet.Read(16));
 			Console.WriteLine(id);
 

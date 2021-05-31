@@ -13,7 +13,14 @@ namespace TestingClient
 		{
 			var client = new Client_FrontendDistributor("127.0.0.1", 6378);
 			client.ConnectAsync();
+			using (UniCastPacket packet = new UniCastPacket(ActorType.FrontendDistributionServer))
+			{
+				packet.Write((int)frontendTOclient.Count);
 
+				packet.WriteLength();
+				client.OnReceived(packet.GetRawBytes(), 0, 8);
+			}
+			//client.SendHandler.Handlers[clientTOfrontend.Count]?.Invoke(null);
 
 			while (true)
 			{

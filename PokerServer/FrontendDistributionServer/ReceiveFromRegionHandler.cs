@@ -12,9 +12,9 @@ namespace FrontendDistributionServer.Handlers
 		Count
 	}
 
-	public class ReceiveFromRegionHandler : IReceivedMessageHandler<regionTOfrontend>
+	public class ReceiveFromRegionHandler : IReceivedMessageHandler<int>
 	{
-		public Dictionary<regionTOfrontend, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
 
 		public ReceiveFromRegionHandler()
 		{

@@ -12,9 +12,9 @@ namespace LobbyServer.Handlers
 		Count
 	}
 
-	public class SendToClientHandler : ISendMessageHandler<lobbyTOclient>
+	public class SendToClientHandler : ISendMessageHandler<int>
 	{
-		public Dictionary<lobbyTOclient, Action<UniCastPacket>> Handlers { get; }
+		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToClientHandler()
 		{

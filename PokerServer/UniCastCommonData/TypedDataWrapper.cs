@@ -16,7 +16,7 @@
 			_data = data;
 		}
 
-		public abstract byte[] GetRawData();
+		public abstract byte[] GetRawBytes();
 		public abstract void SetTypedData(byte[] rawData);
 	}
 }

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Reflection;
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData.Network
 {
@@ -835,14 +838,17 @@ namespace UniCastCommonData.Network
 		/// Handle client connecting notification
 		/// </summary>
 		protected virtual void OnConnecting() { }
+
 		/// <summary>
 		/// Handle client connected notification
 		/// </summary>
 		protected virtual void OnConnected() { }
+
 		/// <summary>
 		/// Handle client disconnecting notification
 		/// </summary>
 		protected virtual void OnDisconnecting() { }
+
 		/// <summary>
 		/// Handle client disconnected notification
 		/// </summary>
@@ -857,7 +863,38 @@ namespace UniCastCommonData.Network
 		/// <remarks>
 		/// Notification is called when another chunk of buffer was received from the server
 		/// </remarks>
-		protected virtual void OnReceived(byte[] buffer, long offset, long size) { }
+		public virtual bool OnReceived(byte[] buffer, long offset, long size)
+		{
+			using (UniCastPacket packet = new UniCastPacket(buffer))
+			{
+				int length = packet.ReadInt();
+
+				if (length <= 0)
+				{
+					return false;
+				}
+
+				ActorType receivedActor = (ActorType)packet.ReadInt();
+
+				ActorType currentActor = (ActorType)(GetType().GetProperty("ServerType").GetValue(this));
+
+				if (receivedActor != currentActor)
+				{
+					return false;
+				}
+
+				int action = packet.ReadInt();
+
+				object receiveHandler = (GetType().GetProperty("ReceiveHandler").GetValue(this));
+				object? handlers = receiveHandler.GetType().GetProperty("Handlers").GetValue(receiveHandler);
+				PropertyInfo pairs = handlers.GetType().GetProperty("Item");
+				Action<UniCastPacket> value = (Action<UniCastPacket>)pairs.GetValue(handlers, new[] { (object?)action });
+				value?.Invoke(packet);
+
+				return true;
+			}
+		}
+
 		/// <summary>
 		/// Handle buffer sent notification
 		/// </summary>

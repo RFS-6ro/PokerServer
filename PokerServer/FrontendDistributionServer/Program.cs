@@ -30,10 +30,15 @@ namespace FrontendDistributionServer
 			Console.Write("Server starting...");
 			server.Start();
 
+			var session = new FrontendDistribution_Client_Session(server);
+
 			while (true)
 			{
 				Console.ReadLine();
 			}
+
+			//send example
+			//server.SendHandler.Handlers[Handlers.frontendTOclient.Count]?.Invoke(null);
 		}
 	}
 }
