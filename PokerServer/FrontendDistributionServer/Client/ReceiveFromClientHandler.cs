@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace FrontendDistributionServer.ClientSide.Handlers
+namespace FrontendDistributionServer.Client.Handlers
 {
 	public enum clientTOfrontend
 	{
@@ -24,5 +24,6 @@ namespace FrontendDistributionServer.ClientSide.Handlers
 		private void Test(UniCastPacket packet)
 		{
 		}
+
 	}
 }

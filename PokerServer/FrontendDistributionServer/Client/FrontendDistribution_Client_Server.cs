@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
-using FrontendDistributionServer.ClientSide.Handlers;
+using FrontendDistributionServer.Client.Handlers;
 using UniCastCommonData.Network;
 using UniCastCommonData.Handlers;
 
-namespace FrontendDistributionServer.ClientSide
+namespace FrontendDistributionServer.Client
 {
 	public class FrontendDistribution_Client_Server : AbstractTCPServer<
 		ClientSessionBuilder,

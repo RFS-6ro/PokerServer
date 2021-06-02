@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
 using UniCastCommonData.Network;
-using TestingClient.FrontendDistributionSide.Handlers;
+using TestingClient.FrontendDistribution.Handlers;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.FrontendDistributionSide
+namespace TestingClient.FrontendDistribution
 {
 	public class Client_FrontendDistributor : AbstractTCPClient<
 		ReceiveFromFrontendDistributionHandler, int,
@@ -21,6 +21,10 @@ namespace TestingClient.FrontendDistributionSide
 		}
 
 		public Client_FrontendDistributor(string address, int port) : base(address, port)
+		{
+		}
+
+		public Client_FrontendDistributor(IPEndPoint endpoint) : base(endpoint)
 		{
 		}
 	}

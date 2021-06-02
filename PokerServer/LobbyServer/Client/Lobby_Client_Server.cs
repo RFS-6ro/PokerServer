@@ -1,11 +1,11 @@
 ﻿
 using System;
 using System.Net;
-using LobbyServer.ClientSide.Handlers;
+using LobbyServer.Client.Handlers;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network;
 
-namespace LobbyServer.ClientSide
+namespace LobbyServer.Client
 {
 	public class Lobby_Client_Server : AbstractTCPServer<
 		ClientSessionBuilder,

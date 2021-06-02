@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
-using RegionServer.LobbySide.Handlers;
+using RegionServer.Lobby.Handlers;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network;
 
-namespace RegionServer.LobbySide
+namespace RegionServer.Lobby
 {
 	public class Region_Lobby_Server : AbstractTCPServer<
 		LobbySessionBuilder,

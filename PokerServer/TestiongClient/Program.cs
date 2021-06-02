@@ -1,30 +1,72 @@
-﻿using System;
-using TestingClient.FrontendDistributionSide.Handlers;
-using TestingClient.FrontendDistributionSide;
-using UniCastCommonData;
-using UniCastCommonData.Handlers;
+﻿using TestingClient.FrontendDistribution;
+using System.Net;
+using TestingClient.Region;
+using TestingClient.Lobby;
+using System.Threading.Tasks;
 
 namespace TestingClient
 {
 	class Program
 	{
-		static void Main(string[] args)
+		private static Client_FrontendDistributor _headConnection;
+		private static Client_Region _regionConnection;
+		private static Client_Lobby _lobbyConnection;
+
+		static async void Main(string[] args)
 		{
-			var client = new Client_FrontendDistributor("127.0.0.1", 6378);
-			client.ConnectAsync();
-			using (UniCastPacket packet = new UniCastPacket(ActorType.FrontendDistributionServer))
-			{
-				packet.Write((int)frontendTOclient.Count);
+			Task<Client_FrontendDistributor> initConnectionToFrontendDistributionServer = InitConnectionToFrontendDistributionServer();
+			_headConnection = await initConnectionToFrontendDistributionServer;
+		}
 
-				packet.WriteLength();
-				client.OnReceived(packet.GetRawBytes(), 0, 8);
-			}
-			//client.SendHandler.Handlers[clientTOfrontend.Count]?.Invoke(null);
+		public async static Task<Client_FrontendDistributor> InitConnectionToFrontendDistributionServer()
+		{
+			// TCP server address
+			string address = "127.0.0.1";
 
-			while (true)
+			// TCP server port
+			int port = 5555;
+
+			Client_FrontendDistributor headConnection = new Client_FrontendDistributor(address, port);
+
+			bool isConnected = headConnection.ConnectAsync();
+
+			if (isConnected == false)
 			{
-				Console.ReadLine();
+				while (headConnection.IsConnected == false)
+					await Task.Yield();
 			}
+
+			return headConnection;
+		}
+
+		public async static Task<Client_Region> InitConnectionToRegionServer(IPEndPoint ip)
+		{
+			Client_Region regionConnection = new Client_Region(ip);
+
+			bool isConnected = regionConnection.ConnectAsync();
+
+			if (isConnected == false)
+			{
+				while (regionConnection.IsConnected == false)
+					await Task.Yield();
+			}
+
+			return regionConnection;
+		}
+
+		public async static Task<Client_Lobby> InitConnectionToLobbyServer(IPEndPoint ip)
+		{
+			Client_Lobby lobbyConnection = new Client_Lobby(ip);
+
+			bool isConnected = lobbyConnection.ConnectAsync();
+
+			if (isConnected == false)
+			{
+				while (lobbyConnection.IsConnected == false)
+					await Task.Yield();
+			}
+
+			return lobbyConnection;
 		}
 	}
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
 using UniCastCommonData.Network;
-using RegionServer.ClientSide.Handlers;
+using RegionServer.Client.Handlers;
 using UniCastCommonData.Handlers;
 
-namespace RegionServer.ClientSide
+namespace RegionServer.Client
 {
 	public class Region_Client_Server : AbstractTCPServer<
 		ClientSessionBuilder,

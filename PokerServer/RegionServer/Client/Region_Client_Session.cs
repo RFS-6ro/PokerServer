@@ -1,6 +1,6 @@
 ﻿using UniCastCommonData.Network;
 
-namespace RegionServer.ClientSide
+namespace RegionServer.Client
 {
 	public class Region_Client_Session : TcpSession
 	{

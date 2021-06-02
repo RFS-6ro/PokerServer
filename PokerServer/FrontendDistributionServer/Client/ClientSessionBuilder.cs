@@ -1,7 +1,7 @@
 ﻿using System;
 using UniCastCommonData.Network;
 
-namespace FrontendDistributionServer.ClientSide
+namespace FrontendDistributionServer.Client
 {
 	public class ClientSessionBuilder : ITCPSessionBuilder
 	{

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
 using UniCastCommonData.Network;
-using TestingClient.RegionSide.Handlers;
+using TestingClient.Region.Handlers;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.RegionSide
+namespace TestingClient.Region
 {
 	public class Client_Region : AbstractTCPClient<
 		ReceiveFromRegionHandler, int,
@@ -22,6 +22,10 @@ namespace TestingClient.RegionSide
 		}
 
 		public Client_Region(string address, int port) : base(address, port)
+		{
+		}
+
+		public Client_Region(IPEndPoint endpoint) : base(endpoint)
 		{
 		}
 	}

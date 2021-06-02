@@ -1,7 +1,7 @@
 ﻿using System;
 using UniCastCommonData.Network;
 
-namespace FrontendDistributionServer.RegionSide
+namespace FrontendDistributionServer.Region
 {
 	public class RegionSessionBuilder : ITCPSessionBuilder
 	{

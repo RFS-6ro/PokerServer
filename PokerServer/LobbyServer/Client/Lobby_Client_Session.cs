@@ -1,6 +1,6 @@
 ﻿using UniCastCommonData.Network;
 
-namespace LobbyServer.ClientSide
+namespace LobbyServer.Client
 {
 	public class Lobby_Client_Session : TcpSession
 	{

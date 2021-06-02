@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
 using UniCastCommonData.Network;
-using TestingClient.LobbySide.Handlers;
+using TestingClient.Lobby.Handlers;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.LobbySide
+namespace TestingClient.Lobby
 {
 	public class Client_Lobby : AbstractTCPClient<
 		ReceiveFromLobbyHandler, int,
@@ -21,6 +21,10 @@ namespace TestingClient.LobbySide
 		}
 
 		public Client_Lobby(string address, int port) : base(address, port)
+		{
+		}
+
+		public Client_Lobby(IPEndPoint endpoint) : base(endpoint)
 		{
 		}
 	}

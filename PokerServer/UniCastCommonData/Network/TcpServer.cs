@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using UniCastCommonData.Observable;
 
 namespace UniCastCommonData.Network
 {
@@ -334,7 +336,7 @@ namespace UniCastCommonData.Network
 		#region Session management
 
 		// Server sessions
-		protected readonly ConcurrentDictionary<Guid, TcpSession> Sessions = new ConcurrentDictionary<Guid, TcpSession>();
+		protected readonly ObservableConcurrentDictionary<Guid, TcpSession> Sessions = new ObservableConcurrentDictionary<Guid, TcpSession>();
 
 		/// <summary>
 		/// Disconnect all connected sessions
@@ -380,7 +382,7 @@ namespace UniCastCommonData.Network
 		internal void UnregisterSession(Guid id)
 		{
 			// Unregister session by Id
-			Sessions.TryRemove(id, out TcpSession temp);
+			Sessions.TryRemove(id, out _);
 		}
 
 		#endregion

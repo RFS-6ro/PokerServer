@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using UniCastCommonData.Network;
 using UniCastCommonData.Handlers;
-using LobbyServer.RegionSide.Handlers;
+using LobbyServer.Region.Handlers;
 
-namespace LobbyServer.RegionSide
+namespace LobbyServer.Region
 {
 	public class Lobby_Region : AbstractTCPClient<
 		ReceiveFromRegionHandler, int,

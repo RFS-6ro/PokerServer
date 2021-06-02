@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace RegionServer.ClientSide.Handlers
+namespace RegionServer.Client.Handlers
 {
 	public enum clientTOregion
 	{

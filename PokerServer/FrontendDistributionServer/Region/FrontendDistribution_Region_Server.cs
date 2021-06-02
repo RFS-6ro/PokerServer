@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
-using FrontendDistributionServer.RegionSide.Handlers;
+using FrontendDistributionServer.Region.Handlers;
 using UniCastCommonData.Network;
 using UniCastCommonData.Handlers;
 
-namespace FrontendDistributionServer.RegionSide
+namespace FrontendDistributionServer.Region
 {
 	public class FrontendDistribution_Region_Server : AbstractTCPServer<
 		RegionSessionBuilder,

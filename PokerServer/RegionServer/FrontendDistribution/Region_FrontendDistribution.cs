@@ -1,9 +1,9 @@
 ﻿using System.Net;
-using RegionServer.FrontendDistributionSide.Handlers;
+using RegionServer.FrontendDistribution.Handlers;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network;
 
-namespace RegionServer.FrontendDistributionSide
+namespace RegionServer.FrontendDistribution
 {
 	public class Region_FrontendDistribution : AbstractTCPClient<
 		ReceiveFromFrontendDistributionHandler, int,

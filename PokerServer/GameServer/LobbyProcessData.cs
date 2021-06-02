@@ -48,6 +48,7 @@ namespace GameServer
 			{
 				_logger.PrintError($"Lobby creation throws exception {ex}.");
 			}
+
 		}
 
 		private string GenerateLinedString(string[] args)

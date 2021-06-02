@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace LobbyServer.RegionSide.Handlers
+namespace LobbyServer.Region.Handlers
 {
 	public enum regionTOlobby
 	{

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace FrontendDistributionServer.RegionSide.Handlers
+namespace FrontendDistributionServer.Region.Handlers
 {
 	public enum frontendTOregion
 	{

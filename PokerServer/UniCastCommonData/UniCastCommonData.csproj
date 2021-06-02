@@ -11,5 +11,6 @@
     <Folder Include="Handlers\" />
     <Folder Include="Safety\" />
     <Folder Include="Server Pool\" />
+    <Folder Include="Observable\" />
   </ItemGroup>
 </Project>

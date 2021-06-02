@@ -4,7 +4,7 @@ using System.Text;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.FrontendDistributionSide.Handlers
+namespace TestingClient.FrontendDistribution.Handlers
 {
 	public enum frontendTOclient
 	{

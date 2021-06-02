@@ -1,6 +1,6 @@
 ﻿using UniCastCommonData.Network;
 
-namespace FrontendDistributionServer.RegionSide
+namespace FrontendDistributionServer.Region
 {
 	public class FrontendDistribution_Region_Session : TcpSession
 	{

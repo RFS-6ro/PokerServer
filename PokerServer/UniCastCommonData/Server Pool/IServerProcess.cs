@@ -4,12 +4,12 @@ namespace UniCastCommonData.ServerPool
 {
 	public interface IServerProcess
 	{
-		Process Process { get; protected set; }
+		Process Process { get; }
 
 		bool IsResponsable { get; }
 
-		void CreateProcess(string filePath, string[] args);
+		bool CreateProcess();
 
-		void KillProcess(bool force = false);
+		void KillProcess();
 	}
 }

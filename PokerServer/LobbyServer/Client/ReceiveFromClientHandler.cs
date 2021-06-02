@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace LobbyServer.ClientSide.Handlers
+namespace LobbyServer.Client.Handlers
 {
 	public enum clientTOlobby
 	{

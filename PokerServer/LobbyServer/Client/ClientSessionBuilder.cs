@@ -1,7 +1,7 @@
 ﻿using System;
 using UniCastCommonData.Network;
 
-namespace LobbyServer.ClientSide
+namespace LobbyServer.Client
 {
 	public class ClientSessionBuilder : ITCPSessionBuilder
 	{

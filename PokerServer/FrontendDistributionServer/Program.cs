@@ -1,43 +1,32 @@
-﻿using System;
-using System.Net;
-using FrontendDistributionServer.ClientSide;
+﻿using System.Threading.Tasks;
+using FrontendDistributionServer.Client;
+using FrontendDistributionServer.Region;
+using UniCastCommonData.Handlers;
 
 namespace FrontendDistributionServer
 {
 	class Program
 	{
-		static void Main(string[] args)
+		private static FrontendDistribution_Region_Server _regionServer;
+		private static FrontendDistribution_Client_Server _clientServer;
+
+		static async void Main(string[] args)
 		{
-			Console.Title = "Frontend Distribution Server";
-			// TCP server address
-			string address = "127.0.0.1";
-			if (args.Length > 0)
-				address = args[0];
+			Task<FrontendDistribution_Region_Server> startRegionServerTask = StartRegionServer();
+			Task<FrontendDistribution_Client_Server> startClientServerTask = StartClientServer();
 
-			// TCP server port
-			int port = 1111;
-			if (args.Length > 1)
-				port = int.Parse(args[1]);
+			_clientServer = await startClientServerTask;
+			_regionServer = await startRegionServerTask;
+		}
 
-			Console.WriteLine($"Frontend Distribution TCP server address: {address}");
-			Console.WriteLine($"Frontend Distribution TCP server port: {port}");
+		public async static Task<FrontendDistribution_Region_Server> StartRegionServer()
+		{
+			return await ServerInitialisator<FrontendDistribution_Region_Server>.StartServer(1111);
+		}
 
-			Console.WriteLine();
-
-			var server = new FrontendDistribution_Client_Server(IPAddress.Any, port);
-			// server.OptionNoDelay = true;
-			server.OptionReuseAddress = true;
-			// Start the server
-			Console.Write("Server starting...");
-			server.Start();
-
-			while (true)
-			{
-				Console.ReadLine();
-			}
-
-			//send example
-			//server.SendHandler.Handlers[Handlers.frontendTOclient.Count]?.Invoke(null);
+		public async static Task<FrontendDistribution_Client_Server> StartClientServer()
+		{
+			return await ServerInitialisator<FrontendDistribution_Client_Server>.StartServer(5555);
 		}
 	}
 }

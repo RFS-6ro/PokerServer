@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
-namespace TestingClient.RegionSide.Handlers
+namespace TestingClient.Region.Handlers
 {
 	public enum regionTOclient
 	{
