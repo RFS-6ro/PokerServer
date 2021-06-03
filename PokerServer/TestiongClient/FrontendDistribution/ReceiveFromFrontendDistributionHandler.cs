@@ -10,7 +10,10 @@ namespace TestingClient.FrontendDistribution.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
 	public class ReceiveFromFrontendDistributionHandler : IReceivedMessageHandler<int>
@@ -19,11 +22,19 @@ namespace TestingClient.FrontendDistribution.Handlers
 
 		public ReceiveFromFrontendDistributionHandler()
 		{
-			Handlers.Add((int)frontendTOclient.Count, Test);
+			Handlers.Add((int)frontendTOclient.Test, Test);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid guid = new Guid(packet.Read(16));
+
+				string message = packet.ReadString();
+
+				Console.WriteLine(guid + "|" + message);
+			});
 		}
 	}
 }

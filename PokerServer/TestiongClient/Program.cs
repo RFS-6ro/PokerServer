@@ -3,6 +3,7 @@ using System.Net;
 using TestingClient.Region;
 using TestingClient.Lobby;
 using System.Threading.Tasks;
+using UniCastCommonData;
 
 namespace TestingClient
 {
@@ -11,11 +12,16 @@ namespace TestingClient
 		private static Client_FrontendDistributor _headConnection;
 		private static Client_Region _regionConnection;
 		private static Client_Lobby _lobbyConnection;
+		private static TestingClientMediator _mediator;
 
-		static async void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			Task<Client_FrontendDistributor> initConnectionToFrontendDistributionServer = InitConnectionToFrontendDistributionServer();
 			_headConnection = await initConnectionToFrontendDistributionServer;
+
+			_mediator = new TestingClientMediator(60);
+
+			new ConsoleInput<TestingClientMediator>(_mediator);
 		}
 
 		public async static Task<Client_FrontendDistributor> InitConnectionToFrontendDistributionServer()

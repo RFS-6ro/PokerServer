@@ -9,7 +9,10 @@ namespace RegionServer.FrontendDistribution.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
 	public class ReceiveFromFrontendDistributionHandler : IReceivedMessageHandler<int>
@@ -18,7 +21,19 @@ namespace RegionServer.FrontendDistribution.Handlers
 
 		public ReceiveFromFrontendDistributionHandler()
 		{
-			//Handlers.Add((int)frontendTOregion., (x) => { });
+			Handlers.Add((int)frontendTOregion.Test, Test);
+		}
+
+		private void Test(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid guid = new Guid(packet.Read(16));
+
+				string message = packet.ReadString();
+
+				Console.WriteLine(guid + "|" + message);
+			});
 		}
 	}
 }

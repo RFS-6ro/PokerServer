@@ -9,7 +9,10 @@ namespace LobbyServer.Client.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
 	public class ReceiveFromClientHandler : IReceivedMessageHandler<int>
@@ -18,7 +21,19 @@ namespace LobbyServer.Client.Handlers
 
 		public ReceiveFromClientHandler()
 		{
-			//Handlers.Add((int)clientTOlobby., (x) => { });
+			Handlers.Add((int)clientTOlobby.Test, Test);
+		}
+
+		private void Test(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid guid = new Guid(packet.Read(16));
+
+				string message = packet.ReadString();
+
+				Console.WriteLine(guid + "|" + message);
+			});
 		}
 	}
 }

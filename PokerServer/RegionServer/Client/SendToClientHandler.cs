@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace RegionServer.Client.Handlers
 {
@@ -9,16 +10,27 @@ namespace RegionServer.Client.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
-	public class SendToClientHandler : ISendMessageHandler<int>
+	public class SendToClientHandler : SessionSender<Region_Client_Server>
 	{
-		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
-
 		public SendToClientHandler()
 		{
-			//Handlers.Add((int)regionTOclient., (x) => { });
+			Handlers.Add((int)regionTOclient.Test, Test);
+		}
+
+		private void Test(InitialSendingData data)
+		{
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+				packet.Write(GetType().ToString());
+
+				Sender.SendAsync(packet);
+			}
 		}
 	}
 }

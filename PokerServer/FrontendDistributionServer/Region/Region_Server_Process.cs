@@ -2,9 +2,10 @@
 using System.Diagnostics;
 using UniCastCommonData.ServerPool;
 
-namespace RegionServer.Lobby
+namespace FrontendDistributionServer.Region
 {
-	public class Lobby_Server_Process : IServerProcess
+#if DEBUG
+	public class Region_Server_Process : IServerProcess
 	{
 		private readonly string _filePath;
 		private readonly string[] _args;
@@ -13,7 +14,7 @@ namespace RegionServer.Lobby
 
 		public Process Process { get; private set; }
 
-		public Lobby_Server_Process(string[] args)
+		public Region_Server_Process(string[] args)
 		{
 			_filePath = args[0];
 			_args = args;
@@ -31,4 +32,5 @@ namespace RegionServer.Lobby
 			Process?.Dispose();
 		}
 	}
+#endif
 }

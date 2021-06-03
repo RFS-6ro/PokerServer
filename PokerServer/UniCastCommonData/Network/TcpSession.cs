@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace UniCastCommonData.Network
 {
@@ -11,7 +12,7 @@ namespace UniCastCommonData.Network
 	/// TCP session is used to read and write data from the connected TCP client
 	/// </summary>
 	/// <remarks>Thread-safe</remarks>
-	public class TcpSession : IDisposable
+	public class TcpSession : IDisposable, ISender
 	{
 		/// <summary>
 		/// Initialize the session with a given server
@@ -96,10 +97,15 @@ namespace UniCastCommonData.Network
 
 			// Apply the option: keep alive
 			if (Server.OptionKeepAlive)
+			{
 				Socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+			}
+
 			// Apply the option: no delay
 			if (Server.OptionNoDelay)
+			{
 				Socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+			}
 
 			// Prepare receive & send buffers
 			_receiveBuffer.Reserve(OptionReceiveBufferSize);
@@ -126,7 +132,9 @@ namespace UniCastCommonData.Network
 
 			// Check the socket disposed state: in some rare cases it might be disconnected while receiving!
 			if (IsSocketDisposed)
+			{
 				return;
+			}
 
 			// Call the session connected handler
 			OnConnected();
@@ -136,7 +144,9 @@ namespace UniCastCommonData.Network
 
 			// Call the empty send buffer handler
 			if (_sendBufferMain.IsEmpty)
+			{
 				OnEmpty();
+			}
 		}
 
 		/// <summary>
@@ -145,8 +155,10 @@ namespace UniCastCommonData.Network
 		/// <returns>'true' if the section was successfully disconnected, 'false' if the section is already disconnected</returns>
 		public virtual bool Disconnect()
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return false;
+			}
 
 			// Reset event args
 			_receiveEventArg.Completed -= OnAsyncCompleted;
@@ -236,11 +248,15 @@ namespace UniCastCommonData.Network
 		/// <returns>Size of sent data</returns>
 		public virtual long Send(byte[] buffer, long offset, long size)
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return 0;
+			}
 
 			if (size == 0)
+			{
 				return 0;
+			}
 
 			// Sent data to the client
 			long sent = Socket.Send(buffer, (int)offset, (int)size, SocketFlags.None, out SocketError ec);
@@ -283,7 +299,11 @@ namespace UniCastCommonData.Network
 		/// </summary>
 		/// <param name="buffer">Buffer to send</param>
 		/// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
-		public virtual bool SendAsync(UniCastPacket packet) { return SendAsync(packet.GetRawBytes(), 0, packet.Length); }
+		public virtual bool SendAsync(UniCastPacket packet)
+		{
+			packet.WriteLength();
+			return SendAsync(packet.GetRawBytes(), 0, packet.Length);
+		}
 
 		/// <summary>
 		/// Send data to the client (asynchronous)
@@ -294,11 +314,15 @@ namespace UniCastCommonData.Network
 		/// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
 		public virtual bool SendAsync(byte[] buffer, long offset, long size)
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return false;
+			}
 
 			if (size == 0)
+			{
 				return true;
+			}
 
 			lock (_sendLock)
 			{
@@ -310,9 +334,13 @@ namespace UniCastCommonData.Network
 
 				// Avoid multiple send handlers
 				if (_sending)
+				{
 					return true;
+				}
 				else
+				{
 					_sending = true;
+				}
 
 				// Try to send the main buffer
 				TrySend();
@@ -344,11 +372,15 @@ namespace UniCastCommonData.Network
 		/// <returns>Size of received data</returns>
 		public virtual long Receive(byte[] buffer, long offset, long size)
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return 0;
+			}
 
 			if (size == 0)
+			{
 				return 0;
+			}
 
 			// Receive data from the client
 			long received = Socket.Receive(buffer, (int)offset, (int)size, SocketFlags.None, out SocketError ec);
@@ -399,10 +431,14 @@ namespace UniCastCommonData.Network
 		private void TryReceive()
 		{
 			if (_receiving)
+			{
 				return;
+			}
 
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return;
+			}
 
 			bool process = true;
 
@@ -427,8 +463,10 @@ namespace UniCastCommonData.Network
 		/// </summary>
 		private void TrySend()
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return;
+			}
 
 			bool empty = false;
 			bool process = true;
@@ -461,7 +499,9 @@ namespace UniCastCommonData.Network
 						}
 					}
 					else
+					{
 						return;
+					}
 				}
 
 				// Call the empty send buffer handler
@@ -476,7 +516,9 @@ namespace UniCastCommonData.Network
 					// Async write with the write handler
 					_sendEventArg.SetBuffer(_sendBufferFlush.Data, (int)_sendBufferFlushOffset, (int)(_sendBufferFlush.Size - _sendBufferFlushOffset));
 					if (!Socket.SendAsync(_sendEventArg))
+					{
 						process = ProcessSend(_sendEventArg);
+					}
 				}
 				catch (ObjectDisposedException) { }
 			}
@@ -510,18 +552,24 @@ namespace UniCastCommonData.Network
 		private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
 		{
 			if (IsSocketDisposed)
+			{
 				return;
+			}
 
 			// Determine which type of operation just completed and call the associated handler
 			switch (e.LastOperation)
 			{
 			case SocketAsyncOperation.Receive:
 				if (ProcessReceive(e))
+				{
 					TryReceive();
+				}
 				break;
 			case SocketAsyncOperation.Send:
 				if (ProcessSend(e))
+				{
 					TrySend();
+				}
 				break;
 			default:
 				throw new ArgumentException("The last operation completed on the socket was not a receive or send");
@@ -534,8 +582,10 @@ namespace UniCastCommonData.Network
 		/// </summary>
 		private bool ProcessReceive(SocketAsyncEventArgs e)
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return false;
+			}
 
 			long size = e.BytesTransferred;
 
@@ -551,7 +601,9 @@ namespace UniCastCommonData.Network
 
 				// If the receive buffer is full increase its size
 				if (_receiveBuffer.Capacity == size)
+				{
 					_receiveBuffer.Reserve(2 * size);
+				}
 			}
 
 			_receiving = false;
@@ -561,9 +613,13 @@ namespace UniCastCommonData.Network
 			{
 				// If zero is returned from a read operation, the remote end has closed the connection
 				if (size > 0)
+				{
 					return true;
+				}
 				else
+				{
 					Disconnect();
+				}
 			}
 			else
 			{
@@ -579,8 +635,10 @@ namespace UniCastCommonData.Network
 		/// </summary>
 		private bool ProcessSend(SocketAsyncEventArgs e)
 		{
-			if (!IsConnected)
+			if (IsConnected == false)
+			{
 				return false;
+			}
 
 			long size = e.BytesTransferred;
 
@@ -609,7 +667,9 @@ namespace UniCastCommonData.Network
 
 			// Try to send again if the session is valid
 			if (e.SocketError == SocketError.Success)
+			{
 				return true;
+			}
 			else
 			{
 				SendError(e.SocketError);
@@ -725,7 +785,9 @@ namespace UniCastCommonData.Network
 				(error == SocketError.ConnectionReset) ||
 				(error == SocketError.OperationAborted) ||
 				(error == SocketError.Shutdown))
+			{
 				return;
+			}
 
 			OnError(error);
 		}

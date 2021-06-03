@@ -58,6 +58,12 @@ namespace UniCastCommonData
 			_buffer.AddRange(value.ToByteArray());
 		}
 
+		public void Write(string text)
+		{
+			_buffer.AddRange(text.Length.ToByteArray());
+			_buffer.AddRange(text.ToByteArray());
+		}
+
 		public void Write<T>(T data) where T : IByteArrayConvertable
 		{
 			Write(data.GetRawBytes());
@@ -70,14 +76,47 @@ namespace UniCastCommonData
 
 		public int ReadInt(bool moveReadPos = true)
 		{
-			return Read(4, moveReadPos).ToInt32();
+			try
+			{
+				return Read(4, moveReadPos).ToInt32();
+			}
+			catch
+			{
+				throw new Exception("Could not read value of type 'int'!");
+			}
+		}
+
+		public string ReadString(bool moveReadPos = true)
+		{
+			try
+			{
+				int length = ReadInt(); // Get the length of the string
+				string value = Encoding.ASCII.GetString(_readableBuffer, _readPosition, length); // Convert the bytes to a string
+				if (moveReadPos && value.Length > 0)
+				{
+					// If _moveReadPos is true string is not empty
+					_readPosition += length; // Increase readPos by the length of the string
+				}
+				return value; // Return the string
+			}
+			catch
+			{
+				throw new Exception("Could not read value of type 'string'!");
+			}
 		}
 
 		public T Read<T>(bool moveReadPos = true) where T : IBasePacketDataWrapper, new()
 		{
-			T data = new T();
-			data.SetTypedData(Read(data.RawDataLength, moveReadPos));
-			return data;
+			try
+			{
+				T data = new T();
+				data.SetTypedData(Read(data.RawDataLength, moveReadPos));
+				return data;
+			}
+			catch
+			{
+				throw new Exception($"Could not read value of type '{typeof(T)}'!");
+			}
 		}
 
 		public byte[] Read(int length, bool moveReadPos = true)

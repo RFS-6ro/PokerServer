@@ -1,5 +1,4 @@
-﻿using System;
-using UniCastCommonData.ServerPool;
+﻿using UniCastCommonData.ServerPool;
 
 namespace RegionServer.Lobby
 {

@@ -2,6 +2,7 @@
 using RegionServer.Client;
 using RegionServer.FrontendDistribution;
 using RegionServer.Lobby;
+using UniCastCommonData;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.ServerPool;
 
@@ -16,7 +17,9 @@ namespace RegionServer
 
 		private static ServerPool<Lobby_Server_Process> _lobbies;
 
-		static async void Main(string[] args)
+		private static RegionServerMediator _mediator;
+
+		static async Task Main(string[] args)
 		{
 			Task<Region_FrontendDistribution> initConnectionToFrontendDistributionServer = InitConnectionToFrontendDistributionServer(args);
 			await initConnectionToFrontendDistributionServer;
@@ -24,8 +27,8 @@ namespace RegionServer
 			Task<Region_Lobby_Server> startLobbyServer = StartLobbyServer();
 			await startLobbyServer;
 
-			var factory = new LobbyServerProcessFactory();
 
+			var factory = new LobbyServerProcessFactory();
 
 			_lobbies = new ServerPool<Lobby_Server_Process>(() => factory.CreateWithParams(args));
 			await _lobbies.CreateNew();
@@ -34,6 +37,10 @@ namespace RegionServer
 
 			Task<Region_Client_Server> startClientServer = StartClientServer();
 			await startClientServer;
+
+			_mediator = new RegionServerMediator();
+
+			new ConsoleInput<RegionServerMediator>(_mediator);
 		}
 
 		public static async Task<Region_Lobby_Server> StartLobbyServer()

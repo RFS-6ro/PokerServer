@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace FrontendDistributionServer.Client.Handlers
 {
@@ -10,37 +11,26 @@ namespace FrontendDistributionServer.Client.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
-	public class SendToClientHandler : ISendMessageHandler<int>
+	public class SendToClientHandler : SessionSender<FrontendDistribution_Client_Server>
 	{
-		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
-
 		public SendToClientHandler()
 		{
-			Handlers.Add((int)frontendTOclient.Count, Test);
+			Handlers.Add((int)frontendTOclient.Test, Test);
 		}
 
-		private void Test(InitialSendingData id)
+		private void Test(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(FrontendDistribution_Client_Server.Instance.ServerType))
+			using (UniCastPacket packet = new UniCastPacket(data))
 			{
-				frontendTOclient action = frontendTOclient.Count;
-				Console.WriteLine(action);
-				packet.Write((int)action);
-				packet.Write(id.GetRawBytes());
-				Console.WriteLine(id);
+				packet.Write(GetType().ToString());
 
-				string message = "Test message";
-				packet.Write(message.Length); // Add the length of the string to the packet
-				packet.Write(Encoding.ASCII.GetBytes(message)); // Add the string itself
-				Console.WriteLine(message);
-
-				Console.WriteLine(packet.Length);
-				packet.WriteLength();
-
-				FrontendDistribution_Client_Server.Instance.FindSession(id.Guid).SendAsync(packet.GetRawBytes());
+				Sender.SendAsync(packet);
 			}
 		}
 	}

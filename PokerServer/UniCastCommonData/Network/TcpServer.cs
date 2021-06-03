@@ -157,7 +157,9 @@ namespace UniCastCommonData.Network
 		{
 			Debug.Assert(!IsStarted, "TCP server is already started!");
 			if (IsStarted)
+			{
 				return false;
+			}
 
 			// Setup acceptor event arg
 			_acceptorEventArg = new SocketAsyncEventArgs();
@@ -213,8 +215,10 @@ namespace UniCastCommonData.Network
 		public virtual bool Stop()
 		{
 			Debug.Assert(IsStarted, "TCP server is not started!");
-			if (!IsStarted)
+			if (IsStarted == false)
+			{
 				return false;
+			}
 
 			// Stop accepting new clients
 			IsAccepting = false;
@@ -259,11 +263,15 @@ namespace UniCastCommonData.Network
 		/// <returns>'true' if the server was successfully restarted, 'false' if the server failed to restart</returns>
 		public virtual bool Restart()
 		{
-			if (!Stop())
+			if (Stop() == false)
+			{
 				return false;
+			}
 
 			while (IsStarted)
+			{
 				Thread.Yield();
+			}
 
 			return Start();
 		}
@@ -281,8 +289,10 @@ namespace UniCastCommonData.Network
 			e.AcceptSocket = null;
 
 			// Async accept a new client connection
-			if (!_acceptorSocket.AcceptAsync(e))
+			if (_acceptorSocket.AcceptAsync(e) == false)
+			{
 				ProcessAccept(e);
+			}
 		}
 
 		/// <summary>
@@ -302,11 +312,15 @@ namespace UniCastCommonData.Network
 				session.Connect(e.AcceptSocket);
 			}
 			else
+			{
 				SendError(e.SocketError);
+			}
 
 			// Accept the next client connection
 			if (IsAccepting)
+			{
 				StartAccept(e);
+			}
 		}
 
 		/// <summary>
@@ -316,7 +330,9 @@ namespace UniCastCommonData.Network
 		private void OnAsyncCompleted(object sender, SocketAsyncEventArgs e)
 		{
 			if (IsSocketDisposed)
+			{
 				return;
+			}
 
 			ProcessAccept(e);
 		}
@@ -344,12 +360,16 @@ namespace UniCastCommonData.Network
 		/// <returns>'true' if all sessions were successfully disconnected, 'false' if the server is not started</returns>
 		public virtual bool DisconnectAll()
 		{
-			if (!IsStarted)
+			if (IsStarted == false)
+			{
 				return false;
+			}
 
 			// Disconnect all sessions
 			foreach (var session in Sessions.Values)
+			{
 				session.Disconnect();
+			}
 
 			return true;
 		}
@@ -405,15 +425,21 @@ namespace UniCastCommonData.Network
 		/// <returns>'true' if the data was successfully multicasted, 'false' if the data was not multicasted</returns>
 		public virtual bool Multicast(byte[] buffer, long offset, long size)
 		{
-			if (!IsStarted)
+			if (IsStarted == false)
+			{
 				return false;
+			}
 
 			if (size == 0)
+			{
 				return true;
+			}
 
 			// Multicast data to all sessions
 			foreach (var session in Sessions.Values)
+			{
 				session.SendAsync(buffer, offset, size);
+			}
 
 			return true;
 		}
@@ -494,7 +520,9 @@ namespace UniCastCommonData.Network
 				(error == SocketError.ConnectionReset) ||
 				(error == SocketError.OperationAborted) ||
 				(error == SocketError.Shutdown))
+			{
 				return;
+			}
 
 			OnError(error);
 		}

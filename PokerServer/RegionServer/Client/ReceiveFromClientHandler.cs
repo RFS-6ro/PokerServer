@@ -9,7 +9,10 @@ namespace RegionServer.Client.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
 	public class ReceiveFromClientHandler : IReceivedMessageHandler<int>
@@ -18,7 +21,19 @@ namespace RegionServer.Client.Handlers
 
 		public ReceiveFromClientHandler()
 		{
-			//Handlers.Add((int)clientTOregion., (x) => { });
+			Handlers.Add((int)clientTOregion.Test, Test);
+		}
+
+		private void Test(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid guid = new Guid(packet.Read(16));
+
+				string message = packet.ReadString();
+
+				Console.WriteLine(guid + "|" + message);
+			});
 		}
 	}
 }

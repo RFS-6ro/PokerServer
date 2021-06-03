@@ -6,6 +6,7 @@ namespace UniCastCommonData.Network
 {
 	public abstract class AbstractTCPServer<SESSION_BUILDER, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM, INSTANCE_TYPE>
 		: TcpServer,
+		  IStaticInstance<INSTANCE_TYPE>,
 		  IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>,
 		  IAsyncSender<SEND_HANDLER, SEND_ENUM>
 		where SESSION_BUILDER : ITCPSessionBuilder, new()
@@ -13,8 +14,6 @@ namespace UniCastCommonData.Network
 		where SEND_HANDLER : ISendMessageHandler<SEND_ENUM>, new()
 		where INSTANCE_TYPE : AbstractTCPServer<SESSION_BUILDER, RECEIVE_HANDLER, RECEIVE_ENUM, SEND_HANDLER, SEND_ENUM, INSTANCE_TYPE>
 	{
-		public static INSTANCE_TYPE Instance { get; protected set; }
-
 		protected ITCPSessionBuilder _builder { get; set; }
 
 		public abstract ActorType ServerType { get; }
@@ -34,19 +33,15 @@ namespace UniCastCommonData.Network
 
 		protected virtual void InitReferences()
 		{
-			Instance = (INSTANCE_TYPE)this;
+			IStaticInstance<INSTANCE_TYPE>.Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER, SEND_ENUM>)this).SendHandler;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>)this).ReceiveHandler;
 		}
 
-		public override bool Start()
-		{
-			return base.Start();
-			//Sessions.First(
-			//	(x) =>
-			//		(x.Value as FrontendDistribution_Session).Type == SenderType.Client)
-			//	.Value.SendAsync(new byte[] { });
-		}
+		//Sessions.First(
+		//	(x) =>
+		//		(x.Value as FrontendDistribution_Session).Type == SenderType.Client)
+		//	.Value.SendAsync(new byte[] { });
 
 		protected virtual void ConfigBuilder(ITCPSessionBuilder builder)
 		{

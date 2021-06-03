@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace LobbyServer.Client.Handlers
 {
@@ -9,16 +10,27 @@ namespace LobbyServer.Client.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
-	public class SendToClientHandler : ISendMessageHandler<int>
+	public class SendToClientHandler : SessionSender<Lobby_Client_Server>
 	{
-		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
-
 		public SendToClientHandler()
 		{
-			//Handlers.Add((int)lobbyTOclient., (x) => { });
+			Handlers.Add((int)lobbyTOclient.Test, Test);
+		}
+
+		private void Test(InitialSendingData data)
+		{
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+				packet.Write(GetType().ToString());
+
+				Sender.SendAsync(packet);
+			}
 		}
 	}
 }

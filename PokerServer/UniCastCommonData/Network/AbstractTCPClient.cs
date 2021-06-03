@@ -33,6 +33,7 @@ namespace UniCastCommonData.Network
 		{
 			Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER, SEND_ENUM>)this).SendHandler;
+			_sendHandler.Sender = this;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER, RECEIVE_ENUM>)this).ReceiveHandler;
 		}
 	}

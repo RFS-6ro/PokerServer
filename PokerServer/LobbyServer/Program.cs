@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using LobbyServer.Client;
 using LobbyServer.Region;
+using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
 namespace LobbyServer
@@ -8,16 +9,20 @@ namespace LobbyServer
 	class Program
 	{
 		private static Lobby_Client_Server _clientServer;
-
 		private static Lobby_Region _headConnection;
+		private static LobbyServerMediator _mediator;
 
-		static async void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			Task<Lobby_Client_Server> startClientServerTask = StartClientServer();
 			Task<Lobby_Region> initConnectionToFrontendDistributionServerTask = InitConnectionToFrontendDistributionServer(args);
 
 			_clientServer = await startClientServerTask;
 			_headConnection = await initConnectionToFrontendDistributionServerTask;
+
+			_mediator = new LobbyServerMediator(40);
+
+			new ConsoleInput<LobbyServerMediator>(_mediator);
 		}
 
 		public async static Task<Lobby_Client_Server> StartClientServer()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace TestingClient.FrontendDistribution.Handlers
 {
@@ -9,22 +10,30 @@ namespace TestingClient.FrontendDistribution.Handlers
 	{
 		None = 0,
 
-		Count
+		Count,
+
+
+		Test
 	}
 
 	public class SendToFrontendDistributionHandler : ISendMessageHandler<int>
 	{
+		public ISender Sender { get; set; }
+
 		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
 		public SendToFrontendDistributionHandler()
 		{
-			Handlers.Add((int)clientTOfrontend.None, Test);
+			Handlers.Add((int)clientTOfrontend.Test, Test);
 		}
 
 		private void Test(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(Client_FrontendDistributor.Instance.ClientType))
+			using (UniCastPacket packet = new UniCastPacket(data))
 			{
+				packet.Write(GetType().ToString());
+
+				Sender.SendAsync(packet);
 			}
 		}
 	}

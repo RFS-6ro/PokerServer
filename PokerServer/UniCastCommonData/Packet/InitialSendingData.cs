@@ -5,28 +5,29 @@ namespace UniCastCommonData
 {
 	public class InitialSendingData : IByteArrayConvertable
 	{
-		private Guid _guid;
 		private ActorType _actorType;
-		private int _action;
-
-		public Guid Guid => _guid;
 		public ActorType ActorType => _actorType;
+
+		private int _action;
 		public int Action => _action;
+
+		private Guid _guid;
+		public Guid Guid => _guid;
 
 		public InitialSendingData(Guid guid, ActorType actorType, int action)
 		{
-			_guid = guid;
 			_actorType = actorType;
 			_action = action;
+			_guid = guid;
 		}
 
 		public byte[] GetRawBytes()
 		{
 			byte[] data = new byte[24];
 
-			_guid.ToByteArray().CopyTo(data, 0);
-			((int)_actorType).ToByteArray().CopyTo(data, 16);
-			_action.ToByteArray().CopyTo(data, 20);
+			((int)_actorType).ToByteArray().CopyTo(data, 0);
+			_action.ToByteArray().CopyTo(data, 4);
+			_guid.ToByteArray().CopyTo(data, 8);
 
 			return data;
 		}
