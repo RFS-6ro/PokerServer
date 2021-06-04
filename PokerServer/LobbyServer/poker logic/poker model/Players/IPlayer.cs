@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
-using GameCore.Card.Poker;
+using System.Threading.Tasks;
+using TexasHoldem.Logic.Cards;
 
 namespace TexasHoldem.Logic.Players
 {
@@ -14,7 +15,7 @@ namespace TexasHoldem.Logic.Players
 
 		void StartHand(IStartHandContext context);
 
-		Action<CardModel> AddCard(CardData card, bool isFirstCard);
+		void AddCard(Card card, bool isFirstCard);
 
 		void StartRound(IStartRoundContext context);
 
@@ -28,6 +29,6 @@ namespace TexasHoldem.Logic.Players
 
 		void EndGame(IEndGameContext context);
 
-		IEnumerator AwaitTurn(Action<PlayerAction> action, IGetTurnContext context);
+		Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context);
 	}
 }

@@ -1,9 +1,9 @@
 ﻿namespace TexasHoldem.Logic.Players
 {
-	using GameCore.Card.Poker;
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	using TexasHoldem.Logic.Cards;
 
 	public abstract class BasePlayer : IPlayer
 	{
@@ -11,17 +11,17 @@
 
 		public abstract int BuyIn { get; }
 
-		protected IReadOnlyCollection<CardData> CommunityCards { get; private set; }
+		protected IReadOnlyCollection<Card> CommunityCards { get; private set; }
 
-		protected CardData FirstCard { get; private set; }
+		protected Card FirstCard { get; private set; }
 
-		protected CardData SecondCard { get; private set; }
+		protected Card SecondCard { get; private set; }
 
 		public virtual void StartGame(IStartGameContext context) { }
 
 		public virtual void StartHand(IStartHandContext context) { }
 
-		public Action<CardModel> AddCard(CardData card, bool isFirstCard)
+		public void AddCard(Card card, bool isFirstCard)
 		{
 			if (isFirstCard)
 			{
@@ -31,8 +31,6 @@
 			{
 				SecondCard = card;
 			}
-
-			return null;
 		}
 
 		public virtual void StartRound(IStartRoundContext context)
@@ -50,6 +48,6 @@
 
 		public virtual void EndGame(IEndGameContext context) { }
 
-		public virtual IEnumerator AwaitTurn(Action<PlayerAction> action, IGetTurnContext context) { throw new NotImplementedException(); }
+		public virtual async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context) { throw new NotImplementedException(); }
 	}
 }

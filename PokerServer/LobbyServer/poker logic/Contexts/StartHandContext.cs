@@ -1,25 +1,24 @@
-﻿using GameCore.Card.Poker;
-using GameCore.SaveSystem;
+﻿using TexasHoldem.Logic.Cards;
 
 namespace GameCore.Poker.Contexts
 {
-    public class StartHandContext
-    {
-        public CardModel FirstCard { get; }
-        public CardModel SecondCard { get; }
-        public SafeInt HandNumber { get; }
-        public SafeInt MoneyLeft { get; }
-        public SafeInt SmallBlind { get; }
-        public string FirstPlayerName { get; }
+	public class StartHandContext
+	{
+		public Card FirstCard { get; }
+		public Card SecondCard { get; }
+		public int HandNumber { get; }
+		public int MoneyLeft { get; }
+		public int SmallBlind { get; }
+		public string FirstPlayerName { get; }
 
-        public StartHandContext(CardModel firstCard, CardModel secondCard, SafeInt handNumber, SafeInt moneyLeft, SafeInt smallBlind, string firstPlayerName)
-        {
-            FirstCard = firstCard;
-            SecondCard = secondCard;
-            HandNumber = handNumber;
-            MoneyLeft = moneyLeft;
-            SmallBlind = smallBlind;
-            FirstPlayerName = firstPlayerName;
-        }
-    }
+		public StartHandContext(Card firstCard, Card secondCard, int handNumber, int moneyLeft, int smallBlind, string firstPlayerName)
+		{
+			FirstCard = firstCard;
+			SecondCard = secondCard;
+			HandNumber = handNumber;
+			MoneyLeft = moneyLeft;
+			SmallBlind = smallBlind;
+			FirstPlayerName = firstPlayerName;
+		}
+	}
 }

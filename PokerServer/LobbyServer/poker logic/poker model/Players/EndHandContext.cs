@@ -1,15 +1,15 @@
 ﻿namespace TexasHoldem.Logic.Players
 {
-    using GameCore.Card.Poker;
-    using System.Collections.Generic;
+	using System.Collections.Generic;
+	using TexasHoldem.Logic.Cards;
 
-    public class EndHandContext : IEndHandContext
-    {
-        public EndHandContext(Dictionary<string, ICollection<CardData>> showdownCards)
-        {
-            this.ShowdownCards = showdownCards;
-        }
+	public class EndHandContext : IEndHandContext
+	{
+		public EndHandContext(Dictionary<string, ICollection<Card>> showdownCards)
+		{
+			ShowdownCards = showdownCards;
+		}
 
-        public Dictionary<string, ICollection<CardData>> ShowdownCards { get; private set; }
-    }
+		public Dictionary<string, ICollection<Card>> ShowdownCards { get; private set; }
+	}
 }

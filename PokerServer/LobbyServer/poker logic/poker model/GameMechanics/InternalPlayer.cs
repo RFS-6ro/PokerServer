@@ -1,9 +1,9 @@
 ﻿namespace TexasHoldem.Logic.GameMechanics
 {
-	using GameCore.Card.Poker;
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	using TexasHoldem.Logic.Cards;
 	using TexasHoldem.Logic.Players;
 
 	public class InternalPlayer : PlayerDecorator
@@ -11,24 +11,18 @@
 		public InternalPlayer(IPlayer player)
 			: base()
 		{
-			this.Player = player;
-			this.Cards = new List<CardData>();
+			Player = player;
+			Cards = new List<Card>();
 		}
 
-		public override Action<CardModel> AddCard(CardData card, bool isFirstCard)
-		{
-			base.AddCard(card, isFirstCard);
-			return null;
-		}
-
-		public override IEnumerator AwaitTurn(Action<Players.PlayerAction> action, IGetTurnContext context)
+		public override async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
 		{
 			throw new NotImplementedException();
 		}
 
 		public override void StartGame(IStartGameContext context)
 		{
-			this.PlayerMoney = new InternalPlayerMoney(context.StartMoney);
+			PlayerMoney = new InternalPlayerMoney(context.StartMoney);
 			base.StartGame(context);
 		}
 
@@ -40,7 +34,7 @@
 
 		public override void StartRound(IStartRoundContext context)
 		{
-			this.PlayerMoney.NewRound(context.RoundType);
+			PlayerMoney.NewRound(context.RoundType);
 			base.StartRound(context);
 		}
 	}

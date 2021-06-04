@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections;
+using System.Threading.Tasks;
 using TexasHoldem.Logic.Extensions;
 using TexasHoldem.Logic.Players;
-using UnityEngine;
 
 namespace GameCore.Poker.Model.Player
 {
@@ -12,19 +11,19 @@ namespace GameCore.Poker.Model.Player
 
 		public override int BuyIn => -1;
 
-		public override TexasHoldem.Logic.Players.PlayerAction PostingBlind(IPostingBlindContext context)
+		public override PlayerAction PostingBlind(IPostingBlindContext context)
 		{
 			return context.BlindAction;
 		}
 
-		public override TexasHoldem.Logic.Players.PlayerAction GetTurn(IGetTurnContext context)
+		public override PlayerAction GetTurn(IGetTurnContext context)
 		{
-			TexasHoldem.Logic.Players.PlayerAction action;
+			PlayerAction action;
 			var chanceForAction = RandomProvider.Next(1, 101);
 			if (chanceForAction == 1 && context.MoneyLeft > 0)
 			{
 				// All-in
-				action = TexasHoldem.Logic.Players.PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
+				action = PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
 			}
 
 			if (chanceForAction <= 15)
@@ -35,19 +34,19 @@ namespace GameCore.Poker.Model.Player
 					{
 						//Debug.Log("All in" + Name);
 						// All-in
-						action = TexasHoldem.Logic.Players.PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
+						action = PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
 					}
 					else
 					{
 						//Debug.Log("Min raise" + Name);
 						// Minimum raise
-						action = TexasHoldem.Logic.Players.PlayerAction.Raise(context.MinRaise);
+						action = PlayerAction.Raise(context.MinRaise);
 					}
 				}
 				else
 				{
 					//Debug.Log("check or call" + Name);
-					action = TexasHoldem.Logic.Players.PlayerAction.CheckOrCall();
+					action = PlayerAction.CheckOrCall();
 				}
 			}
 
@@ -55,29 +54,29 @@ namespace GameCore.Poker.Model.Player
 			if (context.CanCheck)
 			{
 				//Debug.Log("check or call" + Name);
-				action = TexasHoldem.Logic.Players.PlayerAction.CheckOrCall();
+				action = PlayerAction.CheckOrCall();
 			}
 
 			if (chanceForAction <= 60)
 			{
 				// Call
 				//Debug.Log("check or call" + Name);
-				action = TexasHoldem.Logic.Players.PlayerAction.CheckOrCall();
+				action = PlayerAction.CheckOrCall();
 			}
 			else
 			{
 				// Fold
 				//Debug.Log("fold" + Name);
-				action = TexasHoldem.Logic.Players.PlayerAction.Fold();
+				action = PlayerAction.Fold();
 			}
 
 			//Debug.Log(action + Name);
 			return action;
 		}
 
-		public override IEnumerator AwaitTurn(Action<TexasHoldem.Logic.Players.PlayerAction> action, IGetTurnContext context)
+		public override async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
 		{
-			yield return new WaitForSeconds(UnityEngine.Random.Range(2f, 5f));
+			await Task.Delay(new Random().Next(2000, 4000));
 
 			action?.Invoke(GetTurn(context));
 		}

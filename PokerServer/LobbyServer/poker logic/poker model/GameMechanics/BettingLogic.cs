@@ -1,13 +1,14 @@
 ﻿namespace TexasHoldem.Logic.GameMechanics
 {
-	using GameCore.Poker.Controller;
-	using GameCore.Poker.ViewModel;
+	using LobbyServer.pokerlogic.controllers;
+	using LobbyServer.pokerlogic.pokermodel.Players;
 	using PokerSynchronisation;
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.Linq;
+	using System.Threading;
+	using System.Threading.Tasks;
 	using TexasHoldem.Logic.Players;
-	using UnityEngine;
 
 	public class BettingLogic<TDECORATOR>
 		where TDECORATOR : UnityPlayerDecorator, new()
@@ -61,7 +62,7 @@
 
 		public List<PlayerActionAndName> RoundBets { get; }
 
-		public IEnumerator Bet(GameRoundType gameRoundType)
+		public async Task Bet(GameRoundType gameRoundType)
 		{
 			int playerIndex = 1;
 
@@ -77,7 +78,7 @@
 
 			if (allPlayers.Count(x => x.PlayerMoney.ShouldPlayInRound) <= 1)
 			{
-				yield break;
+				return;
 			}
 
 			while (allPlayers.Count(x => x.PlayerMoney.InHand) >= 2
@@ -119,7 +120,7 @@
 				player.ChairView.SetGameStateHolder(string.Empty);
 
 				PlayerAction action = null;
-				yield return player.AwaitTurn((x) => action = x, context);
+				await player.AwaitTurn((x) => action = x, context);
 				//PlayerAction action = player.GetTurn(context);
 
 				player.ChairView.SetGameStateHolder(action.ToString());
@@ -129,9 +130,7 @@
 
 				RoundBets.Add(new PlayerActionAndName(player.Name, action));
 
-				BetController.MoveBet(player.ChairView,
-									  player.PlayerMoney.CurrentRoundBet,
-									  player.ChairView, 0, false);
+				//BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
 
 				if (action.Type == TurnType.Fold)
 				{
@@ -151,13 +150,11 @@
 				player.PlayerMoney.ShouldPlayInRound = false;
 				playerIndex++;
 
-				yield return null;
+				await Task.Delay(1);
 			}
 
 
-			BetController.MoveBet(null,
-								  RoundBets.Sum((x) => x.Action.Money),
-								  _tableViewModel, 0, false);
+			//BetController.MoveBet(null, RoundBets.Sum((x) => x.Action.Money), _tableViewModel);
 
 			if (allPlayers.Count == 2)
 			{
@@ -170,7 +167,7 @@
 			}
 		}
 
-		public IEnumerator PlaceBlinds()
+		public async Task PlaceBlinds()
 		{
 			RoundBets.Clear();
 			minRaise.Reset();
@@ -181,7 +178,7 @@
 			// Small blind
 			PlaceBlindForPlayer(firstPlayer);
 
-			yield return null;
+			await Task.Delay(1);
 
 			// Big blind
 			PlaceBlindForPlayer(secondPlayer);
@@ -198,9 +195,7 @@
 							Pot - _smallBlind,
 							player.PlayerMoney.Money))));
 
-			BetController.MoveBet(player.ChairView,
-								  player.PlayerMoney.CurrentRoundBet,
-								  player.ChairView, 0, false);
+			//BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
 		}
 
 		private void ReturnMoneyInCaseOfAllIn()

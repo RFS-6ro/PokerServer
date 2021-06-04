@@ -1,10 +1,10 @@
 ﻿namespace TexasHoldem.Logic.Helpers
 {
-    using GameCore.Card.Poker;
-    using System.Collections.Generic;
+	using System.Collections.Generic;
+	using TexasHoldem.Logic.Cards;
 
-    public interface IHandEvaluator
-    {
-        BestHand GetBestHand(IEnumerable<CardData> cards);
-    }
+	public interface IHandEvaluator
+	{
+		BestHand GetBestHand(IEnumerable<Card> cards);
+	}
 }

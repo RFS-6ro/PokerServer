@@ -1,15 +1,14 @@
-﻿using GameCore.Card.Poker;
-using GameCore.Poker.Controller;
-using GameCore.Poker.ViewModel;
+﻿using LobbyServer.pokerlogic.controllers;
+using LobbyServer.pokerlogic.pokermodel.Players;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TexasHoldem.Logic.Cards;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Helpers;
 using TexasHoldem.Logic.Players;
-using UnityEngine;
 
 namespace GameCore.Poker.Model
 {
@@ -24,13 +23,13 @@ namespace GameCore.Poker.Model
 
 		private readonly Deck deck;
 
-		private readonly List<CardData> communityCards;
+		private readonly List<Card> communityCards;
 
 		private readonly BettingLogic<TDECORATOR> bettingLogic;
 
 		private readonly TableViewModel _tableViewModel;
 
-		private Dictionary<string, ICollection<CardData>> showdownCards;
+		private Dictionary<string, ICollection<Card>> showdownCards;
 
 		public HandLogic(IList<TDECORATOR> players, int handNumber, int smallBlind, TableViewModel tableViewModel)
 		{
@@ -38,13 +37,13 @@ namespace GameCore.Poker.Model
 			_smallBlind = smallBlind;
 			_players = players;
 			deck = new Deck();
-			communityCards = new List<CardData>(5);
+			communityCards = new List<Card>(5);
 			bettingLogic = new BettingLogic<TDECORATOR>(players, smallBlind, tableViewModel);
-			showdownCards = new Dictionary<string, ICollection<CardData>>();
+			showdownCards = new Dictionary<string, ICollection<Card>>();
 			_tableViewModel = tableViewModel;
 		}
 
-		public IEnumerator Play()
+		public async Task Play()
 		{
 			// Start the hand and deal cards to each player
 			foreach (var player in _players)
@@ -59,37 +58,37 @@ namespace GameCore.Poker.Model
 
 			MoveDealerButton();
 
-			yield return bettingLogic.PlaceBlinds();
+			await bettingLogic.PlaceBlinds();
 
-			yield return DispencingCards();
+			await DispencingCards();
 
 			InitTableView();
 
 			// Pre-flop -> blinds -> betting
-			yield return PlayRound(PokerSynchronisation.GameRoundType.PreFlop, 0);
+			await PlayRound(PokerSynchronisation.GameRoundType.PreFlop, 0);
 
 			// Flop -> 3 cards -> betting
 			if (_players.Count(x => x.PlayerMoney.InHand) > 1)
 			{
 				ResetStates();
-				yield return new WaitForSeconds(0.5f);
-				yield return PlayRound(PokerSynchronisation.GameRoundType.Flop, 3);
+				await Task.Delay(500);
+				await PlayRound(PokerSynchronisation.GameRoundType.Flop, 3);
 			}
 
 			// Turn -> 1 card -> betting
 			if (_players.Count(x => x.PlayerMoney.InHand) > 1)
 			{
 				ResetStates();
-				yield return new WaitForSeconds(0.5f);
-				yield return PlayRound(PokerSynchronisation.GameRoundType.Turn, 1);
+				await Task.Delay(500);
+				await PlayRound(PokerSynchronisation.GameRoundType.Turn, 1);
 			}
 
 			// River -> 1 card -> betting
 			if (_players.Count(x => x.PlayerMoney.InHand) > 1)
 			{
 				ResetStates();
-				yield return new WaitForSeconds(0.5f);
-				yield return PlayRound(PokerSynchronisation.GameRoundType.River, 1);
+				await Task.Delay(500);
+				await PlayRound(PokerSynchronisation.GameRoundType.River, 1);
 			}
 
 			ResetStates(true);
@@ -104,7 +103,7 @@ namespace GameCore.Poker.Model
 				player.ChairView.ClearCards();
 			}
 
-			yield return new WaitForSeconds(5f);
+			await Task.Delay(5 * 1000);
 		}
 
 		private void ResetStates(bool all = false)
@@ -125,46 +124,44 @@ namespace GameCore.Poker.Model
 			}
 		}
 
-		private IEnumerator DispencingCards()
+		private async Task DispencingCards()
 		{
-			yield return DispenceCircle(0);
+			await DispenceCircle(0);
 
-			yield return null;
-			yield return new WaitForSeconds(1f);
+			await Task.Delay(1000);
 
-			yield return DispenceCircle(1);
+			await DispenceCircle(1);
 		}
 
-		private IEnumerator DispenceCircle(int index)
+		private async Task DispenceCircle(int index)
 		{
 			foreach (var player in _players)
 			{
-				CardData card = deck.GetNextCard();
-				Action<CardModel> onDispenceCompleted = player.AddCard(card, index == 0);
+				Card card = deck.GetNextCard();
 
-				CardController.Dispence(player.ChairView, card, index, 0.15f, onDispenceCompleted);
+				//CardController.Dispence(player.ChairView, card, index);
 
-				yield return new WaitForSeconds(0.5f);
+				await Task.Delay(500);
 			}
 		}
 
 		private void InitTableView()
 		{
-			BetController.MoveBet(null, 0, _tableViewModel, 0f, false);
+			//BetController.MoveBet(null, 0, _tableViewModel, 0f, false);
 		}
 
 		private void MoveDealerButton()
 		{
-			_tableViewModel.DealerButton.Move(_players[0].ChairView.DealerPosition.position, 0f);
+			//_tableViewModel.MoveDealerButton(_players[0]);
 		}
 
-		private void DetermineWinnerAndAddPot(int pot, TexasHoldem.Logic.GameMechanics.Pot mainPot, List<TexasHoldem.Logic.GameMechanics.Pot> sidePot)
+		private void DetermineWinnerAndAddPot(int pot, Pot mainPot, List<Pot> sidePot)
 		{
 			if (_players.Count(x => x.PlayerMoney.InHand) == 1)
 			{
 				var winner = _players.FirstOrDefault(x => x.PlayerMoney.InHand);
 				winner.PlayerMoney.Money += pot;
-				BetController.MoveBet(_tableViewModel, pot, winner.ChairView, 0f, true);
+				//BetController.MoveBet(_tableViewModel, pot, winner.ChairView);
 				winner?.ChairView.ShowCards();
 			}
 			else
@@ -186,22 +183,22 @@ namespace GameCore.Poker.Model
 					if (betterHand > 0)
 					{
 						_players[0].PlayerMoney.Money += pot;
-						BetController.MoveBet(_tableViewModel, pot, _players[0].ChairView, 0f, true);
+						//BetController.MoveBet(_tableViewModel, pot, _players[0].ChairView);
 						_players[0]?.ChairView.ShowCards();
 					}
 					else if (betterHand < 0)
 					{
 						_players[1].PlayerMoney.Money += pot;
-						BetController.MoveBet(_tableViewModel, pot, _players[1].ChairView, 0f, true);
+						//BetController.MoveBet(_tableViewModel, pot, _players[1].ChairView);
 						_players[1]?.ChairView.ShowCards();
 					}
 					else
 					{
 						_players[0].PlayerMoney.Money += pot / 2;
-						BetController.MoveBet(_tableViewModel, pot / 2, _players[0].ChairView, 0f, true);
+						//BetController.MoveBet(_tableViewModel, pot / 2, _players[0].ChairView);
 						_players[0]?.ChairView.ShowCards();
 						_players[1].PlayerMoney.Money += pot / 2;
-						BetController.MoveBet(_tableViewModel, pot / 2, _players[1].ChairView, 0f, true);
+						//BetController.MoveBet(_tableViewModel, pot / 2, _players[1].ChairView);
 						_players[1]?.ChairView.ShowCards();
 					}
 				}
@@ -225,8 +222,8 @@ namespace GameCore.Poker.Model
 						}
 					}
 
-					var remainingPots = new Stack<TexasHoldem.Logic.GameMechanics.Pot>();
-					var pots = new Stack<TexasHoldem.Logic.GameMechanics.Pot>(sidePot);
+					var remainingPots = new Stack<Pot>();
+					var pots = new Stack<Pot>(sidePot);
 					pots.Push(mainPot);
 
 					foreach (var playersWithTheBestHand in handRankValueOfPlayers.Reverse())
@@ -256,7 +253,7 @@ namespace GameCore.Poker.Model
 									{
 										var player = _players.First(x => x.Name == nominee);
 										player.PlayerMoney.Money += prize;
-										BetController.MoveBet(_tableViewModel, prize, player.ChairView, 0f, true);
+										//BetController.MoveBet(_tableViewModel, prize, player.ChairView);
 										player?.ChairView.ShowCards();
 									}
 								}
@@ -285,15 +282,15 @@ namespace GameCore.Poker.Model
 			}
 		}
 
-		private IEnumerator PlayRound(PokerSynchronisation.GameRoundType gameRoundType, int communityCardsCount)
+		private async Task PlayRound(PokerSynchronisation.GameRoundType gameRoundType, int communityCardsCount)
 		{
 			for (var i = 0; i < communityCardsCount; i++)
 			{
-				CardData card = deck.GetNextCard();
+				Card card = deck.GetNextCard();
 
 				communityCards.Add(card);
 
-				CardController.Dispence(_tableViewModel, card, communityCards.Count - 1, 0.15f, (x) => x.Show());
+				//CardController.Dispence(_tableViewModel, card, communityCards.Count - 1);
 			}
 
 			foreach (var player in _players)
@@ -308,7 +305,7 @@ namespace GameCore.Poker.Model
 				player.StartRound(startRoundContext);
 			}
 
-			yield return bettingLogic.Bet(gameRoundType);
+			await bettingLogic.Bet(gameRoundType);
 
 			foreach (var player in _players)
 			{
@@ -316,7 +313,7 @@ namespace GameCore.Poker.Model
 				player.EndRound(endRoundContext);
 			}
 
-			yield return new WaitForSeconds(0.5f);
+			await Task.Delay(500);
 		}
 	}
 }

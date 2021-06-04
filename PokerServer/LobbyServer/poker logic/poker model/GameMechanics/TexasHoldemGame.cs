@@ -1,14 +1,13 @@
-﻿using GameCore.Poker.Controller;
-using GameCore.Poker.ViewModel;
-using GameCore.SceneManagement;
+﻿using LobbyServer.pokerlogic.controllers;
+using LobbyServer.pokerlogic.pokermodel.Players;
 using PokerSynchronisation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
-using UnityEngine;
 
 namespace GameCore.Poker.Model
 {
@@ -79,7 +78,7 @@ namespace GameCore.Poker.Model
 			HandsPlayed = 0;
 		}
 
-		public IEnumerator Start(Action<TDECORATOR> setWinner)
+		public async Task<TDECORATOR> Start()
 		{
 			var playerNames = allPlayers.Select(x => x.Name).ToList().AsReadOnly();
 			foreach (var player in allPlayers)
@@ -87,15 +86,16 @@ namespace GameCore.Poker.Model
 				player.StartGame(new StartGameContext(playerNames, player.BuyIn == -1 ? initialMoney : player.BuyIn));
 			}
 
-			yield return PlayGame();
+			await PlayGame();
 
 			var winner = allPlayers.WithMoney().FirstOrDefault();
-			setWinner(winner);
 
 			foreach (var player in allPlayers)
 			{
 				player.EndGame(new EndGameContext(winner.Name));
 			}
+
+			return winner;
 		}
 
 		private void Rebuy()
@@ -110,11 +110,11 @@ namespace GameCore.Poker.Model
 			}
 		}
 
-		private IEnumerator PlayGame()
+		private async Task PlayGame()
 		{
 			var shifted = allPlayers.ToList();
 
-			int shuffleNumber = new System.Random().Next(0, allPlayers.Count - 1);
+			int shuffleNumber = new Random().Next(0, allPlayers.Count - 1);
 
 			for (int i = 0; i < shuffleNumber; i++)
 			{
@@ -140,7 +140,7 @@ namespace GameCore.Poker.Model
 				// Rotate players
 				HandLogic<TDECORATOR> hand = new HandLogic<TDECORATOR>(shifted, HandsPlayed, smallBlind, _tableViewModel);
 
-				yield return hand.Play();
+				await hand.Play();
 
 				//Rebuy();
 			}

@@ -13,5 +13,12 @@
     <Folder Include="Client\" />
     <Folder Include="Region\" />
     <Folder Include="Database\" />
+    <Folder Include="poker logic\controllers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="poker logic\Contexts\EndHandContext.cs" />
+    <Compile Remove="poker logic\Contexts\EndRoundContext.cs" />
+    <Compile Remove="poker logic\Contexts\PostingBlindContext.cs" />
+    <Compile Remove="poker logic\Contexts\GetTurnContext.cs" />
   </ItemGroup>
 </Project>

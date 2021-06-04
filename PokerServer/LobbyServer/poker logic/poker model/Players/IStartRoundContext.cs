@@ -1,23 +1,23 @@
 ﻿namespace TexasHoldem.Logic.Players
 {
-    using GameCore.Card.Poker;
-    using PokerSynchronisation;
-    using System.Collections.Generic;
-    using TexasHoldem.Logic.GameMechanics;
+	using PokerSynchronisation;
+	using System.Collections.Generic;
+	using TexasHoldem.Logic.Cards;
+	using TexasHoldem.Logic.GameMechanics;
 
 
-    public interface IStartRoundContext
-    {
-        IReadOnlyCollection<CardData> CommunityCards { get; }
+	public interface IStartRoundContext
+	{
+		IReadOnlyCollection<Card> CommunityCards { get; }
 
-        int CurrentPot { get; }
+		int CurrentPot { get; }
 
-        int MoneyLeft { get; }
+		int MoneyLeft { get; }
 
-        GameRoundType RoundType { get; }
+		GameRoundType RoundType { get; }
 
-        Pot CurrentMainPot { get; }
+		Pot CurrentMainPot { get; }
 
-        IReadOnlyCollection<Pot> CurrentSidePots { get; }
-    }
+		IReadOnlyCollection<Pot> CurrentSidePots { get; }
+	}
 }

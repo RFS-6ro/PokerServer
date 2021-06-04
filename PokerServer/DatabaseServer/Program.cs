@@ -11,9 +11,9 @@ namespace DatabaseServer
 		{
 			_mediator = new DatabaseServerMediator(20);
 
-			await _mediator.StartServers(args);
+			await _mediator.StartServers();
 
-			new ConsoleInput<DatabaseServerMediator>(_mediator);
+			//new ConsoleInput<DatabaseServerMediator>(_mediator);
 		}
 	}
 }

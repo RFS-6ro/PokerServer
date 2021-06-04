@@ -1,36 +1,26 @@
-﻿using GameCore.Handlers;
-using GameCore.Poker.Controller;
-using GameCore.Poker.Model;
+﻿using GameCore.Poker.Model;
 using GameCore.Poker.Model.Player;
-using GameCore.Poker.ViewModel;
-using GameCore.UI;
+using LobbyServer.pokerlogic.controllers;
+using LobbyServer.pokerlogic.pokermodel.Players;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TexasHoldem.Logic.Players;
-using UnityEngine;
 
-public class PokerInitializator : InitiableMonoBehaviour
+public class PokerInitializator
 {
 	public TableViewModel TableViewModel;
 
-	public InputController InputController;
-
 	public List<ChairViewModel> Chairs;
 
-	public List<TextView> BotNames;
-
-	public void SignalButton(string text)
+	public async Task Init(object[] initParams = null)
 	{
-		Debug.Log(text);
-	}
+		Random random = new Random();
 
-	public override void Init(object[] initParams = null)
-	{
 		int playerCount = 9;
-		int randomPlayerCount = Random.Range(2, playerCount);
-		int shiftNumber = Random.Range(0, randomPlayerCount - 1);
-		Debug.Log(randomPlayerCount);
-		Debug.Log(shiftNumber);
+		int randomPlayerCount = random.Next(2, playerCount);
+		int shiftNumber = random.Next(0, randomPlayerCount - 1);
 
 		List<IPlayer> players = new List<IPlayer>();
 		List<UnityPlayerDecorator> decorators = new List<UnityPlayerDecorator>();
@@ -38,17 +28,8 @@ public class PokerInitializator : InitiableMonoBehaviour
 		for (int i = 0; i < playerCount; i++)
 		{
 			IPlayer player;
-			UnityPlayerDecorator decorator;
-			if (i == 0)
-			{
-				player = new RealPlayer();
-				decorator = new RealPlayerDecorator(Chairs[0], InputController);
-			}
-			else
-			{
-				player = new BotPlayer();
-				decorator = new BotPlayerDecorator(Chairs[i], BotNames[i]);
-			}
+			player = new BotPlayer();
+			UnityPlayerDecorator decorator = new ServerPlayerDecorator(Chairs[i]);
 
 			decorator.SetPlayer(player);
 			players.Add(player);
@@ -57,7 +38,7 @@ public class PokerInitializator : InitiableMonoBehaviour
 
 		for (int i = 0; i < playerCount - randomPlayerCount; i++)
 		{
-			int randomPlayerIndex = Random.Range(1, players.Count);
+			int randomPlayerIndex = random.Next(1, players.Count);
 			players.RemoveAt(randomPlayerIndex);
 			decorators.RemoveAt(randomPlayerIndex);
 		}
@@ -73,12 +54,6 @@ public class PokerInitializator : InitiableMonoBehaviour
 		for (int i = 0; i < decorators.Count; i++)
 		{
 			decorators[i].ConfigureSeat();
-
-			if (decorators[i].GetType() == typeof(BotPlayerDecorator))
-			{
-				((BotPlayerDecorator)decorators[i]).NameHolder.Show(decorators[i].Name);
-			}
-
 		}
 		//chairs.RemoveRange(shiftNumber, playerCount - randomPlayerCount);
 
@@ -109,13 +84,11 @@ public class PokerInitializator : InitiableMonoBehaviour
 
 
 		var game = new TexasHoldemGame<UnityPlayerDecorator>(decorators, TableViewModel);
-		StartCoroutine(StartGame(game));
+		var winner = await StartGame(game);
 	}
 
-	private IEnumerator StartGame<TDECORATOR>(TexasHoldemGame<TDECORATOR> game) where TDECORATOR : UnityPlayerDecorator, new()
+	private async Task<TDECORATOR> StartGame<TDECORATOR>(TexasHoldemGame<TDECORATOR> game) where TDECORATOR : UnityPlayerDecorator, new()
 	{
-		TDECORATOR winner;
-
-		yield return game.Start((x) => winner = x);
+		return await game.Start();
 	}
 }

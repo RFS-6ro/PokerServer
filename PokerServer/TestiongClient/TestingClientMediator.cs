@@ -18,7 +18,7 @@ namespace TestingClient
 		public async override Task StartServers()
 		{
 #if DEBUG
-			_lobbyConnection = await InitConnectionToLobbyServer(new IPEndPoint("127.0.0.1", ))
+			_lobbyConnection = await InitConnectionToLobbyServer(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27000));
 			return;
 #endif
 			_headConnection = await InitConnectionToFrontendDistributionServer();

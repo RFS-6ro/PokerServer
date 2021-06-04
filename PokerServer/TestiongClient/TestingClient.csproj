@@ -13,4 +13,9 @@
     <Folder Include="FrontendDistribution\" />
     <Folder Include="Lobby\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PokerSynchronisation">
+      <HintPath>..\..\..\ServerNetworkDLL\PokerSync\bin\Debug\net5.0\PokerSynchronisation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

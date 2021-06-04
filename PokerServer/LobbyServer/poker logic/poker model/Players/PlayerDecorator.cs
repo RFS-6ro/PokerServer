@@ -1,11 +1,10 @@
 ﻿namespace TexasHoldem.Logic.Players
 {
-	using GameCore.Card.Poker;
 	using System;
-	using System.Collections;
 	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	using TexasHoldem.Logic.Cards;
 	using TexasHoldem.Logic.GameMechanics;
-	using UnityEngine;
 
 	public abstract class PlayerDecorator : IPlayer
 	{
@@ -15,7 +14,7 @@
 
 		public int BuyIn => Player.BuyIn;
 
-		public List<CardData> Cards { get; protected set; } = new List<CardData>();
+		public List<Card> Cards { get; protected set; } = new List<Card>();
 
 		public InternalPlayerMoney PlayerMoney { get; protected set; }
 
@@ -41,11 +40,10 @@
 			Player.StartHand(context);
 		}
 
-		public virtual Action<CardModel> AddCard(CardData card, bool isFirstCard)
+		public virtual void AddCard(Card card, bool isFirstCard)
 		{
 			Cards.Add(card);
 			Player.AddCard(card, isFirstCard);
-			return null;
 		}
 
 		public virtual void StartRound(IStartRoundContext context)
@@ -79,9 +77,9 @@
 			Player.EndGame(context);
 		}
 
-		public virtual IEnumerator AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
+		public virtual async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
 		{
-			yield return Player.AwaitTurn(action, context);
+			await Player.AwaitTurn(action, context);
 		}
 	}
 }
