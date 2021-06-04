@@ -1,9 +1,90 @@
-﻿using UniCastCommonData.Handlers;
+﻿using System;
+using System.Threading.Tasks;
+using FrontendDistributionServer.Client;
+using FrontendDistributionServer.Database;
+using FrontendDistributionServer.Region;
+using UniCastCommonData.Handlers;
 
 namespace FrontendDistributionServer
 {
 	public class FrontendDistributionServerMediator : AbstractMediator<FrontendDistributionServerMediator>
 	{
+		private static FrontendDistribution_Region_Server _regionServer;
+		private static FrontendDistribution_Client_Server _clientServer;
+
+#if !DEBUG
+		private static ServerPool<Region_Server_Process> _regions;
+#endif
+
+		private static FrontendDatabaseClient _databaseClient;
+
 		public FrontendDistributionServerMediator(int ticks = 30) : base(ticks) { }
+
+		public async override Task StartServers<T>(T param)
+		{
+			if (typeof(T) != typeof(string[]))
+			{
+				return;
+			}
+
+			string[] args = (string[])Convert.ChangeType(param, typeof(string[]));
+
+			Task<FrontendDistribution_Region_Server> startRegionServerTask = StartRegionServer();
+			Task<FrontendDistribution_Client_Server> startClientServerTask = StartClientServer();
+
+			_clientServer = await startClientServerTask;
+			_regionServer = await startRegionServerTask;
+
+
+#if !DEBUG
+			var factory = new RegionServerProcessFactory();
+
+			_regions = new ServerPool<Region_Server_Process>(() => factory.CreateWithParams(args));
+			await Task.WhenAll(
+				new Task[] {
+								_regions.CreateNew(),
+								_regions.CreateNew(),
+								_regions.CreateNew()
+				});
+#endif
+
+			_databaseClient = await InitConnectionToDatabaseServer(args);
+		}
+
+		public async static Task<FrontendDistribution_Region_Server> StartRegionServer()
+		{
+			return await ServerInitialisator<FrontendDistribution_Region_Server>.StartServer(1111);
+		}
+
+		public async static Task<FrontendDistribution_Client_Server> StartClientServer()
+		{
+			return await ServerInitialisator<FrontendDistribution_Client_Server>.StartServer(5555);
+		}
+
+		public async static Task<FrontendDatabaseClient> InitConnectionToDatabaseServer(string[] args)
+		{
+			// TCP server address
+			string address = "127.0.0.1";
+			if (args != null && args.Length > 0)
+				address = args[0];
+
+
+			// TCP server port
+			int port = 9090;
+			if (args != null && args.Length > 1)
+				port = int.Parse(args[1]);
+
+			FrontendDatabaseClient headConnection = new FrontendDatabaseClient(address, port);
+
+			bool isConnected = headConnection.ConnectAsync();
+
+			if (isConnected == false)
+			{
+				while (headConnection.IsConnected == false)
+					await Task.Yield();
+			}
+
+			return headConnection;
+		}
 	}
 }

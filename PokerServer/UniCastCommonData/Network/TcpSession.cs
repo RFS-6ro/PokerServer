@@ -726,7 +726,7 @@ namespace UniCastCommonData.Network
 
 				ActorType currentActor = (ActorType)(Server.GetType().GetProperty("ClientType").GetValue(Server));
 
-				if (receivedActor != currentActor)
+				if (receivedActor != currentActor && receivedActor != ActorType.Any)
 				{
 					return false;
 				}

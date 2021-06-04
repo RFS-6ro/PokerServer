@@ -7,11 +7,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UniCastCommonData\UniCastCommonData.csproj" />
-    <ProjectReference Include="..\..\..\ServerNetworkDLL\PokerSync\PokerSynchronisation.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Client\" />
-    <Folder Include="Region\" />
-    <Folder Include="Database\" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
-﻿using UniCastCommonData;
+﻿using DatabaseServer;
+using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 
-namespace FrontendDistributionServer.Region.Handlers
+namespace DatabaseServer
 {
 	public enum frontendTOregion
 	{
@@ -13,9 +14,9 @@ namespace FrontendDistributionServer.Region.Handlers
 		Test
 	}
 
-	public class SendToRegionHandler : SessionSender<FrontendDistribution_Region_Server>
+	public class SendHandler : SessionSender<Database_Server>
 	{
-		public SendToRegionHandler()
+		public SendHandler()
 		{
 			Handlers.Add((int)frontendTOregion.Test, Test);
 		}
