@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace RegionServer.FrontendDistribution.Handlers
 {
@@ -18,10 +19,8 @@ namespace RegionServer.FrontendDistribution.Handlers
 		Test
 	}
 
-	public class ReceiveFromFrontendDistributionHandler : IReceivedMessageHandler<int>
+	public class ReceiveFromFrontendDistributionHandler : ReceiveHandlerBase
 	{
-		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
-
 		public ReceiveFromFrontendDistributionHandler()
 		{
 			Handlers.Add((int)frontendTOregion.Test, Test);
@@ -31,31 +30,23 @@ namespace RegionServer.FrontendDistribution.Handlers
 
 		private void Disconnect(UniCastPacket packet)
 		{
-			ThreadManager.ExecuteOnMainThread(() =>
-			{
-			});
 		}
 
 		private void Connect(UniCastPacket packet)
 		{
-			ThreadManager.ExecuteOnMainThread(() =>
-			{
-				Guid senderGuid = new Guid(packet.Read(16));
-				Guid receiverGuid = new Guid(packet.Read(16));
-				IStaticInstance<Region_FrontendDistribution>.Instance.SetId(receiverGuid);
-			});
+			Guid senderGuid = new Guid(packet.Read(16));
+			Guid receiverGuid = new Guid(packet.Read(16));
+			IStaticInstance<Region_FrontendDistribution>.Instance.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			ThreadManager.ExecuteOnMainThread(() =>
-			{
-				Guid guid = new Guid(packet.Read(16));
+			Guid senderGuid = new Guid(packet.Read(16));
+			Guid receiverGuid = new Guid(packet.Read(16));
 
-				string message = packet.ReadString();
+			string message = packet.ReadString();
 
-				Console.WriteLine(guid + "|" + message);
-			});
+			Console.WriteLine(senderGuid + "|" + message);
 		}
 	}
 }

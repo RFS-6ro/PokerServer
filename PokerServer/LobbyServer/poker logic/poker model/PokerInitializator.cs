@@ -3,13 +3,56 @@ using GameCore.Poker.Model.Player;
 using LobbyServer.pokerlogic.controllers;
 using LobbyServer.pokerlogic.pokermodel.Players;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TexasHoldem.Logic.Extensions;
 using TexasHoldem.Logic.Players;
+using TexasHoldem.UI.Console;
 
 public class PokerInitializator
 {
+	public event Action OnGameEnds;
+
+	public const int MaxPlayers = 9;
+
+	public List<ServerPlayer> CurrentPlayers = new(MaxPlayers);
+	public List<ConsoleUiDecorator> Decorators = new(MaxPlayers);
+
+	public PokerInitializator(List<ServerPlayer> initialPlayers)
+	{
+		//init seats
+		for (int i = 0; i < MaxPlayers; i++)
+		{
+			CurrentPlayers.Add(null);
+			ConsoleUiDecorator decorator = new ConsoleUiDecorator();
+			decorator.DrawGameBox((6 * i) + 3, 30, 1);
+			Decorators.Add(decorator);
+		}
+		return;
+
+		for (int i = 0; i < initialPlayers.Count; i++)
+		{
+			int randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
+			while (CurrentPlayers[randomSeatIndex] != null)
+			{
+				randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
+			}
+			CurrentPlayers[randomSeatIndex] = initialPlayers[i];
+		}
+
+
+	}
+
+
+
+
+
+
+
+
+
+
+
 	public TableViewModel TableViewModel;
 
 	public List<ChairViewModel> Chairs;

@@ -31,32 +31,24 @@ namespace RegionServer.Client.Handlers
 
 		private void Disconnect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-
-
-				Sender.SendAsync(packet);
-			}
+			});
 		}
 
 		private void Connect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-
-
-				Sender.SendAsync(packet);
-			}
+			});
 		}
 
 		private void Test(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write(GetType().ToString());
-
-				Sender.SendAsync(packet);
-			}
+				GetType().ToString().ToByteArray()
+			});
 		}
 	}
 }

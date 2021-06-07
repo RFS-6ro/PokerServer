@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UniCastCommonData;
-using UniCastCommonData.Handlers;
-using UniCastCommonData.Network;
+﻿using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
 
@@ -22,12 +18,8 @@ namespace TestingClient.Lobby.Handlers
 		Test
 	}
 
-	public class SendToLobbyHandler : ISendMessageHandler<int>
+	public class SendToLobbyHandler : ClientSender<Client_Lobby>
 	{
-		public ISender Sender { get; set; }
-
-		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
-
 		public SendToLobbyHandler()
 		{
 			Handlers.Add((int)clientTOlobby.Test, Test);
@@ -38,41 +30,34 @@ namespace TestingClient.Lobby.Handlers
 
 		private void Connect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write("Name" + ((TcpClient)Sender).Id);
-				Sender.SendAsync(packet);
-			}
+				("Name" + (IStaticInstance<Client_Lobby>.Instance).Id).ToByteArray()
+			});
 		}
 
 		private void SendTurn(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write(InputModel.GetTurn());
-				Sender.SendAsync(packet);
-			}
+				InputModel.GetTurn()
+			});
 		}
 
 		private void Disconnect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write("Name" + ((TcpClient)Sender).Id);
-				Sender.SendAsync(packet);
-			}
+				("Name" + (IStaticInstance<Client_Lobby>.Instance).Id).ToByteArray()
+			});
 		}
-
-
 
 		private void Test(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write(GetType().ToString());
-
-				Sender.SendAsync(packet);
-			}
+				GetType().ToString().ToByteArray()
+			});
 		}
 	}
 }

@@ -8,8 +8,8 @@ namespace FrontendDistributionServer.Client
 {
 	public class FrontendDistribution_Client_Server : AbstractTCPServer<
 		ClientSessionBuilder,
-		ReceiveFromClientHandler, int,
-		SendToClientHandler, int,
+		ReceiveFromClientHandler,
+		SendToClientHandler,
 		FrontendDistribution_Client_Server>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;

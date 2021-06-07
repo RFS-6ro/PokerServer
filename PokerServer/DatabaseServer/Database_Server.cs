@@ -7,8 +7,8 @@ namespace DatabaseServer
 {
 	public class Database_Server : AbstractTCPServer<
 		DatabaseSessionBuilder,
-		ReceiveHandler, int,
-		SendHandler, int,
+		ReceiveHandler,
+		SendHandler,
 		Database_Server>
 	{
 		public override ActorType ServerType => ActorType.Databaase;

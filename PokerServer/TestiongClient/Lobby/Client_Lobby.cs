@@ -8,8 +8,8 @@ using UniCastCommonData.Handlers;
 namespace TestingClient.Lobby
 {
 	public class Client_Lobby : AbstractTCPClient<
-		ReceiveFromLobbyHandler, int,
-		SendToLobbyHandler, int,
+		ReceiveFromLobbyHandler,
+		SendToLobbyHandler,
 		Client_Lobby>
 	{
 		public override ActorType ClientType => ActorType.LobbyServer;

@@ -9,8 +9,8 @@ namespace LobbyServer.Client
 {
 	public class Lobby_Client_Server : AbstractTCPServer<
 		ClientSessionBuilder,
-		ReceiveFromClientHandler, int,
-		SendToClientHandler, int,
+		ReceiveFromClientHandler,
+		SendToClientHandler,
 		Lobby_Client_Server>
 	{
 		public override ActorType ServerType => ActorType.LobbyServer;

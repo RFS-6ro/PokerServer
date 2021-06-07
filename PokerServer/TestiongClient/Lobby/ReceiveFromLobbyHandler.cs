@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 
 namespace TestingClient.Lobby.Handlers
 {
@@ -16,10 +17,8 @@ namespace TestingClient.Lobby.Handlers
 		Test
 	}
 
-	public class ReceiveFromLobbyHandler : IReceivedMessageHandler<int>
+	public class ReceiveFromLobbyHandler : ReceiveHandlerBase
 	{
-		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
-
 		public ReceiveFromLobbyHandler()
 		{
 			Handlers.Add((int)lobbyTOclient.Test, Test);
@@ -29,32 +28,23 @@ namespace TestingClient.Lobby.Handlers
 
 		private void Disconnect(UniCastPacket packet)
 		{
-			ThreadManager.ExecuteOnMainThread(() =>
-			{
-			});
 		}
 
 		private void Connect(UniCastPacket packet)
 		{
-			ThreadManager.ExecuteOnMainThread(() =>
-			{
-				Guid senderGuid = new Guid(packet.Read(16));
-				Guid receiverGuid = new Guid(packet.Read(16));
-				IStaticInstance<Client_Lobby>.Instance.SetId(receiverGuid);
-
-			});
+			Guid senderGuid = new Guid(packet.Read(16));
+			Guid receiverGuid = new Guid(packet.Read(16));
+			IStaticInstance<Client_Lobby>.Instance.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			ThreadManager.ExecuteOnMainThread(() =>
-			{
-				Guid guid = new Guid(packet.Read(16));
+			Guid senderGuid = new Guid(packet.Read(16));
+			Guid receiverGuid = new Guid(packet.Read(16));
 
-				string message = packet.ReadString();
+			string message = packet.ReadString();
 
-				Console.WriteLine(guid + "|" + message);
-			});
+			Console.WriteLine(senderGuid + "|" + message);
 		}
 	}
 }

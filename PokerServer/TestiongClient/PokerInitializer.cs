@@ -3,8 +3,5 @@ namespace TestingClient
 {
 	public class PokerInitializer
 	{
-		public PokerInitializer()
-		{
-		}
 	}
 }

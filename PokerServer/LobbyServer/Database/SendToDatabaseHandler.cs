@@ -20,12 +20,8 @@ namespace FrontendDistributionServer.Database
 		Test
 	}
 
-	public class SendToDatabaseHandler : ISendMessageHandler<int>
+	public class SendToDatabaseHandler : ClientSender<Lobby_Database>
 	{
-		public ISender Sender { get; set; }
-
-		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
-
 		public SendToDatabaseHandler()
 		{
 			Handlers.Add((int)lobbyTOdatabase.Test, Test);
@@ -35,32 +31,26 @@ namespace FrontendDistributionServer.Database
 
 		private void Disconnect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
 
-
-				Sender.SendAsync(packet);
-			}
+			});
 		}
 
 		private void Connect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
 
-
-				Sender.SendAsync(packet);
-			}
+			});
 		}
 
 		private void Test(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write(GetType().ToString());
-
-				Sender.SendAsync(packet);
-			}
+				GetType().ToString().ToByteArray()
+			});
 		}
 	}
 }

@@ -8,8 +8,8 @@ using UniCastCommonData.Handlers;
 namespace TestingClient.FrontendDistribution
 {
 	public class Client_FrontendDistributor : AbstractTCPClient<
-		ReceiveFromFrontendDistributionHandler, int,
-		SendToFrontendDistributionHandler, int,
+		ReceiveFromFrontendDistributionHandler,
+		SendToFrontendDistributionHandler,
 		Client_FrontendDistributor>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;

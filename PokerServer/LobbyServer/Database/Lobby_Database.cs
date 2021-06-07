@@ -6,8 +6,8 @@ using UniCastCommonData.Network;
 namespace FrontendDistributionServer.Database
 {
 	public class Lobby_Database : AbstractTCPClient<
-		ReceiveFromDatabaseHandler, int,
-		SendToDatabaseHandler, int,
+		ReceiveFromDatabaseHandler,
+		SendToDatabaseHandler,
 		Lobby_Database>
 	{
 		public override ActorType ServerType => ActorType.Databaase;

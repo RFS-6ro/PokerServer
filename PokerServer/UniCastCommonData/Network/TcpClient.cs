@@ -483,7 +483,6 @@ namespace UniCastCommonData.Network
 
 		public virtual bool SendAsync(UniCastPacket packet)
 		{
-			packet.WriteLength();
 			return SendAsync(packet.GetRawBytes(), 0, packet.Length);
 		}
 
@@ -958,34 +957,32 @@ namespace UniCastCommonData.Network
 		/// </remarks>
 		public virtual bool OnReceived(byte[] buffer, long offset, long size)
 		{
-			using (UniCastPacket packet = new UniCastPacket(buffer))
+			UniCastPacket packet = new UniCastPacket(buffer);
+			//using (UniCastPacket packet = new UniCastPacket(buffer))
+			//{
+			int length = packet.ReadInt();
+
+			if (length <= 0)
 			{
-				int length = packet.ReadInt();
-
-				if (length <= 0)
-				{
-					return false;
-				}
-
-				ActorType receivedActor = (ActorType)packet.ReadInt();
-
-				ActorType currentActor = (ActorType)(GetType().GetProperty("ServerType").GetValue(this));
-
-				if (receivedActor != currentActor && receivedActor != ActorType.Any)
-				{
-					return false;
-				}
-
-				int action = packet.ReadInt();
-
-				object receiveHandler = (GetType().GetProperty("ReceiveHandler").GetValue(this));
-				object? handlers = receiveHandler.GetType().GetProperty("Handlers").GetValue(receiveHandler);
-				PropertyInfo pairs = handlers.GetType().GetProperty("Item");
-				Action<UniCastPacket> value = (Action<UniCastPacket>)pairs.GetValue(handlers, new[] { (object?)action });
-				value?.Invoke(packet);
-
-				return true;
+				return false;
 			}
+
+			ActorType receivedActor = (ActorType)packet.ReadInt();
+
+			ActorType currentActor = (ActorType)(GetType().GetProperty("ServerType").GetValue(this));
+
+			if (receivedActor != currentActor && receivedActor != ActorType.Any)
+			{
+				return false;
+			}
+
+			int action = packet.ReadInt();
+
+			ReceiveHandlerBase receiveHandler = (ReceiveHandlerBase)(GetType().GetProperty("ReceiveHandler").GetValue(this));
+			receiveHandler.Receive(action, packet);
+
+			return true;
+			//}
 		}
 
 		/// <summary>

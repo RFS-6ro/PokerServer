@@ -301,7 +301,6 @@ namespace UniCastCommonData.Network
 		/// <returns>'true' if the data was successfully sent, 'false' if the session is not connected</returns>
 		public virtual bool SendAsync(UniCastPacket packet)
 		{
-			packet.WriteLength();
 			return SendAsync(packet.GetRawBytes(), 0, packet.Length);
 		}
 
@@ -713,34 +712,32 @@ namespace UniCastCommonData.Network
 		/// </remarks>
 		protected virtual bool OnReceived(byte[] buffer, long offset, long size)
 		{
-			using (UniCastPacket packet = new UniCastPacket(buffer))
+			UniCastPacket packet = new UniCastPacket(buffer);
+			//using (UniCastPacket packet = new UniCastPacket(buffer))
+			//{
+			int length = packet.ReadInt();
+
+			if (length <= 0)
 			{
-				int length = packet.ReadInt();
-
-				if (length <= 0)
-				{
-					return false;
-				}
-
-				ActorType receivedActor = (ActorType)packet.ReadInt();
-
-				ActorType currentActor = (ActorType)(Server.GetType().GetProperty("ClientType").GetValue(Server));
-
-				if (receivedActor != currentActor && receivedActor != ActorType.Any)
-				{
-					return false;
-				}
-
-				int action = packet.ReadInt();
-
-				object receiveHandler = (Server.GetType().GetProperty("ReceiveHandler").GetValue(Server));
-				object? handlers = receiveHandler.GetType().GetProperty("Handlers").GetValue(receiveHandler);
-				PropertyInfo pairs = handlers.GetType().GetProperty("Item");
-				Action<UniCastPacket> value = (Action<UniCastPacket>)pairs.GetValue(handlers, new[] { (object?)action });
-				value?.Invoke(packet);
-
-				return true;
+				return false;
 			}
+
+			ActorType receivedActor = (ActorType)packet.ReadInt();
+
+			ActorType currentActor = (ActorType)(Server.GetType().GetProperty("ClientType").GetValue(Server));
+
+			if (receivedActor != currentActor && receivedActor != ActorType.Any)
+			{
+				return false;
+			}
+
+			int action = packet.ReadInt();
+
+			ReceiveHandlerBase receiveHandler = (ReceiveHandlerBase)(Server.GetType().GetProperty("ReceiveHandler").GetValue(Server)); ;
+			receiveHandler.Receive(action, packet);
+
+			return true;
+			//}
 		}
 
 		/// <summary>

@@ -6,8 +6,8 @@ using UniCastCommonData.Network;
 namespace RegionServer.FrontendDistribution
 {
 	public class Region_FrontendDistribution : AbstractTCPClient<
-		ReceiveFromFrontendDistributionHandler, int,
-		SendToFrontendDistributionHandler, int,
+		ReceiveFromFrontendDistributionHandler,
+		SendToFrontendDistributionHandler,
 		Region_FrontendDistribution>
 	{
 		public override ActorType ServerType => ActorType.FrontendDistributionServer;

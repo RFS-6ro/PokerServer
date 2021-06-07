@@ -20,12 +20,8 @@ namespace RegionServer.FrontendDistribution.Handlers
 		Test
 	}
 
-	public class SendToFrontendDistributionHandler : ISendMessageHandler<int>
+	public class SendToFrontendDistributionHandler : ClientSender<Region_FrontendDistribution>
 	{
-		public ISender Sender { get; set; }
-
-		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
-
 		public SendToFrontendDistributionHandler()
 		{
 			Handlers.Add((int)regionTOfrontend.Test, Test);
@@ -35,32 +31,24 @@ namespace RegionServer.FrontendDistribution.Handlers
 
 		private void Disconnect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-
-
-				Sender.SendAsync(packet);
-			}
+			});
 		}
 
 		private void Connect(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-
-
-				Sender.SendAsync(packet);
-			}
+			});
 		}
 
 		private void Test(InitialSendingData data)
 		{
-			using (UniCastPacket packet = new UniCastPacket(data))
+			SendAsync(data, new byte[][]
 			{
-				packet.Write(GetType().ToString());
-
-				Sender.SendAsync(packet);
-			}
+				GetType().ToString().ToByteArray()
+			});
 		}
 	}
 }

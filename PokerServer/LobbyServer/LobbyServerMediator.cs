@@ -35,6 +35,8 @@ namespace LobbyServer
 
 		}
 
+		public override void OnUpdate() { }
+
 		public async static Task<Lobby_Client_Server> StartClientServer()
 		{
 			return await ServerInitialisator<Lobby_Client_Server>.StartServer(27000, 27200);

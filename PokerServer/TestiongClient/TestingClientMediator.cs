@@ -24,6 +24,8 @@ namespace TestingClient
 			_headConnection = await InitConnectionToFrontendDistributionServer();
 		}
 
+		public override void OnUpdate() { }
+
 		public async static Task<Client_FrontendDistributor> InitConnectionToFrontendDistributionServer()
 		{
 			// TCP server address

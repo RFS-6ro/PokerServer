@@ -5,27 +5,16 @@ using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData.Network.MessageHandlers
 {
-	public abstract class SessionSender<SERVER> : ISendMessageHandler<int>
-		where SERVER : TcpServer, IStaticInstance<SERVER>
+	public class ClientSender<CLIENT> : ISendMessageHandler<int>
+		where CLIENT : TcpClient, ISender, IStaticInstance<CLIENT>
 	{
-		public SERVER Server { get; set; }
-
 		public ISender Sender { get; set; }
 
 		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
-		public ISender GetSenderByID(Guid guid)
-		{
-			if (Server == null)
-			{
-				Server = IStaticInstance<SERVER>.Instance;
-			}
-			Sender = Server.FindSession(guid);
-			return Sender;
-		}
-
 		protected void SendAsync(InitialSendingData data, byte[][] content)
 		{
+			Sender = IStaticInstance<CLIENT>.Instance;
 			using (UniCastPacket packet = new UniCastPacket(data))
 			{
 				if (content != null)
@@ -37,7 +26,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 				}
 
 				packet.WriteLength();
-				GetSenderByID(data.ReceiverGuid).SendAsync(packet);
+				Sender.SendAsync(packet);
 			}
 		}
 	}

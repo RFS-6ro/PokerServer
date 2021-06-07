@@ -9,6 +9,7 @@ namespace LobbyServer
 
 		static async Task Main(string[] args)
 		{
+			PokerInitializator a = new PokerInitializator(null); return;
 			_mediator = new LobbyServerMediator(40);
 
 			await _mediator.StartServers(args);
