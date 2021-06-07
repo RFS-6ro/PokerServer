@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Wrappers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData
 {

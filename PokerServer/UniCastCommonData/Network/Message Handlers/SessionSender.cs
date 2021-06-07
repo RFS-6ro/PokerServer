@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData.Network.MessageHandlers
 {

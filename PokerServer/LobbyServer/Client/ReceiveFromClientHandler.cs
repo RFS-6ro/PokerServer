@@ -9,6 +9,9 @@ namespace LobbyServer.Client.Handlers
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,22 @@ namespace LobbyServer.Client.Handlers
 		public ReceiveFromClientHandler()
 		{
 			Handlers.Add((int)clientTOlobby.Test, Test);
+			Handlers.Add((int)clientTOlobby.Connect, Connect);
+			Handlers.Add((int)clientTOlobby.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
 		}
 
 		private void Test(UniCastPacket packet)

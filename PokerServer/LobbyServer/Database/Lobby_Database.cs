@@ -5,20 +5,20 @@ using UniCastCommonData.Network;
 
 namespace FrontendDistributionServer.Database
 {
-	public class LobbyDatabaseClient : AbstractTCPClient<
+	public class Lobby_Database : AbstractTCPClient<
 		ReceiveFromDatabaseHandler, int,
 		SendToDatabaseHandler, int,
-		LobbyDatabaseClient>
+		Lobby_Database>
 	{
 		public override ActorType ServerType => ActorType.Databaase;
 
 		public override ActorType ClientType => ActorType.LobbyServer;
 
-		public LobbyDatabaseClient(IPAddress address, int port) : base(address, port)
+		public Lobby_Database(IPAddress address, int port) : base(address, port)
 		{
 		}
 
-		public LobbyDatabaseClient(string address, int port) : base(address, port)
+		public Lobby_Database(string address, int port) : base(address, port)
 		{
 		}
 	}

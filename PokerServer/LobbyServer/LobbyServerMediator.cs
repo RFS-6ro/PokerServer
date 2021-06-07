@@ -12,7 +12,7 @@ namespace LobbyServer
 		private static Lobby_Client_Server _clientServer;
 		private static Lobby_Region _headConnection;
 
-		private static LobbyDatabaseClient _databaseClient;
+		private static Lobby_Database _databaseClient;
 
 		public LobbyServerMediator(int ticks = 30) : base(ticks) { }
 
@@ -66,7 +66,7 @@ namespace LobbyServer
 			return headConnection;
 		}
 
-		public async static Task<LobbyDatabaseClient> InitConnectionToDatabaseServer(string[] args)
+		public async static Task<Lobby_Database> InitConnectionToDatabaseServer(string[] args)
 		{
 			// TCP server address
 			string address = "127.0.0.1";
@@ -79,7 +79,7 @@ namespace LobbyServer
 			if (args != null && args.Length > 1)
 				port = int.Parse(args[1]);
 
-			LobbyDatabaseClient headConnection = new LobbyDatabaseClient(address, port);
+			Lobby_Database headConnection = new Lobby_Database(address, port);
 
 			bool isConnected = headConnection.ConnectAsync();
 

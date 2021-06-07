@@ -16,7 +16,7 @@ namespace FrontendDistributionServer
 		private static ServerPool<Region_Server_Process> _regions;
 #endif
 
-		private static FrontendDatabaseClient _databaseClient;
+		private static FrontendDistribution_Database _databaseClient;
 
 		public FrontendDistributionServerMediator(int ticks = 30) : base(ticks) { }
 
@@ -61,7 +61,7 @@ namespace FrontendDistributionServer
 			return await ServerInitialisator<FrontendDistribution_Client_Server>.StartServer(5555);
 		}
 
-		public async static Task<FrontendDatabaseClient> InitConnectionToDatabaseServer(string[] args)
+		public async static Task<FrontendDistribution_Database> InitConnectionToDatabaseServer(string[] args)
 		{
 			// TCP server address
 			string address = "127.0.0.1";
@@ -74,7 +74,7 @@ namespace FrontendDistributionServer
 			if (args != null && args.Length > 1)
 				port = int.Parse(args[1]);
 
-			FrontendDatabaseClient headConnection = new FrontendDatabaseClient(address, port);
+			FrontendDistribution_Database headConnection = new FrontendDistribution_Database(address, port);
 
 			bool isConnected = headConnection.ConnectAsync();
 

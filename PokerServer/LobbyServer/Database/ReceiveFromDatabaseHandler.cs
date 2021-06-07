@@ -9,6 +9,9 @@ namespace FrontendDistributionServer.Database
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,25 @@ namespace FrontendDistributionServer.Database
 		public ReceiveFromDatabaseHandler()
 		{
 			Handlers.Add((int)databaseTOlobby.Test, Test);
+			Handlers.Add((int)databaseTOlobby.Connect, Connect);
+			Handlers.Add((int)databaseTOlobby.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid senderGuid = new Guid(packet.Read(16));
+				Guid receiverGuid = new Guid(packet.Read(16));
+				IStaticInstance<Lobby_Database>.Instance.SetId(receiverGuid);
+			});
 		}
 
 		private void Test(UniCastPacket packet)

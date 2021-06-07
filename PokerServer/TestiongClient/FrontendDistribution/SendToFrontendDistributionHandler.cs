@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace TestingClient.FrontendDistribution.Handlers
 {
 	public enum clientTOfrontend
 	{
 		None = 0,
+
+		Connect,
+		Disconnect,
 
 		Count,
 
@@ -25,6 +29,28 @@ namespace TestingClient.FrontendDistribution.Handlers
 		public SendToFrontendDistributionHandler()
 		{
 			Handlers.Add((int)clientTOfrontend.Test, Test);
+			Handlers.Add((int)clientTOfrontend.Connect, Connect);
+			Handlers.Add((int)clientTOfrontend.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(InitialSendingData data)
+		{
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+
+
+				Sender.SendAsync(packet);
+			}
+		}
+
+		private void Connect(InitialSendingData data)
+		{
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+
+
+				Sender.SendAsync(packet);
+			}
 		}
 
 		private void Test(InitialSendingData data)

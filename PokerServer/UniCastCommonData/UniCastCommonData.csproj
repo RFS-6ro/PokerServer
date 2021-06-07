@@ -12,5 +12,6 @@
     <Folder Include="Safety\" />
     <Folder Include="Server Pool\" />
     <Folder Include="Observable\" />
+    <Folder Include="Packet\Initial Data%27s\" />
   </ItemGroup>
 </Project>

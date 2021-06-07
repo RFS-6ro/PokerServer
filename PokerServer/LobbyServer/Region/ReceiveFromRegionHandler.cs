@@ -9,6 +9,9 @@ namespace LobbyServer.Region.Handlers
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,25 @@ namespace LobbyServer.Region.Handlers
 		public ReceiveFromRegionHandler()
 		{
 			Handlers.Add((int)regionTOlobby.Test, Test);
+			Handlers.Add((int)regionTOlobby.Connect, Connect);
+			Handlers.Add((int)regionTOlobby.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid senderGuid = new Guid(packet.Read(16));
+				Guid receiverGuid = new Guid(packet.Read(16));
+				IStaticInstance<Lobby_Region>.Instance.SetId(receiverGuid);
+			});
 		}
 
 		private void Test(UniCastPacket packet)

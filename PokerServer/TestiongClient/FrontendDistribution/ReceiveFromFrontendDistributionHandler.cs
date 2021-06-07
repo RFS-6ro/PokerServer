@@ -10,6 +10,9 @@ namespace TestingClient.FrontendDistribution.Handlers
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -23,6 +26,25 @@ namespace TestingClient.FrontendDistribution.Handlers
 		public ReceiveFromFrontendDistributionHandler()
 		{
 			Handlers.Add((int)frontendTOclient.Test, Test);
+			Handlers.Add((int)frontendTOclient.Connect, Connect);
+			Handlers.Add((int)frontendTOclient.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid senderGuid = new Guid(packet.Read(16));
+				Guid receiverGuid = new Guid(packet.Read(16));
+				IStaticInstance<Client_FrontendDistributor>.Instance.SetId(receiverGuid);
+			});
 		}
 
 		private void Test(UniCastPacket packet)

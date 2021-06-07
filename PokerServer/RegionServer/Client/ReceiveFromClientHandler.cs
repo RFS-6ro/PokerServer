@@ -9,6 +9,9 @@ namespace RegionServer.Client.Handlers
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,22 @@ namespace RegionServer.Client.Handlers
 		public ReceiveFromClientHandler()
 		{
 			Handlers.Add((int)clientTOregion.Test, Test);
+			Handlers.Add((int)clientTOregion.Connect, Connect);
+			Handlers.Add((int)clientTOregion.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
 		}
 
 		private void Test(UniCastPacket packet)

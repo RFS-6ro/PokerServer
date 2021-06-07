@@ -4,6 +4,7 @@ using UniCastCommonData;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network;
 using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace TestingClient.Lobby.Handlers
 {
@@ -39,7 +40,7 @@ namespace TestingClient.Lobby.Handlers
 		{
 			using (UniCastPacket packet = new UniCastPacket(data))
 			{
-				packet.Write("Name");
+				packet.Write("Name" + ((TcpClient)Sender).Id);
 				Sender.SendAsync(packet);
 			}
 		}
@@ -57,7 +58,7 @@ namespace TestingClient.Lobby.Handlers
 		{
 			using (UniCastPacket packet = new UniCastPacket(data))
 			{
-
+				packet.Write("Name" + ((TcpClient)Sender).Id);
 				Sender.SendAsync(packet);
 			}
 		}

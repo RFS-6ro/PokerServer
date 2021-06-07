@@ -9,6 +9,9 @@ namespace DatabaseServer
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,22 @@ namespace DatabaseServer
 		public ReceiveHandler()
 		{
 			Handlers.Add((int)anyTOdatabase.Test, Test);
+			Handlers.Add((int)anyTOdatabase.Connect, Connect);
+			Handlers.Add((int)anyTOdatabase.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
 		}
 
 		private void Test(UniCastPacket packet)

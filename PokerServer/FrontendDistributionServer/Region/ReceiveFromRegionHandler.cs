@@ -9,6 +9,9 @@ namespace FrontendDistributionServer.Region.Handlers
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,22 @@ namespace FrontendDistributionServer.Region.Handlers
 		public ReceiveFromRegionHandler()
 		{
 			Handlers.Add((int)regionTOfrontend.Test, Test);
+			Handlers.Add((int)regionTOfrontend.Connect, Connect);
+			Handlers.Add((int)regionTOfrontend.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
 		}
 
 		private void Test(UniCastPacket packet)

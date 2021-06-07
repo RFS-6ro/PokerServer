@@ -35,14 +35,13 @@ namespace UniCastCommonData.Network
 		/// <param name="endpoint">IP endpoint</param>
 		public TcpClient(IPEndPoint endpoint)
 		{
-			Id = Guid.NewGuid();
 			Endpoint = endpoint;
 		}
 
 		/// <summary>
 		/// Client Id
 		/// </summary>
-		public Guid Id { get; }
+		public Guid Id { get; protected set; }
 
 		/// <summary>
 		/// IP endpoint
@@ -124,6 +123,11 @@ namespace UniCastCommonData.Network
 		protected virtual Socket CreateSocket()
 		{
 			return new Socket(Endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+		}
+
+		public void SetId(Guid id)
+		{
+			Id = id;
 		}
 
 		/// <summary>

@@ -9,6 +9,9 @@ namespace RegionServer.FrontendDistribution.Handlers
 	{
 		None = 0,
 
+		Connect,
+		Disconnect,
+
 		Count,
 
 
@@ -22,6 +25,25 @@ namespace RegionServer.FrontendDistribution.Handlers
 		public ReceiveFromFrontendDistributionHandler()
 		{
 			Handlers.Add((int)frontendTOregion.Test, Test);
+			Handlers.Add((int)frontendTOregion.Connect, Connect);
+			Handlers.Add((int)frontendTOregion.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid senderGuid = new Guid(packet.Read(16));
+				Guid receiverGuid = new Guid(packet.Read(16));
+				IStaticInstance<Region_FrontendDistribution>.Instance.SetId(receiverGuid);
+			});
 		}
 
 		private void Test(UniCastPacket packet)

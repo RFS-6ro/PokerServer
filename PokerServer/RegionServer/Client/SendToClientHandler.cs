@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace RegionServer.Client.Handlers
 {
 	public enum regionTOclient
 	{
 		None = 0,
+
+		Connect,
+		Disconnect,
 
 		Count,
 
@@ -21,6 +25,28 @@ namespace RegionServer.Client.Handlers
 		public SendToClientHandler()
 		{
 			Handlers.Add((int)regionTOclient.Test, Test);
+			Handlers.Add((int)regionTOclient.Connect, Connect);
+			Handlers.Add((int)regionTOclient.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(InitialSendingData data)
+		{
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+
+
+				Sender.SendAsync(packet);
+			}
+		}
+
+		private void Connect(InitialSendingData data)
+		{
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+
+
+				Sender.SendAsync(packet);
+			}
 		}
 
 		private void Test(InitialSendingData data)

@@ -8,7 +8,8 @@ namespace TestingClient.Lobby.Handlers
 	public enum lobbyTOclient
 	{
 		None = 0,
-
+		Connect,
+		Disconnect,
 		Count,
 
 
@@ -22,6 +23,26 @@ namespace TestingClient.Lobby.Handlers
 		public ReceiveFromLobbyHandler()
 		{
 			Handlers.Add((int)lobbyTOclient.Test, Test);
+			Handlers.Add((int)lobbyTOclient.Connect, Connect);
+			Handlers.Add((int)lobbyTOclient.Disconnect, Disconnect);
+		}
+
+		private void Disconnect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+			});
+		}
+
+		private void Connect(UniCastPacket packet)
+		{
+			ThreadManager.ExecuteOnMainThread(() =>
+			{
+				Guid senderGuid = new Guid(packet.Read(16));
+				Guid receiverGuid = new Guid(packet.Read(16));
+				IStaticInstance<Client_Lobby>.Instance.SetId(receiverGuid);
+
+			});
 		}
 
 		private void Test(UniCastPacket packet)
