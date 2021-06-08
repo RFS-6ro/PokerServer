@@ -40,7 +40,7 @@
 
 		public abstract PlayerAction PostingBlind(IPostingBlindContext context);
 
-		public abstract PlayerAction GetTurn(IGetTurnContext context);
+		public abstract Task<PlayerAction> GetTurn(IGetTurnContext context);
 
 		public virtual void EndRound(IEndRoundContext context) { }
 
@@ -48,6 +48,6 @@
 
 		public virtual void EndGame(IEndGameContext context) { }
 
-		public virtual async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context) { throw new NotImplementedException(); }
+		public virtual async Task<PlayerAction> AwaitTurn(IGetTurnContext context) { throw new NotImplementedException(); }
 	}
 }

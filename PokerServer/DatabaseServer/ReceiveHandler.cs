@@ -19,7 +19,7 @@ namespace DatabaseServer
 		Test
 	}
 
-	public class ReceiveHandler : ReceiveHandlerBase
+	public class ReceiveHandler : SessionReceiveHandlerBase<Database_Server>
 	{
 		public ReceiveHandler()
 		{
@@ -38,12 +38,11 @@ namespace DatabaseServer
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

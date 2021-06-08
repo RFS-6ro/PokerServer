@@ -7,7 +7,6 @@ using UniCastCommonData.Handlers;
 namespace FrontendDistributionServer.Client
 {
 	public class FrontendDistribution_Client_Server : AbstractTCPServer<
-		ClientSessionBuilder,
 		ReceiveFromClientHandler,
 		SendToClientHandler,
 		FrontendDistribution_Client_Server>
@@ -18,6 +17,11 @@ namespace FrontendDistributionServer.Client
 
 		public FrontendDistribution_Client_Server(IPAddress address, int port) : base(address, port)
 		{
+		}
+
+		protected override TcpSession CreateSession()
+		{
+			return new FrontendDistribution_Client_Session(this);
 		}
 	}
 }

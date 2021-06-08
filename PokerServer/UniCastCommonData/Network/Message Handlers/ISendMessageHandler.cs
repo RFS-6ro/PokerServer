@@ -7,7 +7,7 @@ namespace UniCastCommonData.Handlers
 {
 	public interface ISendMessageHandler<T>
 	{
-		ISender Sender { get; set; }
+		ISender Sender { get; }
 
 		Dictionary<T, Action<InitialSendingData>> Handlers { get; }
 	}

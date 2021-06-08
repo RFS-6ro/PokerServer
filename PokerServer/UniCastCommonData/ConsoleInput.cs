@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData
@@ -8,34 +6,34 @@ namespace UniCastCommonData
 	public class ConsoleInput<MEDIATOR>
 		where MEDIATOR : AbstractMediator<MEDIATOR>
 	{
-		static bool _running;
-		static MEDIATOR _mediator;
+		protected bool _isRunning;
+		protected MEDIATOR _mediator;
 
 		public ConsoleInput(MEDIATOR mediator)
 		{
 			_mediator = mediator;
 			_mediator.Start();
 
-			_running = true;
+			_isRunning = true;
 
-			while (_running)
+			while (_isRunning)
 			{
 				// check for user input
-				checkInput(Console.ReadKey().KeyChar);
+				checkInput(Console.ReadLine());
 			}
 
 			// wait for the task to finish before exiting
 			_mediator._task.Wait();
 		}
 
-		static void checkInput(char input)
+		protected virtual void checkInput(string input)
 		{
-			if (input == 'q')
+			if (input == "quit")
 			{
 				Console.WriteLine("\nQuit called from main thread");
 
 				_mediator.Stop();
-				_running = false;
+				_isRunning = false;
 			}
 		}
 	}

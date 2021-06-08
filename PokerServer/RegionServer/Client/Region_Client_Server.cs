@@ -7,7 +7,6 @@ using UniCastCommonData.Handlers;
 namespace RegionServer.Client
 {
 	public class Region_Client_Server : AbstractTCPServer<
-		ClientSessionBuilder,
 		ReceiveFromClientHandler,
 		SendToClientHandler,
 		Region_Client_Server>
@@ -18,6 +17,11 @@ namespace RegionServer.Client
 
 		public Region_Client_Server(IPAddress address, int port) : base(address, port)
 		{
+		}
+
+		protected override TcpSession CreateSession()
+		{
+			return new Region_Client_Session(this);
 		}
 	}
 }

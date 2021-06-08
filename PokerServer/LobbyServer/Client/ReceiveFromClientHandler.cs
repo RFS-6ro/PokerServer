@@ -11,6 +11,7 @@ namespace LobbyServer.Client.Handlers
 		None = 0,
 
 		Connect,
+		ReceiveTurn,
 		Disconnect,
 
 		Count,
@@ -19,13 +20,18 @@ namespace LobbyServer.Client.Handlers
 		Test
 	}
 
-	public class ReceiveFromClientHandler : ReceiveHandlerBase
+	public class ReceiveFromClientHandler : SessionReceiveHandlerBase<Lobby_Client_Server>
 	{
 		public ReceiveFromClientHandler()
 		{
 			Handlers.Add((int)clientTOlobby.Test, Test);
 			Handlers.Add((int)clientTOlobby.Connect, Connect);
+			Handlers.Add((int)clientTOlobby.ReceiveTurn, ReceiveTurn);
 			Handlers.Add((int)clientTOlobby.Disconnect, Disconnect);
+		}
+
+		private void ReceiveTurn(UniCastPacket obj)
+		{
 		}
 
 		private void Disconnect(UniCastPacket packet)
@@ -34,16 +40,19 @@ namespace LobbyServer.Client.Handlers
 
 		private void Connect(UniCastPacket packet)
 		{
+			Guid receiverGuid = new Guid(packet.Read(16));
+			string name = packet.ReadString();
+
+			IStaticInstance<PokerInitializator>.Instance.AddPlayer(receiverGuid, name);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

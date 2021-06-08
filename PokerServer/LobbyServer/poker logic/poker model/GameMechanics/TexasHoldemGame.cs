@@ -11,7 +11,7 @@ using TexasHoldem.Logic.Players;
 
 namespace GameCore.Poker.Model
 {
-	public class TexasHoldemGame<TDECORATOR> where TDECORATOR : UnityPlayerDecorator, new()
+	public class TexasHoldemGame<TDECORATOR> where TDECORATOR : PlayerDecorator, new()
 	{
 		protected static readonly int[] SmallBlinds =
 		{

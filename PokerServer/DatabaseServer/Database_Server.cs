@@ -6,7 +6,6 @@ using UniCastCommonData.Network;
 namespace DatabaseServer
 {
 	public class Database_Server : AbstractTCPServer<
-		DatabaseSessionBuilder,
 		ReceiveHandler,
 		SendHandler,
 		Database_Server>
@@ -17,6 +16,11 @@ namespace DatabaseServer
 
 		public Database_Server(IPAddress address, int port) : base(address, port)
 		{
+		}
+
+		protected override TcpSession CreateSession()
+		{
+			return new Database_Session(this);
 		}
 	}
 }

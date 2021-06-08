@@ -19,7 +19,7 @@ namespace FrontendDistributionServer.Database
 		Test
 	}
 
-	public class ReceiveFromDatabaseHandler : ReceiveHandlerBase
+	public class ReceiveFromDatabaseHandler : ClientReceiveHandlerBase<Lobby_Database>
 	{
 		public ReceiveFromDatabaseHandler()
 		{
@@ -34,19 +34,17 @@ namespace FrontendDistributionServer.Database
 
 		private void Connect(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
-			IStaticInstance<Lobby_Database>.Instance.SetId(receiverGuid);
+			Client.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

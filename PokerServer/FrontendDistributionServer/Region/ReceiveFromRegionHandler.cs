@@ -19,7 +19,7 @@ namespace FrontendDistributionServer.Region.Handlers
 		Test
 	}
 
-	public class ReceiveFromRegionHandler : ReceiveHandlerBase
+	public class ReceiveFromRegionHandler : SessionReceiveHandlerBase<FrontendDistribution_Region_Server>
 	{
 		public ReceiveFromRegionHandler()
 		{
@@ -38,12 +38,11 @@ namespace FrontendDistributionServer.Region.Handlers
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

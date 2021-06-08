@@ -21,7 +21,7 @@ namespace TexasHoldem.Logic.Players
 
 		PlayerAction PostingBlind(IPostingBlindContext context);
 
-		PlayerAction GetTurn(IGetTurnContext context);
+		Task<PlayerAction> GetTurn(IGetTurnContext context);
 
 		void EndRound(IEndRoundContext context);
 
@@ -29,6 +29,6 @@ namespace TexasHoldem.Logic.Players
 
 		void EndGame(IEndGameContext context);
 
-		Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context);
+		Task<PlayerAction> AwaitTurn(IGetTurnContext context);
 	}
 }

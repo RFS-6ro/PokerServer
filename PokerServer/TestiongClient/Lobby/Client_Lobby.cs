@@ -13,19 +13,23 @@ namespace TestingClient.Lobby
 		Client_Lobby>
 	{
 		public override ActorType ClientType => ActorType.LobbyServer;
-
 		public override ActorType ServerType => ActorType.Client;
 
-		public Client_Lobby(IPAddress address, int port) : base(address, port)
+		public string Name { get; }
+
+		public Client_Lobby(string name, IPAddress address, int port) : base(address, port)
 		{
+			Name = name;
 		}
 
-		public Client_Lobby(string address, int port) : base(address, port)
+		public Client_Lobby(string name, string address, int port) : base(address, port)
 		{
+			Name = name;
 		}
 
-		public Client_Lobby(IPEndPoint endpoint) : base(endpoint)
+		public Client_Lobby(string name, IPEndPoint endpoint) : base(endpoint)
 		{
+			Name = name;
 		}
 	}
 }

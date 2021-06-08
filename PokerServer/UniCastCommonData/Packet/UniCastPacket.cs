@@ -157,6 +157,12 @@ namespace UniCastCommonData
 			}
 		}
 
+		public void Reset(int byteLength)
+		{
+			byteLength = Math.Abs(byteLength);
+			_readPosition -= byteLength; // "Unread" the last N bytes
+		}
+
 		protected virtual void Dispose(bool disposing)
 		{
 			if (!disposed)

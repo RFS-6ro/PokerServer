@@ -32,7 +32,7 @@ namespace TestingClient.Lobby.Handlers
 		{
 			SendAsync(data, new byte[][]
 			{
-				("Name" + (IStaticInstance<Client_Lobby>.Instance).Id).ToByteArray()
+				IStaticInstance<Client_Lobby>.Instance.Name.ToByteArray()
 			});
 		}
 
@@ -48,7 +48,7 @@ namespace TestingClient.Lobby.Handlers
 		{
 			SendAsync(data, new byte[][]
 			{
-				("Name" + (IStaticInstance<Client_Lobby>.Instance).Id).ToByteArray()
+				IStaticInstance<Client_Lobby>.Instance.Name.ToByteArray()
 			});
 		}
 

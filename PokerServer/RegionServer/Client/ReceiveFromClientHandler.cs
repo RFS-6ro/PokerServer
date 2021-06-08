@@ -19,7 +19,7 @@ namespace RegionServer.Client.Handlers
 		Test
 	}
 
-	public class ReceiveFromClientHandler : ReceiveHandlerBase
+	public class ReceiveFromClientHandler : SessionReceiveHandlerBase<Region_Client_Server>
 	{
 		public ReceiveFromClientHandler()
 		{
@@ -38,12 +38,11 @@ namespace RegionServer.Client.Handlers
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

@@ -13,7 +13,7 @@ using TexasHoldem.Logic.Players;
 namespace GameCore.Poker.Model
 {
 	public class HandLogic<TDECORATOR>
-		where TDECORATOR : UnityPlayerDecorator, new()
+		where TDECORATOR : PlayerDecorator, new()
 	{
 		private readonly int _handNumber;
 

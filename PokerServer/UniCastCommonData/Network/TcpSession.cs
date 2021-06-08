@@ -733,8 +733,8 @@ namespace UniCastCommonData.Network
 
 			int action = packet.ReadInt();
 
-			ReceiveHandlerBase receiveHandler = (ReceiveHandlerBase)(Server.GetType().GetProperty("ReceiveHandler").GetValue(Server)); ;
-			receiveHandler.Receive(action, packet);
+			object receiveHandler = (Server.GetType().GetProperty("ReceiveHandler").GetValue(Server));
+			receiveHandler.GetType().GetMethod("Receive").Invoke(receiveHandler, new object[] { action, packet });
 
 			return true;
 			//}

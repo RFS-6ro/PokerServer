@@ -1,38 +1,31 @@
 ﻿using System;
 using System.Threading.Tasks;
-using LobbyServer.pokerlogic.pokermodel.UI;
-using TexasHoldem.Logic.Players;
 
 namespace LobbyServer.pokerlogic.pokermodel.Players
 {
-	public class ServerPlayer : BasePlayer
+	public class ServerPlayer
 	{
-		public int Row { get; protected set; }
-
+		private readonly int Row;
 		public Guid Guid { get; }
 
-		public override string Name { get; }
+		public string Name { get; }
 
-		public override int BuyIn { get; }
+		public int BuyIn { get; }
 
-		public ServerPlayer(Guid guid, string name, int buyIn = -1)
+		public ServerPlayer(Guid guid, string name, int row, int buyIn = -1)
 		{
 			Name = name;
 			Guid = guid;
+			Row = row;
 			BuyIn = buyIn;
 		}
 
-		public void SetRow(int row)
+		public void PostingBlind(int amount)
 		{
-			Row = row;
+			//TODO: Display posting blind
 		}
 
-		public override PlayerAction PostingBlind(IPostingBlindContext context)
-		{
-			return context.BlindAction;
-		}
-
-		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
+		public async Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
 			if (!context.CanRaise)
 			{

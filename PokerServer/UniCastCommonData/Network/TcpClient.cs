@@ -978,8 +978,8 @@ namespace UniCastCommonData.Network
 
 			int action = packet.ReadInt();
 
-			ReceiveHandlerBase receiveHandler = (ReceiveHandlerBase)(GetType().GetProperty("ReceiveHandler").GetValue(this));
-			receiveHandler.Receive(action, packet);
+			object receiveHandler = (GetType().GetProperty("ReceiveHandler").GetValue(this));
+			receiveHandler.GetType().GetMethod("Receive").Invoke(receiveHandler, new object[] { action, packet });
 
 			return true;
 			//}

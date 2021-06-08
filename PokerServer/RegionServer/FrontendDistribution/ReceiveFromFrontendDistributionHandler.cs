@@ -19,7 +19,7 @@ namespace RegionServer.FrontendDistribution.Handlers
 		Test
 	}
 
-	public class ReceiveFromFrontendDistributionHandler : ReceiveHandlerBase
+	public class ReceiveFromFrontendDistributionHandler : ClientReceiveHandlerBase<Region_FrontendDistribution>
 	{
 		public ReceiveFromFrontendDistributionHandler()
 		{
@@ -34,19 +34,17 @@ namespace RegionServer.FrontendDistribution.Handlers
 
 		private void Connect(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
-			IStaticInstance<Region_FrontendDistribution>.Instance.SetId(receiverGuid);
+			Client.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

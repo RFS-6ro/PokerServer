@@ -8,7 +8,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 	public abstract class SessionSender<SERVER> : ISendMessageHandler<int>
 		where SERVER : TcpServer, IStaticInstance<SERVER>
 	{
-		public SERVER Server { get; set; }
+		public SERVER Server => IStaticInstance<SERVER>.Instance;
 
 		public ISender Sender { get; set; }
 
@@ -16,10 +16,6 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 		public ISender GetSenderByID(Guid guid)
 		{
-			if (Server == null)
-			{
-				Server = IStaticInstance<SERVER>.Instance;
-			}
 			Sender = Server.FindSession(guid);
 			return Sender;
 		}

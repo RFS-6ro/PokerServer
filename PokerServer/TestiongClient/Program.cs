@@ -11,9 +11,9 @@ namespace TestingClient
 		{
 			_mediator = new TestingClientMediator(60);
 
-			await _mediator.StartServers();
+			new PokerPlayerConsoleInput(_mediator);
 
-			new ConsoleInput<TestingClientMediator>(_mediator);
+			await _mediator.StartServers();
 		}
 	}
 }

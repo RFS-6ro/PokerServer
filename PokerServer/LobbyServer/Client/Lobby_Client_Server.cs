@@ -8,7 +8,6 @@ using UniCastCommonData.Network;
 namespace LobbyServer.Client
 {
 	public class Lobby_Client_Server : AbstractTCPServer<
-		ClientSessionBuilder,
 		ReceiveFromClientHandler,
 		SendToClientHandler,
 		Lobby_Client_Server>
@@ -19,6 +18,11 @@ namespace LobbyServer.Client
 
 		public Lobby_Client_Server(IPAddress address, int port) : base(address, port)
 		{
+		}
+
+		protected override TcpSession CreateSession()
+		{
+			return new Lobby_Client_Session(this);
 		}
 	}
 }

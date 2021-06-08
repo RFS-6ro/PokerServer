@@ -9,14 +9,22 @@ namespace TestingClient
 {
 	public class TestingClientMediator : AbstractMediator<TestingClientMediator>
 	{
-		private static Client_FrontendDistributor _headConnection;
-		private static Client_Region _regionConnection;
-		private static Client_Lobby _lobbyConnection;
+		private Client_FrontendDistributor _headConnection;
+
+		private Client_Region _regionConnection;
+		private Client_Lobby _lobbyConnection;
+
+		private string _name = null;
 
 		public TestingClientMediator(int ticks = 30) : base(ticks) { }
 
 		public async override Task StartServers()
 		{
+			while (_name == null)
+			{
+				await Task.Yield();
+			}
+
 #if DEBUG
 			_lobbyConnection = await InitConnectionToLobbyServer(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27000));
 			return;
@@ -24,9 +32,14 @@ namespace TestingClient
 			_headConnection = await InitConnectionToFrontendDistributionServer();
 		}
 
+		public void SetName(string name)
+		{
+			_name = name;
+		}
+
 		public override void OnUpdate() { }
 
-		public async static Task<Client_FrontendDistributor> InitConnectionToFrontendDistributionServer()
+		public async Task<Client_FrontendDistributor> InitConnectionToFrontendDistributionServer()
 		{
 			// TCP server address
 			string address = "127.0.0.1";
@@ -47,7 +60,7 @@ namespace TestingClient
 			return headConnection;
 		}
 
-		public async static Task<Client_Region> InitConnectionToRegionServer(IPEndPoint ip)
+		public async Task<Client_Region> InitConnectionToRegionServer(IPEndPoint ip)
 		{
 			Client_Region regionConnection = new Client_Region(ip);
 
@@ -62,9 +75,9 @@ namespace TestingClient
 			return regionConnection;
 		}
 
-		public async static Task<Client_Lobby> InitConnectionToLobbyServer(IPEndPoint ip)
+		public async Task<Client_Lobby> InitConnectionToLobbyServer(IPEndPoint ip)
 		{
-			Client_Lobby lobbyConnection = new Client_Lobby(ip);
+			Client_Lobby lobbyConnection = new Client_Lobby(_name, ip);
 
 			bool isConnected = lobbyConnection.ConnectAsync();
 

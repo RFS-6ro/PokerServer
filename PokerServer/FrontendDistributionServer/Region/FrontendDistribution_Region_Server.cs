@@ -7,7 +7,6 @@ using UniCastCommonData.Handlers;
 namespace FrontendDistributionServer.Region
 {
 	public class FrontendDistribution_Region_Server : AbstractTCPServer<
-		RegionSessionBuilder,
 		ReceiveFromRegionHandler,
 		SendToRegionHandler,
 		FrontendDistribution_Region_Server>
@@ -18,6 +17,11 @@ namespace FrontendDistributionServer.Region
 
 		public FrontendDistribution_Region_Server(IPAddress address, int port) : base(address, port)
 		{
+		}
+
+		protected override TcpSession CreateSession()
+		{
+			return new FrontendDistribution_Region_Session(this);
 		}
 	}
 }

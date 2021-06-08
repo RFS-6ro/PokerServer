@@ -11,7 +11,7 @@
 	using TexasHoldem.Logic.Players;
 
 	public class BettingLogic<TDECORATOR>
-		where TDECORATOR : UnityPlayerDecorator, new()
+		where TDECORATOR : PlayerDecorator, new()
 	{
 		private readonly int initialPlayerIndex = 1;
 
@@ -119,8 +119,7 @@
 
 				player.ChairView.SetGameStateHolder(string.Empty);
 
-				PlayerAction action = null;
-				await player.AwaitTurn((x) => action = x, context);
+				PlayerAction action = await player.AwaitTurn(context);
 				//PlayerAction action = player.GetTurn(context);
 
 				player.ChairView.SetGameStateHolder(action.ToString());

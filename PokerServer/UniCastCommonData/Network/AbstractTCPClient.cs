@@ -15,6 +15,7 @@ namespace UniCastCommonData.Network
 		where SEND_HANDLER : ISendMessageHandler<int>, new()
 		where INSTANCE_TYPE : AbstractTCPClient<RECEIVE_HANDLER, SEND_HANDLER, INSTANCE_TYPE>
 	{
+		public Guid ServerId { get; set; }
 
 		public abstract ActorType ServerType { get; }
 		public abstract ActorType ClientType { get; }

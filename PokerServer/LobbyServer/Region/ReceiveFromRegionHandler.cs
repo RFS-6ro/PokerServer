@@ -19,7 +19,7 @@ namespace LobbyServer.Region.Handlers
 		Test
 	}
 
-	public class ReceiveFromRegionHandler : ReceiveHandlerBase
+	public class ReceiveFromRegionHandler : ClientReceiveHandlerBase<Lobby_Region>
 	{
 		public ReceiveFromRegionHandler()
 		{
@@ -34,19 +34,17 @@ namespace LobbyServer.Region.Handlers
 
 		private void Connect(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
-			IStaticInstance<Lobby_Region>.Instance.SetId(receiverGuid);
+			Client.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

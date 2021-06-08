@@ -19,7 +19,7 @@ namespace FrontendDistributionServer.Database
 		Test
 	}
 
-	public class ReceiveFromDatabaseHandler : ReceiveHandlerBase
+	public class ReceiveFromDatabaseHandler : ClientReceiveHandlerBase<FrontendDistribution_Database>
 	{
 		public ReceiveFromDatabaseHandler()
 		{
@@ -36,17 +36,16 @@ namespace FrontendDistributionServer.Database
 		{
 			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
-			IStaticInstance<FrontendDistribution_Database>.Instance.SetId(receiverGuid);
+			Client.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)
 		{
-			Guid senderGuid = new Guid(packet.Read(16));
 			Guid receiverGuid = new Guid(packet.Read(16));
 
 			string message = packet.ReadString();
 
-			Console.WriteLine(senderGuid + "|" + message);
+			Console.WriteLine(receiverGuid + "|" + message);
 		}
 	}
 }

@@ -57,9 +57,9 @@
 			return Player.PostingBlind(context);
 		}
 
-		public virtual PlayerAction GetTurn(IGetTurnContext context)
+		public virtual async Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
-			return Player.GetTurn(context);
+			return await Player.GetTurn(context);
 		}
 
 		public virtual void EndRound(IEndRoundContext context)
@@ -77,9 +77,9 @@
 			Player.EndGame(context);
 		}
 
-		public virtual async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
+		public virtual async Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
-			await Player.AwaitTurn(action, context);
+			return await Player.AwaitTurn(context);
 		}
 	}
 }
