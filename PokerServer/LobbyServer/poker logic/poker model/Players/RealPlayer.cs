@@ -14,7 +14,7 @@ namespace GameCore.Poker.Model.Player
 
 		private PlayerAction _currentTurn = null;
 
-		public override PlayerAction GetTurn(IGetTurnContext context)
+		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
 			//TODO: Set timer value, remove hard coded value
 			//InputController.GetTurn(context, 5f, (x) => _currentTurn = x);
@@ -26,21 +26,11 @@ namespace GameCore.Poker.Model.Player
 			return context.BlindAction;
 		}
 
-		public override async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
+		public override async Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
-			GetTurn(context);
+			var turn = await GetTurn(context);
 			//float startTime = Time.time;
-			while (_currentTurn == null)
-			{
-				//if (Time.time - startTime >= 5f)
-				{
-					//_currentTurn = PlayerAction.Fold();
-				}
-				await Task.Delay(1);
-			}
-
-			action?.Invoke(_currentTurn);
-			_currentTurn = null;
+			return turn;
 		}
 
 		public override void EndHand(IEndHandContext context)

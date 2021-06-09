@@ -22,7 +22,7 @@ namespace TestingClient
 		{
 			while (_name == null)
 			{
-				await Task.Yield();
+				await Task.Delay(100);
 			}
 
 #if DEBUG

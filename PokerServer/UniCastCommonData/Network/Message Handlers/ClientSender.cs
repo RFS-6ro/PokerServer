@@ -12,7 +12,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
-		protected void SendAsync(InitialSendingData data, byte[][] content)
+		public void SendAsync(InitialSendingData data, byte[][] content)
 		{
 			using (UniCastPacket packet = new UniCastPacket(data))
 			{

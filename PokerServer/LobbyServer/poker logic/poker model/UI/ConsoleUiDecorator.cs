@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using PokerSynchronisation;
 using TexasHoldem.Logic.Cards;
 using TexasHoldem.Logic.Extensions;
@@ -82,7 +83,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			return action;
 		}
 
-		public override PlayerAction GetTurn(IGetTurnContext context)
+		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
 			UpdateCommonRows(
 				context.CurrentPot,
@@ -91,7 +92,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 			ConsoleHelper.WriteOnConsole(row + 1, 2, context.MoneyLeft + "   ");
 
-			var action = base.GetTurn(context);
+			var action = await base.GetTurn(context);
 
 			if (action.Type == TurnType.Fold)
 			{

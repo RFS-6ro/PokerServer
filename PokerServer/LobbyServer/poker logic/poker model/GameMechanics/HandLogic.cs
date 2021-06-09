@@ -100,7 +100,7 @@ namespace GameCore.Poker.Model
 			foreach (var player in _players)
 			{
 				player.EndHand(new EndHandContext(showdownCards));
-				player.ChairView.ClearCards();
+				//TODOSEND player.ChairView.ClearCards();
 			}
 
 			await Task.Delay(5 * 1000);
@@ -120,7 +120,7 @@ namespace GameCore.Poker.Model
 
 			foreach (var player in players)
 			{
-				player.ChairView.SetGameStateHolder(string.Empty);
+				//TODOSEND player.ChairView.SetGameStateHolder(string.Empty);
 			}
 		}
 
@@ -139,7 +139,7 @@ namespace GameCore.Poker.Model
 			{
 				Card card = deck.GetNextCard();
 
-				//CardController.Dispence(player.ChairView, card, index);
+				//TODOSEND CardController.Dispence(player.ChairView, card, index);
 
 				await Task.Delay(500);
 			}
@@ -147,12 +147,12 @@ namespace GameCore.Poker.Model
 
 		private void InitTableView()
 		{
-			//BetController.MoveBet(null, 0, _tableViewModel, 0f, false);
+			//TODOSEND BetController.MoveBet(null, 0, _tableViewModel, 0f, false);
 		}
 
 		private void MoveDealerButton()
 		{
-			//_tableViewModel.MoveDealerButton(_players[0]);
+			//TODOSEND _tableViewModel.MoveDealerButton(_players[0]);
 		}
 
 		private void DetermineWinnerAndAddPot(int pot, Pot mainPot, List<Pot> sidePot)
@@ -161,8 +161,8 @@ namespace GameCore.Poker.Model
 			{
 				var winner = _players.FirstOrDefault(x => x.PlayerMoney.InHand);
 				winner.PlayerMoney.Money += pot;
-				//BetController.MoveBet(_tableViewModel, pot, winner.ChairView);
-				winner?.ChairView.ShowCards();
+				//TODOSEND BetController.MoveBet(_tableViewModel, pot, winner.ChairView);
+				//TODOSEND winner?.ChairView.ShowCards();
 			}
 			else
 			{
@@ -183,23 +183,23 @@ namespace GameCore.Poker.Model
 					if (betterHand > 0)
 					{
 						_players[0].PlayerMoney.Money += pot;
-						//BetController.MoveBet(_tableViewModel, pot, _players[0].ChairView);
-						_players[0]?.ChairView.ShowCards();
+						//TODOSEND BetController.MoveBet(_tableViewModel, pot, _players[0].ChairView);
+						//TODOSEND _players[0]?.ChairView.ShowCards();
 					}
 					else if (betterHand < 0)
 					{
 						_players[1].PlayerMoney.Money += pot;
-						//BetController.MoveBet(_tableViewModel, pot, _players[1].ChairView);
-						_players[1]?.ChairView.ShowCards();
+						//TODOSEND BetController.MoveBet(_tableViewModel, pot, _players[1].ChairView);
+						//TODOSEND _players[1]?.ChairView.ShowCards();
 					}
 					else
 					{
 						_players[0].PlayerMoney.Money += pot / 2;
-						//BetController.MoveBet(_tableViewModel, pot / 2, _players[0].ChairView);
-						_players[0]?.ChairView.ShowCards();
+						//TODOSEND BetController.MoveBet(_tableViewModel, pot / 2, _players[0].ChairView);
+						//TODOSEND _players[0]?.ChairView.ShowCards();
 						_players[1].PlayerMoney.Money += pot / 2;
-						//BetController.MoveBet(_tableViewModel, pot / 2, _players[1].ChairView);
-						_players[1]?.ChairView.ShowCards();
+						//TODOSEND BetController.MoveBet(_tableViewModel, pot / 2, _players[1].ChairView);
+						//TODOSEND _players[1]?.ChairView.ShowCards();
 					}
 				}
 				else
@@ -253,8 +253,8 @@ namespace GameCore.Poker.Model
 									{
 										var player = _players.First(x => x.Name == nominee);
 										player.PlayerMoney.Money += prize;
-										//BetController.MoveBet(_tableViewModel, prize, player.ChairView);
-										player?.ChairView.ShowCards();
+										//TODOSEND BetController.MoveBet(_tableViewModel, prize, player.ChairView);
+										//TODOSEND player?.ChairView.ShowCards();
 									}
 								}
 								else
@@ -290,7 +290,7 @@ namespace GameCore.Poker.Model
 
 				communityCards.Add(card);
 
-				//CardController.Dispence(_tableViewModel, card, communityCards.Count - 1);
+				//TODOSEND CardController.Dispence(_tableViewModel, card, communityCards.Count - 1);
 			}
 
 			foreach (var player in _players)

@@ -11,17 +11,16 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 		public SERVER Server => IStaticInstance<SERVER>.Instance;
 
-		public Guid LastSenderId { get; protected set; }
+		public Guid LastSenderGuid { get; protected set; }
 
-		public void Receive(int action, UniCastPacket packet)
+		public void Receive(int action, UniCastPacket packet, Guid guid)
 		{
 			ThreadManager.ExecuteOnMainThread(() =>
 			{
 				Guid senderId = new Guid(packet.Read(16));
-				Guid receiverId = new Guid(packet.Read(16));
 				packet.Reset(16);
 
-				LastSenderId = senderId;
+				LastSenderGuid = action == 1 ? guid : senderId;
 
 				Handlers[action]?.Invoke(packet);
 				packet.Dispose();

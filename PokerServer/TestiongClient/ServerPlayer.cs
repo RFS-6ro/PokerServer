@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using TestingClient.pokerlogic.pokermodel.UI;
 
-namespace LobbyServer.pokerlogic.pokermodel.Players
+namespace TestingClient.pokerlogic.pokermodel.Players
 {
 	public class ServerPlayer
 	{
@@ -25,54 +26,55 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			//TODO: Display posting blind
 		}
 
-		public async Task<PlayerAction> GetTurn(IGetTurnContext context)
+		//public async Task<PlayerAction> GetTurn(IGetTurnContext context)
+		public async Task GetTurn()
 		{
-			if (!context.CanRaise)
-			{
-				DrawRestrictedPlayerOptions(context.MoneyToCall);
-			}
-			else
-			{
-				DrawPlayerOptions(context.MoneyToCall);
-			}
+			//if (!context.CanRaise)
+			//{
+			//	DrawRestrictedPlayerOptions(context.MoneyToCall);
+			//}
+			//else
+			//{
+			//	DrawPlayerOptions(context.MoneyToCall);
+			//}
 
-			while (true)
-			{
-				var key = Console.ReadKey(true);
-				PlayerAction action = null;
-				switch (key.Key)
-				{
-				case ConsoleKey.C:
-					action = PlayerAction.CheckOrCall();
-					break;
-				case ConsoleKey.R:
-					if (!context.CanRaise)
-					{
-						continue;
-					}
-					int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
-					action = PlayerAction.Raise(amount);
-					break;
-				case ConsoleKey.F:
-					action = PlayerAction.Fold();
-					break;
-				case ConsoleKey.A:
-					if (!context.CanRaise)
-					{
-						continue;
-					}
+			//while (true)
+			//{
+			//	var key = Console.ReadKey(true);
+			//	PlayerAction action = null;
+			//	switch (key.Key)
+			//	{
+			//	case ConsoleKey.C:
+			//		action = PlayerAction.CheckOrCall();
+			//		break;
+			//	case ConsoleKey.R:
+			//		if (!context.CanRaise)
+			//		{
+			//			continue;
+			//		}
+			//		int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
+			//		action = PlayerAction.Raise(amount);
+			//		break;
+			//	case ConsoleKey.F:
+			//		action = PlayerAction.Fold();
+			//		break;
+			//	case ConsoleKey.A:
+			//		if (!context.CanRaise)
+			//		{
+			//			continue;
+			//		}
 
-					action = context.MoneyLeft > 0
-								 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
-								 : PlayerAction.CheckOrCall();
-					break;
-				}
+			//		action = context.MoneyLeft > 0
+			//					 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
+			//					 : PlayerAction.CheckOrCall();
+			//		break;
+			//	}
 
-				if (action != null)
-				{
-					return action;
-				}
-			}
+			//	if (action != null)
+			//	{
+			//		return action;
+			//	}
+			//}
 		}
 
 		private int _playerRaiseAmount = -1;

@@ -66,11 +66,11 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			_chairView?.SetMoneyView(PlayerMoney.Money);
 		}
 
-		public override PlayerAction GetTurn(IGetTurnContext context)
+		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
 			//_chairView.StartTimer(0f);//TODO: time check
 
-			PlayerAction turn = base.GetTurn(context);
+			PlayerAction turn = await base.GetTurn(context);
 			_chairView?.SetMoneyView(PlayerMoney.Money);
 
 			//_chairView.StopTimer();
@@ -98,7 +98,7 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			base.EndGame(context);
 		}
 
-		public override async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
+		public async override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
 			_chairView?.StartTurn();
 
@@ -108,10 +108,12 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 				//TODO: sendTimer
 				//action += (x) => _chairView.StartTimer();
 			}
-			await base.AwaitTurn(action, context);
+			var task = await base.AwaitTurn(context);
 			_chairView?.SetMoneyView(PlayerMoney.Money);
 
 			_chairView?.EndTurn();
+
+			return task;
 		}
 	}
 }

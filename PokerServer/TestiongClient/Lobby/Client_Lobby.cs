@@ -12,8 +12,8 @@ namespace TestingClient.Lobby
 		SendToLobbyHandler,
 		Client_Lobby>
 	{
-		public override ActorType ClientType => ActorType.LobbyServer;
-		public override ActorType ServerType => ActorType.Client;
+		public override ActorType ClientType => ActorType.Client;
+		public override ActorType ServerType => ActorType.LobbyServer;
 
 		public string Name { get; }
 

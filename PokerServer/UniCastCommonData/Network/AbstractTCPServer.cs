@@ -46,7 +46,7 @@ namespace UniCastCommonData.Network
 			SendHandler.Handlers[1]?.Invoke(
 				new InitialSendingData(
 					session.Id, Id,
-					ClientType, 1
+					ServerType, 1
 				));
 		}
 	}

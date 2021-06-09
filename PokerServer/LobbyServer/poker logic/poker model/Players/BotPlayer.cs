@@ -16,8 +16,10 @@ namespace GameCore.Poker.Model.Player
 			return context.BlindAction;
 		}
 
-		public override PlayerAction GetTurn(IGetTurnContext context)
+		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
+			await Task.Delay(RandomProvider.Next(1000, 3000));
+
 			PlayerAction action;
 			var chanceForAction = RandomProvider.Next(1, 101);
 			if (chanceForAction == 1 && context.MoneyLeft > 0)
@@ -74,11 +76,9 @@ namespace GameCore.Poker.Model.Player
 			return action;
 		}
 
-		public override async Task AwaitTurn(Action<PlayerAction> action, IGetTurnContext context)
+		public override async Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
-			await Task.Delay(new Random().Next(2000, 4000));
-
-			action?.Invoke(GetTurn(context));
+			return await GetTurn(context);
 		}
 	}
 }

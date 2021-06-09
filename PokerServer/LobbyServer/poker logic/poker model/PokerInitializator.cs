@@ -40,17 +40,29 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		}
 	}
 
-	public void AddPlayer(Guid receiverGuid, string name)
+	public void AddPlayer(Guid guid, string name)
 	{
-		_readyToPlay.Add(new ServerPlayer(receiverGuid, name));
+		_readyToPlay.Add(new ServerPlayer(guid, name));
 		//TODOSEND: join event
 	}
 
-	public void RemovePlayer(Guid receiverGuid)
+	public void RemovePlayer(Guid guid)
 	{
-		int index = CurrentPlayers.IndexOf(CurrentPlayers.Find((x) => x.Guid == receiverGuid));
-		CurrentPlayers[index] = null;
-		Decorators[index].SetPlayer(null);
+		var disconnectingPlayer = CurrentPlayers.Find((x) => x.Guid == guid);
+		if (disconnectingPlayer != null)
+		{
+			int index = CurrentPlayers.IndexOf(disconnectingPlayer);
+			CurrentPlayers[index] = null;
+			Decorators[index].SetPlayer(null);
+		}
+		else
+		{
+			disconnectingPlayer = _readyToPlay.Find((x) => x.Guid == guid);
+			if (disconnectingPlayer != null)
+			{
+				_readyToPlay.Remove(disconnectingPlayer);
+			}
+		}
 		//TODOSEND: disconnect event
 	}
 
@@ -78,13 +90,14 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		if (_readyToPlay.Count + CurrentPlayers.Count((x) => x != null) > 2)
 		{
 			await Init();
+			return;
 		}
 
 		foreach (var player in CurrentPlayers)
 		{
 			if (player != null)
 			{
-				IStaticInstance<Lobby_Client_Server>.Instance.FindSession(player.Guid).Disconnect();
+				IStaticInstance<Lobby_Client_Server>.Instance.FindSession(player.Guid)?.Disconnect();
 			}
 		}
 
@@ -182,10 +195,5 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		Decorators.Add(Decorators[0]);
 		Decorators.RemoveAt(0);
 		return Decorators.Where((x) => x != null).ToList();
-	}
-
-	private async Task<TDECORATOR> StartGame<TDECORATOR>(TexasHoldemGame<TDECORATOR> game) where TDECORATOR : PlayerDecorator, new()
-	{
-		return
 	}
 }

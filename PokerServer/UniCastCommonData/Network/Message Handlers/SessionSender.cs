@@ -14,13 +14,13 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 
-		public ISender GetSenderByID(Guid guid)
+		protected ISender GetSenderByID(Guid guid)
 		{
 			Sender = Server.FindSession(guid);
 			return Sender;
 		}
 
-		protected void SendAsync(InitialSendingData data, byte[][] content)
+		public void SendAsync(InitialSendingData data, byte[][] content)
 		{
 			using (UniCastPacket packet = new UniCastPacket(data))
 			{

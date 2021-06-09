@@ -7,6 +7,6 @@ namespace UniCastCommonData.Handlers
 	{
 		Dictionary<T, Action<UniCastPacket>> Handlers { get; }
 
-		void Receive(int action, UniCastPacket packet);
+		void Receive(T action, UniCastPacket packet, Guid guid);
 	}
 }

@@ -969,7 +969,7 @@ namespace UniCastCommonData.Network
 
 			ActorType receivedActor = (ActorType)packet.ReadInt();
 
-			ActorType currentActor = (ActorType)(GetType().GetProperty("ServerType").GetValue(this));
+			ActorType currentActor = (ActorType)GetType().GetProperty("ServerType").GetValue(this);
 
 			if (receivedActor != currentActor && receivedActor != ActorType.Any)
 			{
@@ -978,8 +978,8 @@ namespace UniCastCommonData.Network
 
 			int action = packet.ReadInt();
 
-			object receiveHandler = (GetType().GetProperty("ReceiveHandler").GetValue(this));
-			receiveHandler.GetType().GetMethod("Receive").Invoke(receiveHandler, new object[] { action, packet });
+			IReceivedMessageHandler<int> receiveHandler = (IReceivedMessageHandler<int>)GetType().GetProperty("ReceiveHandler").GetValue(this);
+			receiveHandler.Receive(action, packet, Id);
 
 			return true;
 			//}

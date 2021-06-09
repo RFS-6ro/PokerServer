@@ -117,23 +117,23 @@
 							MainPot,
 							SidePots);
 
-				player.ChairView.SetGameStateHolder(string.Empty);
+				//TODOSEND player.ChairView.SetGameStateHolder(string.Empty);
 
 				PlayerAction action = await player.AwaitTurn(context);
 				//PlayerAction action = player.GetTurn(context);
 
-				player.ChairView.SetGameStateHolder(action.ToString());
+				//TODOSEND player.ChairView.SetGameStateHolder(action.ToString());
 
 				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
-				player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+				//TODOSEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
 
 				RoundBets.Add(new PlayerActionAndName(player.Name, action));
 
-				//BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
+				//TODOSEND BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
 
 				if (action.Type == TurnType.Fold)
 				{
-					player.ChairView.ClearCards();
+					//TODOSEND player.ChairView.ClearCards();
 				}
 
 				if (action.Type == TurnType.Raise)
@@ -153,7 +153,7 @@
 			}
 
 
-			//BetController.MoveBet(null, RoundBets.Sum((x) => x.Action.Money), _tableViewModel);
+			//TODOSEND BetController.MoveBet(null, RoundBets.Sum((x) => x.Action.Money), _tableViewModel);
 
 			if (allPlayers.Count == 2)
 			{
@@ -194,7 +194,7 @@
 							Pot - _smallBlind,
 							player.PlayerMoney.Money))));
 
-			//BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
+			//TODOSEND BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
 		}
 
 		private void ReturnMoneyInCaseOfAllIn()
@@ -203,7 +203,7 @@
 			foreach (var player in allPlayers)
 			{
 				player.PlayerMoney.NormalizeBets(minMoneyPerPlayer);
-				player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+				//TODOSEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
 			}
 		}
 
@@ -214,7 +214,7 @@
 			{
 				var player = group.First().First();
 				player.PlayerMoney.NormalizeBets(group.ElementAt(1).First().PlayerMoney.CurrentRoundBet);
-				player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+				//TODOSEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
 			}
 		}
 	}

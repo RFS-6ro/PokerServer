@@ -43,7 +43,7 @@ namespace LobbyServer.Client.Handlers
 			Guid receiverGuid = new Guid(packet.Read(16));
 			string name = packet.ReadString();
 
-			IStaticInstance<PokerInitializator>.Instance.AddPlayer(receiverGuid, name);
+			IStaticInstance<PokerInitializator>.Instance.AddPlayer(LastSenderGuid, name);
 		}
 
 		private void Test(UniCastPacket packet)

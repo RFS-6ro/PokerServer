@@ -13,13 +13,13 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 		public CLIENT Client => IStaticInstance<CLIENT>.Instance;
 
-		public void Receive(int action, UniCastPacket packet)
+		public void Receive(int action, UniCastPacket packet, Guid guid)
 		{
 			ThreadManager.ExecuteOnMainThread(() =>
 			{
 				Guid senderId = new Guid(packet.Read(16));
 				Guid receiverId = new Guid(packet.Read(16));
-				packet.Reset(16);
+				packet.Reset(32);
 
 				if (action == 1 && receiverId != Guid.Empty)
 				{

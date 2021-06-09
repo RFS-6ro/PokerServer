@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -6,14 +7,14 @@ namespace UniCastCommonData
 {
 	public static class ConvertUtils
 	{
-		public static int ToInt32(this byte[] buffer)
+		public static int ToInt32(this byte[] buffer, int index = 0)
 		{
-			if (buffer.Length != 4)
+			if (buffer.Length - index < 4)
 			{
 				throw new Exception("Types does not match");
 			}
 
-			return BitConverter.ToInt32(buffer, 0);
+			return BitConverter.ToInt32(buffer, index);
 		}
 
 		public static byte[] ToByteArray(this int value)
@@ -21,21 +22,33 @@ namespace UniCastCommonData
 			return BitConverter.GetBytes(value);
 		}
 
-		public static string ToString(this byte[] buffer)
+		public static string ToString(this byte[] buffer, int index = 0)
 		{
-			if (buffer.Length <= 4)
+			if (buffer.Length - index <= 4)
 			{
 				return string.Empty;
 			}
 
-			int length = new byte[] { buffer[0], buffer[1], buffer[2], buffer[3] }.ToInt32();
+			int length = buffer.ToInt32(index);
 
-			return Encoding.ASCII.GetString(buffer, 4, length);
+			return Encoding.ASCII.GetString(buffer, index + 4, length);
 		}
 
 		public static byte[] ToByteArray(this string value)
 		{
-			return Encoding.ASCII.GetBytes(value);
+			var data = value.Length.ToByteArray().ToList();
+			data.AddRange(Encoding.ASCII.GetBytes(value));
+			return data.ToArray();
+		}
+
+		public static Guid ToGuid(this byte[] array, int index)
+		{
+			List<byte> data = new List<byte>();
+			for (int i = index; i < index + 16; i++)
+			{
+				data.Add(array[i]);
+			}
+			return new Guid(data.ToArray());
 		}
 	}
 }
