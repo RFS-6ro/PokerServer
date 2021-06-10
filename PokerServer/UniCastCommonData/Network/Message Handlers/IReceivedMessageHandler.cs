@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace UniCastCommonData.Handlers
 {
-	public interface IReceivedMessageHandler<T>
+	public interface IReceivedMessageHandler
 	{
-		Dictionary<T, Action<UniCastPacket>> Handlers { get; }
+		Dictionary<int, Action<UniCastPacket>> Handlers { get; }
 
-		void Receive(T action, UniCastPacket packet, Guid guid);
+		void Receive(int action, UniCastPacket packet, Guid guid);
 	}
 }

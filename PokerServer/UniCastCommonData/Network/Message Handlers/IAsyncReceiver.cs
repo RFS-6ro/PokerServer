@@ -2,8 +2,8 @@
 
 namespace UniCastCommonData
 {
-	public interface IAsyncReceiver<HANDLER, ENUM>
-		where HANDLER : IReceivedMessageHandler<ENUM>, new()
+	public interface IAsyncReceiver<HANDLER>
+		where HANDLER : IReceivedMessageHandler, new()
 	{
 		ActorType ServerType { get; }
 

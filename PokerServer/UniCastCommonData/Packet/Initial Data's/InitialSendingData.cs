@@ -7,47 +7,44 @@ namespace UniCastCommonData.Packet.InitialDatas
 {
 	public class InitialSendingData : IByteArrayConvertable
 	{
-		protected ActorType _actorType;
-		public ActorType ActorType => _actorType;
+		public ActorType ActorType { get; set; }
 
-		protected int _action;
-		public int Action => _action;
+		public int Action { get; set; }
 
-		protected Guid _senderGuid;
-		public Guid SenderGuid => _senderGuid;
+		public Guid SenderGuid { get; set; }
 
-		protected Guid _receiverGuid;
-		public Guid ReceiverGuid => _receiverGuid;
+		public Guid ReceiverGuid { get; set; }
 
 		public InitialSendingData(byte[] data)
 		{
-			_actorType = (ActorType)data.ToInt32();
-			_action = data.ToInt32(4);
-			_senderGuid = data.ToGuid(8);
-			_receiverGuid = data.ToGuid(24);
+			ActorType = (ActorType)data.ToInt32();
+			Action = data.ToInt32(4);
+			SenderGuid = data.ToGuid(8);
+			ReceiverGuid = data.ToGuid(24);
 		}
 
 		public InitialSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action)
 		{
-			_actorType = actorType;
-			_action = action;
-			_senderGuid = senderGuid;
-			_receiverGuid = receiverGuid;
+			ActorType = actorType;
+			Action = action;
+			SenderGuid = senderGuid;
+			ReceiverGuid = receiverGuid;
 		}
 
 		public virtual byte[] GetRawBytes()
 		{
 			byte[] data = new byte[40];
 
-			((int)_actorType).ToByteArray().CopyTo(data, 0);
-			_action.ToByteArray().CopyTo(data, 4);
-			_senderGuid.ToByteArray().CopyTo(data, 8);
-			_receiverGuid.ToByteArray().CopyTo(data, 24);
+			((int)ActorType).ToByteArray().CopyTo(data, 0);
+			Action.ToByteArray().CopyTo(data, 4);
+			SenderGuid.ToByteArray().CopyTo(data, 8);
+			ReceiverGuid.ToByteArray().CopyTo(data, 24);
 
 			return data;
 		}
 	}
 
+	#region from lobby
 	public class PlayerData : IByteArrayConvertable
 	{
 		public int Money { get; set; }
@@ -216,7 +213,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 		}
 	}
 
-	public class StartRoundSendingData : InitialSendingData
+	public class StartHandSendingData : InitialSendingData
 	{
 		private int _handNumber;
 		public int HandNumber => _handNumber;
@@ -230,7 +227,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 		private string _firstPlayerName;
 		public string FirstPlayerName => _firstPlayerName;
 
-		public StartRoundSendingData(byte[] data) : base(data)
+		public StartHandSendingData(byte[] data) : base(data)
 		{
 			_handNumber = data.ToInt32(40);
 			_money = data.ToInt32(44);
@@ -238,7 +235,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 			_firstPlayerName = data.ToString(52);
 		}
 
-		public StartRoundSendingData(int handNumber, int money, int smallBlind, string firstPlayerName, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public StartHandSendingData(int handNumber, int money, int smallBlind, string firstPlayerName, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			_handNumber = handNumber;
 			_money = money;
@@ -259,20 +256,132 @@ namespace UniCastCommonData.Packet.InitialDatas
 		}
 	}
 
-	public class StartTurnSendingData : InitialSendingData
+	public class StartRoundSendingData : InitialSendingData
 	{
-		public StartTurnSendingData(byte[] data) : base(data)
+		private int _pot;
+		public int Pot => _pot;
+
+		private int _money;
+		public int Money => _money;
+
+		public StartRoundSendingData(byte[] data) : base(data)
 		{
+			_pot = data.ToInt32(40);
+			_money = data.ToInt32(44);
 		}
 
-		public StartTurnSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public StartRoundSendingData(int pot, int money, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
+			_pot = pot;
+			_money = money;
 		}
 
 		public override byte[] GetRawBytes()
 		{
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
+			data.AddRange(_pot.ToByteArray());
+			data.AddRange(_money.ToByteArray());
+
+			return data.ToArray();
+		}
+	}
+
+	public class StartTurnSendingData : InitialSendingData
+	{
+		private int _time;
+		public int Time => _time;
+
+		private int _gameRoundType;
+		public int GameRoundType => _gameRoundType;
+
+		private int _smallBlind;
+		public int SmallBlind => _smallBlind;
+
+		private int _money;
+		public int Money => _money;
+
+		private int _pot;
+		public int Pot => _pot;
+
+		private int _currentRoundBet;
+		public int CurrentRoundBet => _currentRoundBet;
+
+		private int _maxMoneyPerPlayer;
+		public int MaxMoneyPerPlayer => _maxMoneyPerPlayer;
+
+		private int _minRaise;
+		public int MinRaise => _minRaise;
+
+		private int _myMoneyInTheRound;
+		public int MyMoneyInTheRound => _myMoneyInTheRound;
+
+		private int _moneyToCall;
+		public int MoneyToCall => _moneyToCall;
+
+		private bool _isAllIn;
+		public bool IsAllIn => _isAllIn;
+
+		private bool _canRaise;
+		public bool CanRaise => _canRaise;
+
+		private bool _canCheck;
+		public bool CanCheck => _canCheck;
+
+		public StartTurnSendingData(byte[] data) : base(data)
+		{
+			_time = data.ToInt32(40);
+			_gameRoundType = data.ToInt32(44);
+			_smallBlind = data.ToInt32(48);
+			_money = data.ToInt32(52);
+			_pot = data.ToInt32(56);
+			_currentRoundBet = data.ToInt32(60);
+			_maxMoneyPerPlayer = data.ToInt32(64);
+			_minRaise = data.ToInt32(68);
+			_myMoneyInTheRound = data.ToInt32(72);
+			_moneyToCall = data.ToInt32(76);
+			_isAllIn = data.ToBoolean(80);
+			_canRaise = data.ToBoolean(81);
+			_canCheck = data.ToBoolean(82);
+		}
+
+		public StartTurnSendingData(int time, int gameRoundType, int smallBlind, int money, int pot, int currentRoundBet, int maxMoneyPerPlayer, int minRaise, int myMoneyInTheRound, int moneyToCall, bool isAllIn, bool canRaise, bool canCheck, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		{
+			_time = time;
+			_gameRoundType = gameRoundType;
+			_smallBlind = smallBlind;
+			_money = money;
+			_pot = pot;
+			_currentRoundBet = currentRoundBet;
+			_maxMoneyPerPlayer = maxMoneyPerPlayer;
+			_minRaise = minRaise;
+			_myMoneyInTheRound = myMoneyInTheRound;
+			_moneyToCall = moneyToCall;
+			_isAllIn = isAllIn;
+			_canRaise = canRaise;
+			_canCheck = canCheck;
+		}
+
+		public override byte[] GetRawBytes()
+		{
+			List<byte> data = new List<byte>();
+			data.AddRange(base.GetRawBytes());
+
+			data.AddRange(_time.ToByteArray());
+			data.AddRange(_gameRoundType.ToByteArray());
+			data.AddRange(_smallBlind.ToByteArray());
+			data.AddRange(_money.ToByteArray());
+			data.AddRange(_pot.ToByteArray());
+			data.AddRange(_currentRoundBet.ToByteArray());
+			data.AddRange(_maxMoneyPerPlayer.ToByteArray());
+			data.AddRange(_minRaise.ToByteArray());
+			data.AddRange(_myMoneyInTheRound.ToByteArray());
+			data.AddRange(_moneyToCall.ToByteArray());
+			data.AddRange(_isAllIn.ToByteArray());
+			data.AddRange(_canRaise.ToByteArray());
+			data.AddRange(_canCheck.ToByteArray());
+
+
 			return data.ToArray();
 		}
 	}
@@ -472,25 +581,42 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class PlayerTurnSendingData : InitialSendingData
 	{
+		protected Guid _player;
+		public Guid Player => _player;
+
+		private int _lastPlayerActionAmount;
+		public int LastPlayerActionAmount => _lastPlayerActionAmount;
+
+		private string _lastPlayerAction;
+		public string LastPlayerAction => _lastPlayerAction;
+
 		public PlayerTurnSendingData(byte[] data) : base(data)
 		{
+			_player = data.ToGuid(40);
+			_lastPlayerActionAmount = data.ToInt32(56);
+			_lastPlayerAction = data.ToString(60);
 		}
 
-		public PlayerTurnSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public PlayerTurnSendingData(Guid playerGuid, int lastPlayerActionAmount, string lastPlayerAction, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
+			_player = playerGuid;
+			_lastPlayerAction = lastPlayerAction;
+			_lastPlayerActionAmount = lastPlayerActionAmount;
 		}
 
 		public override byte[] GetRawBytes()
 		{
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
+			data.AddRange(_lastPlayerActionAmount.ToByteArray());
+			data.AddRange(_lastPlayerAction.ToByteArray());
 			return data.ToArray();
 		}
 	}
 
 	public class OpponentCardsSendingData : InitialSendingData
 	{
-		Dictionary<Guid, (int type, int suit)> Cards = new();
+		Dictionary<Guid, (int type1, int suit1, int type2, int suit2)> Cards = new();
 
 		public OpponentCardsSendingData(byte[] data) : base(data)
 		{
@@ -498,14 +624,16 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 			for (int i = 0; i < length; i++)
 			{
-				Guid key = data.ToGuid(44 + 24 * i);
-				int type = data.ToInt32(60 + 24 * i);
-				int suit = data.ToInt32(64 + 24 * i);
-				Cards.Add(key, (type, suit));
+				Guid key = data.ToGuid(44 + 32 * i);
+				int type1 = data.ToInt32(60 + 32 * i);
+				int suit1 = data.ToInt32(64 + 32 * i);
+				int type2 = data.ToInt32(68 + 32 * i);
+				int suit2 = data.ToInt32(72 + 32 * i);
+				Cards.Add(key, (type1, suit1, type2, suit2));
 			}
 		}
 
-		public OpponentCardsSendingData(Dictionary<Guid, (int, int)> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public OpponentCardsSendingData(Dictionary<Guid, (int, int, int, int)> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			Cards = cards;
 		}
@@ -520,8 +648,10 @@ namespace UniCastCommonData.Packet.InitialDatas
 			foreach (var player in Cards)
 			{
 				data.AddRange(player.Key.ToByteArray());
-				data.AddRange(player.Value.type.ToByteArray());
-				data.AddRange(player.Value.suit.ToByteArray());
+				data.AddRange(player.Value.type1.ToByteArray());
+				data.AddRange(player.Value.suit1.ToByteArray());
+				data.AddRange(player.Value.type2.ToByteArray());
+				data.AddRange(player.Value.suit2.ToByteArray());
 			}
 
 			return data.ToArray();
@@ -553,6 +683,24 @@ namespace UniCastCommonData.Packet.InitialDatas
 		}
 
 		public EndRoundSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		{
+		}
+
+		public override byte[] GetRawBytes()
+		{
+			List<byte> data = new List<byte>();
+			data.AddRange(base.GetRawBytes());
+			return data.ToArray();
+		}
+	}
+
+	public class EndHandSendingData : InitialSendingData
+	{
+		public EndHandSendingData(byte[] data) : base(data)
+		{
+		}
+
+		public EndHandSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 		}
 
@@ -635,4 +783,6 @@ namespace UniCastCommonData.Packet.InitialDatas
 			return data.ToArray();
 		}
 	}
+	#endregion
+
 }

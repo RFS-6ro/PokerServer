@@ -5,7 +5,7 @@ using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData.Network.MessageHandlers
 {
-	public abstract class SessionSender<SERVER> : ISendMessageHandler<int>
+	public abstract class SessionSender<SERVER> : ISendMessageHandler
 		where SERVER : TcpServer, IStaticInstance<SERVER>
 	{
 		public SERVER Server => IStaticInstance<SERVER>.Instance;
@@ -34,6 +34,29 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 				packet.WriteLength();
 				GetSenderByID(data.ReceiverGuid).SendAsync(packet);
+			}
+		}
+
+		public void Multicast(IEnumerable<Guid> clients, InitialSendingData data, byte[][] content)
+		{
+			data.ReceiverGuid = Guid.Empty;
+
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+				if (content != null)
+				{
+					foreach (var item in content)
+					{
+						packet.Write(item);
+					}
+				}
+
+				packet.WriteLength();
+
+				foreach (var clientGuid in clients)
+				{
+					GetSenderByID(clientGuid).SendAsync(packet);
+				}
 			}
 		}
 	}

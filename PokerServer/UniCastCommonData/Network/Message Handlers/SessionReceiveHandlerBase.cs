@@ -4,7 +4,7 @@ using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData.Network.MessageHandlers
 {
-	public class SessionReceiveHandlerBase<SERVER> : IReceivedMessageHandler<int>
+	public class SessionReceiveHandlerBase<SERVER> : IReceivedMessageHandler
 		where SERVER : TcpServer, IStaticInstance<SERVER>
 	{
 		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();

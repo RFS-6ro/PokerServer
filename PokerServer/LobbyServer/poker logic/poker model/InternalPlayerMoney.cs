@@ -28,6 +28,8 @@
 		// Player action is expected (some other player raised)
 		public bool ShouldPlayInRound { get; set; }
 
+		public PlayerAction LastPlayerAction { get; set; }
+
 		public void NewHand()
 		{
 			CurrentlyInPot = 0;
@@ -49,9 +51,12 @@
 			}
 		}
 
+
+
 		// TODO: Currently there is no limit in the raise amount as long as it is positive number
 		public PlayerAction DoPlayerAction(PlayerAction action, int maxMoneyPerPlayer)
 		{
+			PlayerAction resultAction = action;
 			if (action.Type == TurnType.Post)
 			{
 				if (Money >= action.Money)
@@ -69,7 +74,7 @@
 
 				if (Money <= 0)
 				{
-					return PlayerAction.CheckOrCall();
+					resultAction = PlayerAction.CheckOrCall();
 				}
 
 				if (Money > action.Money)
@@ -93,7 +98,9 @@
 				ShouldPlayInRound = false;
 			}
 
-			return action;
+			LastPlayerAction = resultAction;
+
+			return resultAction;
 		}
 
 		public void NormalizeBets(int moneyPerPlayer)

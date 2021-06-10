@@ -978,7 +978,7 @@ namespace UniCastCommonData.Network
 
 			int action = packet.ReadInt();
 
-			IReceivedMessageHandler<int> receiveHandler = (IReceivedMessageHandler<int>)GetType().GetProperty("ReceiveHandler").GetValue(this);
+			IReceivedMessageHandler receiveHandler = (IReceivedMessageHandler)GetType().GetProperty("ReceiveHandler").GetValue(this);
 			receiveHandler.Receive(action, packet, Id);
 
 			return true;

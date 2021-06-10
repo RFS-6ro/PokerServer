@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LobbyServer.Client;
+using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.pokermodel.UI;
 using TexasHoldem.Logic.Players;
+using UniCastCommonData;
+using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace LobbyServer.pokerlogic.pokermodel.Players
 {
@@ -14,6 +19,9 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 		public override string Name { get; }
 
 		public override int BuyIn { get; }
+
+		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
 
 		public ServerPlayer(Guid guid, string name, int buyIn = -1)
 		{
@@ -43,7 +51,9 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 				DrawPlayerOptions(context.MoneyToCall);
 			}
 
-			while (true)
+			int passedTime = 0;
+
+			while (passedTime < context.TimeForTurn)
 			{
 				var key = Console.ReadKey(true);
 				PlayerAction action = null;
@@ -75,11 +85,28 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 					break;
 				}
 
-				if (action != null)
+				if (action == null)
 				{
 					return action;
 				}
+
+				await Task.Delay(1);
+				passedTime++;
+
+				if (passedTime % 100 == 0)
+				{
+					Sender.SendAsync(new UpdateTimerSendingData(
+										 Guid,
+										 context.TimeForTurn - passedTime,
+										 Guid,
+										 Server.Id,
+										 Server.ServerType,
+										 (int)lobbyTOclient.UpdateTimer),
+									 null);
+				}
 			}
+
+			return PlayerAction.Fold();
 		}
 
 		private int _playerRaiseAmount = -1;

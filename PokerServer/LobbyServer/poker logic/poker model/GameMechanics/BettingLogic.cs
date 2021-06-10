@@ -1,37 +1,43 @@
 ﻿namespace TexasHoldem.Logic.GameMechanics
 {
+	using LobbyServer.Client;
+	using LobbyServer.Client.Handlers;
 	using LobbyServer.pokerlogic.controllers;
-	using LobbyServer.pokerlogic.pokermodel.Players;
+	using LobbyServer.pokerlogic.pokermodel.UI;
 	using PokerSynchronisation;
-	using System.Collections;
+	using System;
 	using System.Collections.Generic;
 	using System.Linq;
-	using System.Threading;
 	using System.Threading.Tasks;
 	using TexasHoldem.Logic.Players;
+	using UniCastCommonData;
+	using UniCastCommonData.Network.MessageHandlers;
+	using UniCastCommonData.Packet.InitialDatas;
 
-	public class BettingLogic<TDECORATOR>
-		where TDECORATOR : PlayerDecorator, new()
+	public class BettingLogic
 	{
 		private readonly int initialPlayerIndex = 1;
 
-		private readonly IList<TDECORATOR> allPlayers;
+		private readonly IList<ConsoleUiDecorator> allPlayers;
 
 		private readonly int _smallBlind;
 
 		private readonly TableViewModel _tableViewModel;
 
-		private PotCreator<TDECORATOR> potCreator;
+		private PotCreator<ConsoleUiDecorator> potCreator;
 
 		private MinRaise minRaise;
 
-		public BettingLogic(IList<TDECORATOR> players, int smallBlind, TableViewModel tableViewModel)
+		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
+
+		public BettingLogic(IList<ConsoleUiDecorator> players, int smallBlind, TableViewModel tableViewModel)
 		{
 			//initialPlayerIndex = players.Count == 2 ? 0 : 1;
 			allPlayers = players;
 			_smallBlind = smallBlind;
 			RoundBets = new List<PlayerActionAndName>();
-			potCreator = new PotCreator<TDECORATOR>(allPlayers);
+			potCreator = new PotCreator<ConsoleUiDecorator>(allPlayers);
 			minRaise = new MinRaise(_smallBlind);
 			_tableViewModel = tableViewModel;
 		}
@@ -113,19 +119,83 @@
 							player.PlayerMoney.CurrentRoundBet,
 							maxMoneyPerPlayer,
 							minRaise.Amount(player.Name),
-							5f,
+							5000,
 							MainPot,
 							SidePots);
 
-				//TODOSEND player.ChairView.SetGameStateHolder(string.Empty);
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new PlayerTurnSendingData(
+									 player.PlayerGuid,
+									 -1,
+									 string.Empty,
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.PlayerTurn),
+								 null);
+				//SEND player.ChairView.SetGameStateHolder(string.Empty);
+
+
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new StartTurnSendingData(
+									 (int)(context.TimeForTurn * 1000),
+									 (int)context.RoundType,
+									 _smallBlind,
+									 player.PlayerMoney.Money,
+									 Pot,
+									 player.PlayerMoney.CurrentRoundBet,
+									 maxMoneyPerPlayer,
+									 context.MinRaise,
+									 context.MyMoneyInTheRound,
+									 context.MoneyToCall,
+									 context.IsAllIn,
+									 context.CanRaise,
+									 context.CanCheck,
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.StartTurn),
+								 null);
 
 				PlayerAction action = await player.AwaitTurn(context);
 				//PlayerAction action = player.GetTurn(context);
 
-				//TODOSEND player.ChairView.SetGameStateHolder(action.ToString());
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new EndTurnSendingData(
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.EndTurn),
+								 null);
+
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new PlayerTurnSendingData(
+									 player.PlayerGuid,
+									 action.Money,
+									 action.ToString(),
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.PlayerTurn),
+								 null);
+				//SEND player.ChairView.SetGameStateHolder(action.ToString());
+
 
 				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
-				//TODOSEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+
+				Dictionary<Guid, int> moneys = new();
+				moneys.Add(player.PlayerGuid, player.PlayerMoney.Money);
+
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new UpdatePlayersMoneySendingData(
+									 moneys,
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.UpdatePlayersMoney),
+								 null);
+				//SEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+
 
 				RoundBets.Add(new PlayerActionAndName(player.Name, action));
 
@@ -133,7 +203,15 @@
 
 				if (action.Type == TurnType.Fold)
 				{
-					//TODOSEND player.ChairView.ClearCards();
+					Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+									 new ClearCardsSendingData(
+										 player.PlayerGuid,
+										 Guid.Empty,
+										 Server.Id,
+										 Server.ServerType,
+										 (int)lobbyTOclient.ClearCards),
+									 null);
+					//SEND player.ChairView.ClearCards();
 				}
 
 				if (action.Type == TurnType.Raise)
@@ -153,7 +231,15 @@
 			}
 
 
-			//TODOSEND BetController.MoveBet(null, RoundBets.Sum((x) => x.Action.Money), _tableViewModel);
+			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+							 new UpdatePotSendingData(
+								 Pot,
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.UpdatepPot),
+							 null);
+			//SEND BetController.MoveBet(null, RoundBets.Sum((x) => x.Action.Money), _tableViewModel);
 
 			if (allPlayers.Count == 2)
 			{
@@ -183,39 +269,72 @@
 			PlaceBlindForPlayer(secondPlayer);
 		}
 
-		public void PlaceBlindForPlayer(TDECORATOR player)
+		public void PlaceBlindForPlayer(ConsoleUiDecorator player)
 		{
+			PlayerAction post = PlayerAction.Post(Pot == 0 ? _smallBlind : _smallBlind * 2);
 			RoundBets.Add(
 				new PlayerActionAndName(
 					player.Name,
 					player.PostingBlind(
 						new PostingBlindContext(
-							player.PlayerMoney.DoPlayerAction(PlayerAction.Post(Pot == 0 ? _smallBlind : _smallBlind * 2), 0),
+							player.PlayerMoney.DoPlayerAction(post, 0),
 							Pot - _smallBlind,
 							player.PlayerMoney.Money))));
 
-			//TODOSEND BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
+			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+							 new PlayerTurnSendingData(
+								 player.PlayerGuid,
+								 post.Money,
+								 post.ToString(),
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.PlayerTurn),
+							 null);
+			//SEND BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
 		}
 
 		private void ReturnMoneyInCaseOfAllIn()
 		{
+			Dictionary<Guid, int> moneys = new();
 			var minMoneyPerPlayer = allPlayers.Min(x => x.PlayerMoney.CurrentRoundBet);
 			foreach (var player in allPlayers)
 			{
 				player.PlayerMoney.NormalizeBets(minMoneyPerPlayer);
-				//TODOSEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+				moneys.Add(player.PlayerGuid, player.PlayerMoney.Money);
+				//SEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
 			}
+
+			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+							 new UpdatePlayersMoneySendingData(
+								 moneys,
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.UpdatePlayersMoney),
+							 null);
 		}
 
 		private void ReturnMoneyInCaseUncalledBet()
 		{
+			Dictionary<Guid, int> moneys = new();
 			var group = allPlayers.GroupBy(x => x.PlayerMoney.CurrentRoundBet).OrderByDescending(k => k.Key);
 			if (group.First().Count() == 1)
 			{
 				var player = group.First().First();
 				player.PlayerMoney.NormalizeBets(group.ElementAt(1).First().PlayerMoney.CurrentRoundBet);
-				//TODOSEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
+				moneys.Add(player.PlayerGuid, player.PlayerMoney.Money);
+				//SEND player.ChairView?.SetMoneyView(player.PlayerMoney.Money);
 			}
+
+			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+							 new UpdatePlayersMoneySendingData(
+								 moneys,
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.UpdatePlayersMoney),
+							 null);
 		}
 	}
 }

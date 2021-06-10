@@ -4,7 +4,7 @@ using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData.Network.MessageHandlers
 {
-	public abstract class ClientReceiveHandlerBase<CLIENT> : IReceivedMessageHandler<int>
+	public abstract class ClientReceiveHandlerBase<CLIENT> : IReceivedMessageHandler
 		where CLIENT : TcpClient, IStaticInstance<CLIENT>
 	{
 		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
@@ -26,7 +26,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 					ReceiverId = receiverId;
 				}
 
-				if (ReceiverId == receiverId)
+				if (receiverId == Guid.Empty || ReceiverId == receiverId)
 				{
 					Handlers[action]?.Invoke(packet);
 					packet.Dispose();

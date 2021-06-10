@@ -34,6 +34,6 @@
 
 		IReadOnlyCollection<Pot> SidePots { get; }
 
-		float TimeForTurn { get; }
+		int TimeForTurn { get; }
 	}
 }

@@ -15,6 +15,7 @@ namespace LobbyServer.Client.Handlers
 		NewPlayerConnect,
 
 		StartGame,
+		StartHand,
 		StartRound,
 		StartTurn,
 
@@ -23,7 +24,7 @@ namespace LobbyServer.Client.Handlers
 
 		DealerButton,
 
-		Updatepot,
+		UpdatepPot,
 		UpdatePlayersMoney,
 		UpdateTimer,
 
@@ -32,11 +33,11 @@ namespace LobbyServer.Client.Handlers
 
 		EndTurn,
 		EndRound,
+		EndHand,
 		EndGame,
 
+		ClearCards,
 		PlayerDisconnect,
-
-		Disconnect,
 
 		Count,
 
@@ -49,6 +50,12 @@ namespace LobbyServer.Client.Handlers
 		public SendToClientHandler()
 		{
 			Handlers.Add((int)lobbyTOclient.Test, Test);
+			Handlers.Add((int)lobbyTOclient.Connect, Connect);
+		}
+
+		private void Connect(InitialSendingData data)
+		{
+			SendAsync(data, null);
 		}
 
 		private void Test(InitialSendingData data)

@@ -1,6 +1,6 @@
 ﻿using GameCore.Poker.Model;
-using GameCore.Poker.Model.Player;
 using LobbyServer.Client;
+using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.controllers;
 using LobbyServer.pokerlogic.pokermodel.Players;
 using LobbyServer.pokerlogic.pokermodel.UI;
@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TexasHoldem.Logic.Extensions;
-using TexasHoldem.Logic.Players;
 using UniCastCommonData;
+using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 public class PokerInitializator : IStaticInstance<PokerInitializator>
 {
@@ -27,6 +28,11 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 	private List<ServerPlayer> _readyToPlay = new(MaxPlayers);
 
+	private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+	private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
+
+	private TexasHoldemGame _currentGame;
+
 	public PokerInitializator()
 	{
 		IStaticInstance<PokerInitializator>.Instance = this;
@@ -42,8 +48,31 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 	public void AddPlayer(Guid guid, string name)
 	{
+		Sender.Multicast(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
+						 new NewPlayerConnectSendingData(
+							 300,//TODO: RECEIVE MONEY FROM DATABASE
+							 name,
+							 guid,
+							 Guid.Empty,
+							 Server.Id,
+							 Server.ServerType,
+							 (int)lobbyTOclient.NewPlayerConnect),
+						 null);
+		//SEND: join event
+
 		_readyToPlay.Add(new ServerPlayer(guid, name));
-		//TODOSEND: join event
+
+		if (_currentGame != null)
+		{
+			Sender.SendAsync(new CurrentGameStateSendingData(
+							 _currentGame.CollectData(),
+							 guid,
+							 Server.Id,
+							 Server.ServerType,
+							 (int)lobbyTOclient.CurrentGameState),
+							 null);
+		}
+
 	}
 
 	public void RemovePlayer(Guid guid)
@@ -63,7 +92,16 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 				_readyToPlay.Remove(disconnectingPlayer);
 			}
 		}
-		//TODOSEND: disconnect event
+
+		Sender.Multicast(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
+						 new PlayerDisconnectSendingData(
+							 guid,
+							 Guid.Empty,
+							 Server.Id,
+							 Server.ServerType,
+							 (int)lobbyTOclient.PlayerDisconnect),
+						 null);
+		//SEND: disconnect event
 	}
 
 	public async Task Init()
@@ -85,7 +123,8 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 		var players = PreparePlayers();
 
-		var winner = await new TexasHoldemGame<ConsoleUiDecorator>(players, TableViewModel).Start();//wait for end of game
+		_currentGame = new TexasHoldemGame(players, TableViewModel);
+		var winner = await _currentGame.Start();//wait for end of game
 
 		if (_readyToPlay.Count + CurrentPlayers.Count((x) => x != null) > 2)
 		{

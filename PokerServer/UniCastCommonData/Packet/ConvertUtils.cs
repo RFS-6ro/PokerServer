@@ -22,6 +22,21 @@ namespace UniCastCommonData
 			return BitConverter.GetBytes(value);
 		}
 
+		public static bool ToBoolean(this byte[] buffer, int index = 0)
+		{
+			if (buffer.Length - index < 4)
+			{
+				throw new Exception("Types does not match");
+			}
+
+			return BitConverter.ToBoolean(buffer, index);
+		}
+
+		public static byte[] ToByteArray(this bool value)
+		{
+			return BitConverter.GetBytes(value);
+		}
+
 		public static string ToString(this byte[] buffer, int index = 0)
 		{
 			if (buffer.Length - index <= 4)

@@ -49,7 +49,7 @@
 
 		public IReadOnlyCollection<Pot> SidePots { get; }
 
-		public float TimeForTurn { get; }
+		public int TimeForTurn { get; }
 
 		public GetTurnContext(
 			GameRoundType roundType,
@@ -60,7 +60,7 @@
 			int myMoneyInTheRound,
 			int currentMaxBet,
 			int minRaise,
-			float timeForTurn,
+			int timeForTurn,
 			Pot mainPot,
 			List<Pot> sidePots)
 		{

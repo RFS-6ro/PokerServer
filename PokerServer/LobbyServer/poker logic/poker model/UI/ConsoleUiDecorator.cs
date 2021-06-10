@@ -2,15 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LobbyServer.Client;
+using LobbyServer.pokerlogic.pokermodel.Players;
 using PokerSynchronisation;
 using TexasHoldem.Logic.Cards;
 using TexasHoldem.Logic.Extensions;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
+using UniCastCommonData;
+using UniCastCommonData.Network.MessageHandlers;
+
 namespace LobbyServer.pokerlogic.pokermodel.UI
 {
 	public class ConsoleUiDecorator : PlayerDecorator
 	{
+		public Guid PlayerGuid { get; protected set; }
+
 		private const ConsoleColor PlayerBoxColor = ConsoleColor.DarkGreen;
 
 		private int row;
@@ -24,6 +31,19 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 		private Card secondCard;
 
 		private IReadOnlyCollection<Card> CommunityCards { get; set; }
+
+		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
+
+		public override void SetPlayer(IPlayer player)
+		{
+			base.SetPlayer(player);
+
+			if (player.GetType() == typeof(ServerPlayer))
+			{
+				PlayerGuid = ((ServerPlayer)player).Guid;
+			}
+		}
 
 		public override void StartHand(IStartHandContext context)
 		{
@@ -120,6 +140,13 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 				: context.MoneyLeft - action.Money - context.MoneyToCall;
 
 			ConsoleHelper.WriteOnConsole(row + 1, 2, moneyAfterAction + "   ");
+
+			return action;
+		}
+
+		public async override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
+		{
+			PlayerAction action = await GetTurn(context);
 
 			return action;
 		}

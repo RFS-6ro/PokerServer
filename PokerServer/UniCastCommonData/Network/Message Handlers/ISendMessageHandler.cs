@@ -5,10 +5,12 @@ using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData.Handlers
 {
-	public interface ISendMessageHandler<T>
+	public interface ISendMessageHandler
 	{
 		ISender Sender { get; }
 
-		Dictionary<T, Action<InitialSendingData>> Handlers { get; }
+		Dictionary<int, Action<InitialSendingData>> Handlers { get; }
+
+		void SendAsync(InitialSendingData data, byte[][] content);
 	}
 }

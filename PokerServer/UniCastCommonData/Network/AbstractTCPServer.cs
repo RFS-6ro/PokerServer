@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using UniCastCommonData.Handlers;
+using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData.Network
@@ -8,22 +9,22 @@ namespace UniCastCommonData.Network
 	public abstract class AbstractTCPServer<RECEIVE_HANDLER, SEND_HANDLER, INSTANCE_TYPE>
 		: TcpServer,
 		  IStaticInstance<INSTANCE_TYPE>,
-		  IAsyncReceiver<RECEIVE_HANDLER, int>,
-		  IAsyncSender<SEND_HANDLER, int>
-		where RECEIVE_HANDLER : IReceivedMessageHandler<int>, new()
-		where SEND_HANDLER : ISendMessageHandler<int>, new()
+		  IAsyncReceiver<RECEIVE_HANDLER>,
+		  IAsyncSender<SEND_HANDLER>
+		where RECEIVE_HANDLER : SessionReceiveHandlerBase<INSTANCE_TYPE>, new()
+		where SEND_HANDLER : SessionSender<INSTANCE_TYPE>, new()
 		where INSTANCE_TYPE : AbstractTCPServer<RECEIVE_HANDLER, SEND_HANDLER, INSTANCE_TYPE>
 	{
 		public abstract ActorType ServerType { get; }
 		public abstract ActorType ClientType { get; }
 
-		RECEIVE_HANDLER IAsyncReceiver<RECEIVE_HANDLER, int>.ReceiveHandler { get; } = new RECEIVE_HANDLER();
-		SEND_HANDLER IAsyncSender<SEND_HANDLER, int>.SendHandler { get; } = new SEND_HANDLER();
+		RECEIVE_HANDLER IAsyncReceiver<RECEIVE_HANDLER>.ReceiveHandler { get; } = new RECEIVE_HANDLER();
+		SEND_HANDLER IAsyncSender<SEND_HANDLER>.SendHandler { get; } = new SEND_HANDLER();
 
-		private IReceivedMessageHandler<int> _receiveHandler;
-		public IReceivedMessageHandler<int> ReceiveHandler => _receiveHandler;
-		private ISendMessageHandler<int> _sendHandler;
-		public ISendMessageHandler<int> SendHandler => _sendHandler;
+		private SessionReceiveHandlerBase<INSTANCE_TYPE> _receiveHandler;
+		public SessionReceiveHandlerBase<INSTANCE_TYPE> ReceiveHandler => _receiveHandler;
+		private SessionSender<INSTANCE_TYPE> _sendHandler;
+		public SessionSender<INSTANCE_TYPE> SendHandler => _sendHandler;
 
 		public AbstractTCPServer(IPAddress address, int port) : base(address, port) { InitReferences(); }
 		public AbstractTCPServer(string address, int port) : base(address, port) { InitReferences(); }
@@ -32,8 +33,8 @@ namespace UniCastCommonData.Network
 		protected virtual void InitReferences()
 		{
 			IStaticInstance<INSTANCE_TYPE>.Instance = (INSTANCE_TYPE)this;
-			_sendHandler = ((IAsyncSender<SEND_HANDLER, int>)this).SendHandler;
-			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER, int>)this).ReceiveHandler;
+			_sendHandler = ((IAsyncSender<SEND_HANDLER>)this).SendHandler;
+			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER>)this).ReceiveHandler;
 		}
 
 		//Sessions.First(

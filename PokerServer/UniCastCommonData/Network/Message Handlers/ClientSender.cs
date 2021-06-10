@@ -5,7 +5,7 @@ using UniCastCommonData.Packet.InitialDatas;
 
 namespace UniCastCommonData.Network.MessageHandlers
 {
-	public class ClientSender<CLIENT> : ISendMessageHandler<int>
+	public class ClientSender<CLIENT> : ISendMessageHandler
 		where CLIENT : TcpClient, ISender, IStaticInstance<CLIENT>
 	{
 		public ISender Sender => IStaticInstance<CLIENT>.Instance;

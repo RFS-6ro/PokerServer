@@ -1,5 +1,8 @@
-﻿using LobbyServer.pokerlogic.controllers;
+﻿using LobbyServer.Client;
+using LobbyServer.Client.Handlers;
+using LobbyServer.pokerlogic.controllers;
 using LobbyServer.pokerlogic.pokermodel.Players;
+using LobbyServer.pokerlogic.pokermodel.UI;
 using PokerSynchronisation;
 using System;
 using System.Collections;
@@ -8,10 +11,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
+using UniCastCommonData;
+using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace GameCore.Poker.Model
 {
-	public class TexasHoldemGame<TDECORATOR> where TDECORATOR : PlayerDecorator, new()
+	public class TexasHoldemGame
 	{
 		protected static readonly int[] SmallBlinds =
 		{
@@ -20,7 +26,7 @@ namespace GameCore.Poker.Model
 			10000, 15000, 20000, 30000, 40000, 50000, 60000, 80000, 100000,
 		};
 
-		private readonly ICollection<TDECORATOR> allPlayers;
+		private readonly ICollection<ConsoleUiDecorator> allPlayers;
 
 		private readonly TableViewModel _tableViewModel;
 
@@ -28,7 +34,10 @@ namespace GameCore.Poker.Model
 
 		public int HandsPlayed { get; private set; }
 
-		public TexasHoldemGame(IList<TDECORATOR> players, TableViewModel tableViewModel, int initialMoney = 200)
+		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
+
+		public TexasHoldemGame(IList<ConsoleUiDecorator> players, TableViewModel tableViewModel, int initialMoney = 200)
 			: this(players, initialMoney)
 		{
 			// Ensure the players have unique names
@@ -49,7 +58,7 @@ namespace GameCore.Poker.Model
 			_tableViewModel = tableViewModel;
 		}
 
-		private TexasHoldemGame(ICollection<TDECORATOR> players, int initialMoney = 1000)
+		private TexasHoldemGame(ICollection<ConsoleUiDecorator> players, int initialMoney = 1000)
 		{
 			if (players == null)
 			{
@@ -66,10 +75,10 @@ namespace GameCore.Poker.Model
 				throw new ArgumentOutOfRangeException(nameof(initialMoney), "Initial money should be greater than 0 and less than 200000");
 			}
 
-			allPlayers = new List<TDECORATOR>(players.Count);
+			allPlayers = new List<ConsoleUiDecorator>(players.Count);
 			foreach (var player in players)
 			{
-				//TDECORATOR player = new TDECORATOR(chairs[0]);
+				//ConsoleUiDecorator player = new ConsoleUiDecorator(chairs[0]);
 				//player.SetPlayer(item);
 				allPlayers.Add(player);
 			}
@@ -78,12 +87,40 @@ namespace GameCore.Poker.Model
 			HandsPlayed = 0;
 		}
 
-		public async Task<TDECORATOR> Start()
+		public Dictionary<Guid, PlayerData> CollectData()
+		{
+			Dictionary<Guid, PlayerData> collectedData = new();
+
+			foreach (var player in allPlayers)
+			{
+				PlayerData playerData = new PlayerData(
+					player.Name,
+					player.PlayerMoney.Money,
+					player.PlayerMoney.CurrentRoundBet,
+					player.PlayerMoney.LastPlayerAction.ToString(),
+					player.PlayerMoney.LastPlayerAction.Money);
+
+				collectedData.Add(player.PlayerGuid, playerData);
+
+			}
+
+			return collectedData;
+		}
+
+		public async Task<ConsoleUiDecorator> Start()
 		{
 			var playerNames = allPlayers.Select(x => x.Name).ToList().AsReadOnly();
 			foreach (var player in allPlayers)
 			{
 				player.StartGame(new StartGameContext(playerNames, player.BuyIn == -1 ? initialMoney : player.BuyIn));
+
+				Sender.SendAsync(new StartGameSendingData(
+									 player.BuyIn == -1 ? initialMoney : player.BuyIn,
+									 player.PlayerGuid,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.StartGame),
+								 null);
 			}
 
 			await PlayGame();
@@ -93,6 +130,13 @@ namespace GameCore.Poker.Model
 			foreach (var player in allPlayers)
 			{
 				player.EndGame(new EndGameContext(winner.Name));
+				Sender.SendAsync(new EndGameSendingData(
+									 winner.PlayerGuid,
+									 player.PlayerGuid,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.EndGame),
+								 null);
 			}
 
 			return winner;
@@ -106,6 +150,13 @@ namespace GameCore.Poker.Model
 				if (player.PlayerMoney.Money <= 0)
 				{
 					player.StartGame(new StartGameContext(playerNames, player.BuyIn == -1 ? initialMoney : player.BuyIn));
+					Sender.SendAsync(new StartGameSendingData(
+										 player.BuyIn == -1 ? initialMoney : player.BuyIn,
+										 player.PlayerGuid,
+										 Server.Id,
+										 Server.ServerType,
+										 (int)lobbyTOclient.StartGame),
+									 null);
 				}
 			}
 		}
@@ -118,7 +169,7 @@ namespace GameCore.Poker.Model
 
 			for (int i = 0; i < shuffleNumber; i++)
 			{
-				shifted = shifted.WithMoney().Cast<TDECORATOR>().ToList();
+				shifted = shifted.WithMoney().Cast<ConsoleUiDecorator>().ToList();
 				shifted.Add(shifted.First());
 				shifted.RemoveAt(0);
 			}
@@ -133,12 +184,12 @@ namespace GameCore.Poker.Model
 				//var smallBlind = SmallBlinds[0];
 
 				// Players are shifted in order of priority to make a move
-				shifted = shifted.WithMoney().Cast<TDECORATOR>().ToList();
+				shifted = shifted.WithMoney().Cast<ConsoleUiDecorator>().ToList();
 				shifted.Add(shifted.First());
 				shifted.RemoveAt(0);
 
 				// Rotate players
-				HandLogic<TDECORATOR> hand = new HandLogic<TDECORATOR>(shifted, HandsPlayed, smallBlind, _tableViewModel);
+				HandLogic hand = new HandLogic(shifted, HandsPlayed, smallBlind, _tableViewModel);
 
 				await hand.Play();
 
