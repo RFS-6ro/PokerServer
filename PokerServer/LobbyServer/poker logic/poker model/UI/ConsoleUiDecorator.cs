@@ -7,7 +7,6 @@ using LobbyServer.pokerlogic.pokermodel.Players;
 using PokerSynchronisation;
 using TexasHoldem.Logic.Cards;
 using TexasHoldem.Logic.Extensions;
-using TexasHoldem.Logic.GameMechanics;
 using TexasHoldem.Logic.Players;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;

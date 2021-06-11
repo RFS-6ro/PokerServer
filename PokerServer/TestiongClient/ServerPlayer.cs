@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using TestingClient.pokerlogic.pokermodel.UI;
 
-namespace TestingClient.pokerlogic.pokermodel.Players
+namespace TestingClient
 {
 	public class ServerPlayer
 	{

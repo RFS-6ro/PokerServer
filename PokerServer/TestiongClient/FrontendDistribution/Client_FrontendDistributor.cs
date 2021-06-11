@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using UniCastCommonData.Network;
 using TestingClient.FrontendDistribution.Handlers;
-using UniCastCommonData;
 using UniCastCommonData.Handlers;
 
 namespace TestingClient.FrontendDistribution

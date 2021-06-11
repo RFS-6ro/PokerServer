@@ -87,11 +87,10 @@ namespace GameCore.Poker.Model
 			HandsPlayed = 0;
 		}
 
-		public Dictionary<Guid, PlayerData> CollectData()
+		public PlayerData CollectDataByGuid(Guid guid)
 		{
-			Dictionary<Guid, PlayerData> collectedData = new();
-
-			foreach (var player in allPlayers)
+			ConsoleUiDecorator player = allPlayers.FirstOrDefault((x) => x.PlayerGuid == guid);
+			if (player != null)
 			{
 				PlayerData playerData = new PlayerData(
 					player.Name,
@@ -100,11 +99,10 @@ namespace GameCore.Poker.Model
 					player.PlayerMoney.LastPlayerAction.ToString(),
 					player.PlayerMoney.LastPlayerAction.Money);
 
-				collectedData.Add(player.PlayerGuid, playerData);
-
+				return playerData;
 			}
 
-			return collectedData;
+			return null;
 		}
 
 		public async Task<ConsoleUiDecorator> Start()
