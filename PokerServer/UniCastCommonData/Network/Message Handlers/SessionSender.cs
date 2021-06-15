@@ -59,5 +59,32 @@ namespace UniCastCommonData.Network.MessageHandlers
 				}
 			}
 		}
+
+		public void MulticastExept(IEnumerable<Guid> clients, InitialSendingData data, byte[][] content, Guid guid)
+		{
+			data.ReceiverGuid = Guid.Empty;
+
+			using (UniCastPacket packet = new UniCastPacket(data))
+			{
+				if (content != null)
+				{
+					foreach (var item in content)
+					{
+						packet.Write(item);
+					}
+				}
+
+				packet.WriteLength();
+
+				foreach (var clientGuid in clients)
+				{
+					if (clientGuid == guid)
+					{
+						continue;
+					}
+					GetSenderByID(clientGuid).SendAsync(packet);
+				}
+			}
+		}
 	}
 }

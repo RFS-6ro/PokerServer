@@ -1,15 +1,15 @@
-﻿namespace TexasHoldem.Logic.GameMechanics
+﻿namespace LobbyServer.pokerlogic.GameMechanics
 {
 	using LobbyServer.Client;
 	using LobbyServer.Client.Handlers;
 	using LobbyServer.pokerlogic.controllers;
+	using LobbyServer.pokerlogic.pokermodel.Players;
 	using LobbyServer.pokerlogic.pokermodel.UI;
 	using PokerSynchronisation;
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Threading.Tasks;
-	using TexasHoldem.Logic.Players;
 	using UniCastCommonData;
 	using UniCastCommonData.Network.MessageHandlers;
 	using UniCastCommonData.Packet.InitialDatas;

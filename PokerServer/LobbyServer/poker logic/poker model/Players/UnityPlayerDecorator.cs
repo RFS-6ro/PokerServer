@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Threading.Tasks;
 using LobbyServer.pokerlogic.controllers;
-using TexasHoldem.Logic.Players;
 
 namespace LobbyServer.pokerlogic.pokermodel.Players
 {

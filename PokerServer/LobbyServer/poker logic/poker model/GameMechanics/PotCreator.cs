@@ -1,9 +1,9 @@
-﻿namespace TexasHoldem.Logic.GameMechanics
+﻿namespace LobbyServer.pokerlogic.GameMechanics
 {
 	using System.Collections.Generic;
 	using System.Linq;
+	using LobbyServer.pokerlogic.pokermodel.Players;
 
-	using TexasHoldem.Logic.Players;
 
 	public class PotCreator<TDECORATOR>
 		where TDECORATOR : PlayerDecorator, new()

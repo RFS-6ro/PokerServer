@@ -1,7 +1,7 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	using System.Collections.Generic;
-	using TexasHoldem.Logic.Cards;
+	using LobbyServer.pokerlogic.Cards;
 
 	public interface IEndHandContext
 	{

@@ -1,8 +1,8 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	using PokerSynchronisation;
 	using System.Collections.Generic;
-	using TexasHoldem.Logic.GameMechanics;
+	using LobbyServer.pokerlogic.GameMechanics;
 
 	public class GetTurnContext : IGetTurnContext
 	{

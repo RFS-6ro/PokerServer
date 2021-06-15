@@ -1,18 +1,18 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
-    public class PostingBlindContext : IPostingBlindContext
-    {
-        public PostingBlindContext(PlayerAction blindAction, int currentPot, int currentStackSize)
-        {
-            this.BlindAction = blindAction;
-            this.CurrentPot = currentPot;
-            this.CurrentStackSize = currentStackSize;
-        }
+	public class PostingBlindContext : IPostingBlindContext
+	{
+		public PostingBlindContext(PlayerAction blindAction, int currentPot, int currentStackSize)
+		{
+			BlindAction = blindAction;
+			CurrentPot = currentPot;
+			CurrentStackSize = currentStackSize;
+		}
 
-        public PlayerAction BlindAction { get; }
+		public PlayerAction BlindAction { get; }
 
-        public int CurrentPot { get; }
+		public int CurrentPot { get; }
 
-        public int CurrentStackSize { get; }
-    }
+		public int CurrentStackSize { get; }
+	}
 }

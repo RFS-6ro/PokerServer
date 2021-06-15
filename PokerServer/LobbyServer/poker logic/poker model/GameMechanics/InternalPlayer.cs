@@ -1,10 +1,10 @@
-﻿namespace TexasHoldem.Logic.GameMechanics
+﻿namespace LobbyServer.pokerlogic.GameMechanics
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Threading.Tasks;
-	using TexasHoldem.Logic.Cards;
-	using TexasHoldem.Logic.Players;
+	using LobbyServer.pokerlogic.Cards;
+	using LobbyServer.pokerlogic.pokermodel.Players;
 
 	public class InternalPlayer : PlayerDecorator
 	{

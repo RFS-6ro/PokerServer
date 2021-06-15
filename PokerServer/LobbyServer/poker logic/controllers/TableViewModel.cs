@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using TexasHoldem.Logic.Cards;
+using LobbyServer.pokerlogic.Cards;
 
 namespace LobbyServer.pokerlogic.controllers
 {

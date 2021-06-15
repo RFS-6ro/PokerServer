@@ -1,4 +1,4 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	public interface IStartHandContext
 	{

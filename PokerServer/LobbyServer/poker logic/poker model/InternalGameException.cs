@@ -1,12 +1,12 @@
-﻿namespace TexasHoldem.Logic
+﻿namespace LobbyServer.pokerlogic
 {
-    using System;
+	using System;
 
-    public class InternalGameException : Exception
-    {
-        public InternalGameException(string message)
-            : base(message)
-        {
-        }
-    }
+	public class InternalGameException : Exception
+	{
+		public InternalGameException(string message)
+			: base(message)
+		{
+		}
+	}
 }

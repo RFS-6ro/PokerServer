@@ -1,11 +1,11 @@
-﻿namespace TexasHoldem.Logic.GameMechanics
+﻿namespace LobbyServer.pokerlogic.GameMechanics
 {
-    using TexasHoldem.Logic.Players;
+	using LobbyServer.pokerlogic.pokermodel.Players;
 
-    public interface ITexasHoldemGame
-    {
-        int HandsPlayed { get; }
+	public interface ITexasHoldemGame
+	{
+		int HandsPlayed { get; }
 
-        IPlayer Start();
-    }
+		IPlayer Start();
+	}
 }

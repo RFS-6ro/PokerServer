@@ -1,7 +1,7 @@
-﻿namespace TexasHoldem.Logic
+﻿namespace LobbyServer.pokerlogic
 {
-    public interface IDeepCloneable<out T>
-    {
-        T DeepClone();
-    }
+	public interface IDeepCloneable<out T>
+	{
+		T DeepClone();
+	}
 }

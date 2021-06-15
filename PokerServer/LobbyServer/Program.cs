@@ -16,6 +16,8 @@ namespace LobbyServer
 			await _mediator.StartServers(args);
 
 			new ConsoleInput<LobbyServerMediator>(_mediator);
+
+			await a.Init();
 		}
 	}
 }

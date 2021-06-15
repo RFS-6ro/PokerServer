@@ -1,5 +1,5 @@
 ﻿using System;
-using TexasHoldem.Logic.Cards;
+using LobbyServer.pokerlogic.Cards;
 
 namespace LobbyServer.pokerlogic.controllers
 {

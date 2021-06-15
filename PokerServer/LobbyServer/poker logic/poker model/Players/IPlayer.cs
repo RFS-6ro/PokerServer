@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
-using TexasHoldem.Logic.Cards;
+using LobbyServer.pokerlogic.Cards;
 
-namespace TexasHoldem.Logic.Players
+namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	public interface IPlayer
 	{

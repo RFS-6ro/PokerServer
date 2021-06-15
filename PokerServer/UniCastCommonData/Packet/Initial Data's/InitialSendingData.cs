@@ -53,9 +53,13 @@ namespace UniCastCommonData.Packet.InitialDatas
 		public int LastPlayerActionAmount { get; set; }
 		public string Name { get; set; }
 		public string LastPlayerAction { get; set; }
+		public bool InGame { get; set; }
+		public bool IsDealer { get; set; }
 
-		public PlayerData(string name, int money, int bet, string lastPlayerAction, int lastPlayerActionAmount, int index)
+		public PlayerData(string name, int money, int bet, string lastPlayerAction, int lastPlayerActionAmount, int index, bool inGame, bool isDealer)
 		{
+			InGame = inGame;
+			IsDealer = isDealer;
 			Name = name;
 			Money = money;
 			Bet = bet;
@@ -73,6 +77,8 @@ namespace UniCastCommonData.Packet.InitialDatas
 			data.AddRange(LastPlayerActionAmount.ToByteArray());//4
 			data.AddRange(20.ToByteArray());//4
 			data.AddRange(Index.ToByteArray());//4
+			data.AddRange(InGame.ToByteArray());//1
+			data.AddRange(IsDealer.ToByteArray());//1
 
 			if (Name.Length > 20)
 			{
@@ -118,19 +124,18 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 			for (int i = 0; i < length; i++)
 			{
-				Guid key = data.ToGuid(44 + 80 * i);
-				int money = data.ToInt32(60 + 80 * i);
-				int bet = data.ToInt32(64 + 80 * i);
-				int lastPlayerActionAmount = data.ToInt32(68 + 80 * i);
-				int index = data.ToInt32(72 + 80 * i);
-				string name = data.ToString(76 + 80 * i);
-				string lastPlayerAction = data.ToString(100 + 80 * i);
-				Datas.Add((key, new PlayerData(name, money, bet, lastPlayerAction, lastPlayerActionAmount, index)));
+				Guid key = data.ToGuid(44 + 82 * i);//16
+				int money = data.ToInt32(60 + 82 * i);//20
+				int bet = data.ToInt32(64 + 82 * i);//24
+				int lastPlayerActionAmount = data.ToInt32(68 + 82 * i);//28
+				int index = data.ToInt32(72 + 82 * i);//32
+				bool inGame = data.ToBoolean(73 + 82 * i);//33
+				bool isDealer = data.ToBoolean(74 + 82 * i);//34
+				string name = data.ToString(78 + 82 * i);//58
+				string lastPlayerAction = data.ToString(102 + 82 * i);//82
+				Datas.Add((key, new PlayerData(name, money, bet, lastPlayerAction, lastPlayerActionAmount, index, inGame, isDealer)));
 			}
 		}
-		//40  44   60   64   68   72   76   96  100
-		//   120  136  140  144  148  152  172  176
-		//   196  212  216  220  224  228  248  252
 
 		public CurrentGameStateSendingData(List<(Guid, PlayerData)> datas, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{

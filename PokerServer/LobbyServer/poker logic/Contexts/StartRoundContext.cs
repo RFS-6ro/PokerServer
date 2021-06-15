@@ -1,9 +1,9 @@
 ﻿using PokerSynchronisation;
 using System.Collections.Generic;
-using TexasHoldem.Logic.Cards;
-using TexasHoldem.Logic.GameMechanics;
+using LobbyServer.pokerlogic.Cards;
+using LobbyServer.pokerlogic.GameMechanics;
 
-namespace GameCore.Poker.Contexts
+namespace LobbyServer.pokerlogic.Contexts
 {
 	public class StartRoundContext
 	{

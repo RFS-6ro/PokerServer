@@ -4,20 +4,16 @@ using LobbyServer.pokerlogic.controllers;
 using LobbyServer.pokerlogic.pokermodel.Players;
 using LobbyServer.pokerlogic.pokermodel.UI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TexasHoldem.Logic.Cards;
-using TexasHoldem.Logic.GameMechanics;
-using TexasHoldem.Logic.Helpers;
-using TexasHoldem.Logic.Players;
+using LobbyServer.pokerlogic.Cards;
+using LobbyServer.pokerlogic.Helpers;
 using UniCastCommonData;
-using UniCastCommonData.Handlers;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
 
-namespace GameCore.Poker.Model
+namespace LobbyServer.pokerlogic.GameMechanics
 {
 	public class HandLogic
 	{
@@ -159,6 +155,9 @@ namespace GameCore.Poker.Model
 				Sender.Multicast(_players.Select((x) => x.PlayerGuid),
 								 new PlayerTurnSendingData(
 									 player.PlayerGuid,
+									 player.PlayerMoney.Money,
+									 -1,
+									 -1,
 									 -1,
 									 string.Empty,
 									 Guid.Empty,
@@ -263,7 +262,7 @@ namespace GameCore.Poker.Model
 
 				if (_players.Count == 2)
 				{
-					var betterHand = Helpers.CompareCards(
+					var betterHand = Helpers.Helpers.CompareCards(
 					_players[0].Cards.Concat(communityCards),
 					_players[1].Cards.Concat(communityCards));
 					if (betterHand > 0)
@@ -317,7 +316,7 @@ namespace GameCore.Poker.Model
 					foreach (var player in playersInHand)
 					{
 						var opponents = playersInHand.Where(p => p.Name != player.Name).Select(s => s.Cards);
-						var handRankValue = Helpers.GetHandRankValue(player.Cards, opponents, communityCards);
+						var handRankValue = Helpers.Helpers.GetHandRankValue(player.Cards, opponents, communityCards);
 
 						if (handRankValueOfPlayers.ContainsKey(handRankValue))
 						{

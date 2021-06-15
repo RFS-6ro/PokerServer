@@ -1,9 +1,9 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
-    using System.Collections.Generic;
+	using System.Collections.Generic;
 
-    public interface IEndRoundContext
-    {
-        IReadOnlyCollection<PlayerActionAndName> RoundActions { get; }
-    }
+	public interface IEndRoundContext
+	{
+		IReadOnlyCollection<PlayerActionAndName> RoundActions { get; }
+	}
 }

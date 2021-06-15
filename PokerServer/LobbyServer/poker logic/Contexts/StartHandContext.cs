@@ -1,6 +1,6 @@
-﻿using TexasHoldem.Logic.Cards;
+﻿using LobbyServer.pokerlogic.Cards;
 
-namespace GameCore.Poker.Contexts
+namespace LobbyServer.pokerlogic.Contexts
 {
 	public class StartHandContext
 	{

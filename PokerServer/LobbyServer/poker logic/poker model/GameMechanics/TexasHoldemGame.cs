@@ -3,14 +3,11 @@ using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.controllers;
 using LobbyServer.pokerlogic.pokermodel.Players;
 using LobbyServer.pokerlogic.pokermodel.UI;
-using PokerSynchronisation;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TexasHoldem.Logic.GameMechanics;
-using TexasHoldem.Logic.Players;
+using LobbyServer.pokerlogic.GameMechanics;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
@@ -98,7 +95,9 @@ namespace GameCore.Poker.Model
 					player.PlayerMoney.CurrentRoundBet,
 					player.PlayerMoney.LastPlayerAction.ToString(),
 					player.PlayerMoney.LastPlayerAction.Money,
-					allPlayers.ToList().IndexOf(player)
+					allPlayers.ToList().IndexOf(player),
+					player.Cards.Count != 0,
+					player.IsDealer
 				);
 
 				return playerData;

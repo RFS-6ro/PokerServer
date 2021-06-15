@@ -1,11 +1,11 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
-    public interface IPostingBlindContext
-    {
-        PlayerAction BlindAction { get; }
+	public interface IPostingBlindContext
+	{
+		PlayerAction BlindAction { get; }
 
-        int CurrentStackSize { get; }
+		int CurrentStackSize { get; }
 
-        int CurrentPot { get; }
-    }
+		int CurrentPot { get; }
+	}
 }

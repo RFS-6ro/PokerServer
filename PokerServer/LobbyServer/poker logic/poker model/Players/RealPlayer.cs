@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using TexasHoldem.Logic.Players;
 
-namespace GameCore.Poker.Model.Player
+namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	public class RealPlayer : BasePlayer
 	{

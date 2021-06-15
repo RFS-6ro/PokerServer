@@ -1,4 +1,4 @@
-﻿namespace TexasHoldem.Logic.GameMechanics
+﻿namespace LobbyServer.pokerlogic.GameMechanics
 {
 	using System.Collections.Generic;
 

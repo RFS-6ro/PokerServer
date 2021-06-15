@@ -4,12 +4,11 @@ using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.controllers;
 using LobbyServer.pokerlogic.pokermodel.Players;
 using LobbyServer.pokerlogic.pokermodel.UI;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TexasHoldem.Logic.Extensions;
+using LobbyServer.pokerlogic.Extensions;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
@@ -59,8 +58,9 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 		CurrentPlayers[randomSeatIndex] = player;
 		Decorators[randomSeatIndex].SetPlayer(player);
+		Decorators[randomSeatIndex].DrawGameBox((6 * randomSeatIndex) + 3, 30, 1);
 
-		Sender.Multicast(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
+		Sender.MulticastExept(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
 						 new NewPlayerConnectSendingData(
 							 300,//TODO: RECEIVE MONEY FROM DATABASE
 							 name,
@@ -70,45 +70,43 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 							 Server.Id,
 							 Server.ServerType,
 							 (int)lobbyTOclient.NewPlayerConnect),
-						 null);
+						 null,
+						 guid);
 		//SEND: join event
 
 		//_readyToPlay.Add(new ServerPlayer(guid, name));
 
-		if (_currentGame != null)
+		List<(Guid, PlayerData)> datas = new();
+
+		for (int i = 0; i < CurrentPlayers.Count; ++i)
 		{
-			List<(Guid, PlayerData)> datas = new();
+			ServerPlayer activePlayer = CurrentPlayers[i];
 
-			for (int i = 0; i < CurrentPlayers.Count; ++i)
+			PlayerData activePlayerData;
+			Guid activePlayerGuid;
+
+			if (activePlayer != null && _currentGame != null)
 			{
-				ServerPlayer activePlayer = CurrentPlayers[i];
-
-				PlayerData activePlayerData;
-				Guid activePlayerGuid;
-
-				if (activePlayer != null)
-				{
-					activePlayerData = _currentGame.CollectDataByGuid(activePlayer.Guid);
-					activePlayerData.Index = i;
-					activePlayerGuid = activePlayer.Guid;
-				}
-				else
-				{
-					activePlayerData = new PlayerData("", -1, -1, "", -1, i);
-					activePlayerGuid = Guid.Empty;
-				}
-
-				datas.Add((activePlayer.Guid, activePlayerData));
+				activePlayerData = _currentGame.CollectDataByGuid(activePlayer.Guid);
+				activePlayerData.Index = i;
+				activePlayerGuid = activePlayer.Guid;
+			}
+			else
+			{
+				activePlayerData = new PlayerData("", -1, -1, "", -1, i, false, false);
+				activePlayerGuid = Guid.Empty;
 			}
 
-			Sender.SendAsync(new CurrentGameStateSendingData(
-								 datas,
-								 guid,
-								 Server.Id,
-								 Server.ServerType,
-								 (int)lobbyTOclient.CurrentGameState),
-							 null);
+			datas.Add((activePlayer.Guid, activePlayerData));
 		}
+
+		Sender.SendAsync(new CurrentGameStateSendingData(
+							 datas,
+							 guid,
+							 Server.Id,
+							 Server.ServerType,
+							 (int)lobbyTOclient.CurrentGameState),
+						 null);
 
 	}
 
@@ -144,20 +142,10 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 	public async Task Init()
 	{
-		//for (int i = 0; i < _readyToPlay.Count; i++)
-		//{
-		//	int randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
-
-		//	while (CurrentPlayers[randomSeatIndex] != null)
-		//	{
-		//		randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
-		//	}
-
-		//	CurrentPlayers[randomSeatIndex] = _readyToPlay[i];
-		//	Decorators[randomSeatIndex].SetPlayer(_readyToPlay[i]);
-		//}
-
-		//_readyToPlay.Clear();
+		while (CurrentPlayers.Count((x) => x != null) < 2)
+		{
+			await Task.Delay(100);
+		}
 
 		var players = PreparePlayers();
 
@@ -177,92 +165,6 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 				//TODO: uncomment IStaticInstance<Lobby_Client_Server>.Instance.FindSession(player.Guid)?.Disconnect();
 			}
 		}
-
-		return;
-
-
-
-
-
-
-		//Random random = new Random();
-
-		//int playerCount = 9;
-		//int randomPlayerCount = random.Next(2, playerCount);
-		//int shiftNumber = random.Next(0, randomPlayerCount - 1);
-
-		//List<IPlayer> players = new List<IPlayer>();
-		//List<UnityPlayerDecorator> decorators = new List<UnityPlayerDecorator>();
-
-		//for (int i = 0; i < playerCount; i++)
-		//{
-		//	IPlayer player;
-		//	player = new BotPlayer();
-		//	UnityPlayerDecorator decorator = new ServerPlayerDecorator(Chairs[i]);
-
-		//	decorator.SetPlayer(player);
-		//	players.Add(player);
-		//	decorators.Add(decorator);
-		//}
-
-		//for (int i = 0; i < playerCount - randomPlayerCount; i++)
-		//{
-		//	int randomPlayerIndex = random.Next(1, players.Count);
-		//	players.RemoveAt(randomPlayerIndex);
-		//	decorators.RemoveAt(randomPlayerIndex);
-		//}
-
-		//for (int i = 0; i <= shiftNumber; i++)
-		//{
-		//	players.Add(players[0]);
-		//	players.RemoveAt(0);
-		//	decorators.Add(decorators[0]);
-		//	decorators.RemoveAt(0);
-		//}
-
-		//for (int i = 0; i < decorators.Count; i++)
-		//{
-		//	decorators[i].ConfigureSeat();
-		//}
-
-
-
-
-
-
-
-
-
-
-
-		//chairs.RemoveRange(shiftNumber, playerCount - randomPlayerCount);
-
-		//int index = 0;
-
-		//for (int i = playerCount - shiftNumber + 1; i >= 1; i--)
-		//{
-		//	UnityPlayerDecorator predDecorator = new BotPlayerDecorator(chairs[i], BotNames[i]);
-
-		//	predDecorator.SetPlayer(players[index]);
-		//	decorators.Add(predDecorator);
-		//	index++;
-		//}
-
-		//UnityPlayerDecorator mainOlayerDecorator = new RealPlayerDecorator(chairs[0], null);
-
-		//mainOlayerDecorator.SetPlayer(players[index]);
-		//decorators.Add(mainOlayerDecorator);
-
-		//for (int i = 1; i < randomPlayerCount - shiftNumber; i++)
-		//{
-		//	UnityPlayerDecorator predDecorator = new BotPlayerDecorator(chairs[i], BotNames[i]);
-
-		//	predDecorator.SetPlayer(players[index]);
-		//	decorators.Add(predDecorator);
-		//	index++;
-		//}
-
-
 	}
 
 	private List<ConsoleUiDecorator> PreparePlayers()

@@ -1,8 +1,8 @@
-﻿namespace TexasHoldem.Logic.GameMechanics
+﻿namespace LobbyServer.pokerlogic.GameMechanics
 {
 	using PokerSynchronisation;
 	using System;
-	using TexasHoldem.Logic.Players;
+	using LobbyServer.pokerlogic.pokermodel.Players;
 
 	public class InternalPlayerMoney
 	{

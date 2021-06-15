@@ -1,9 +1,9 @@
-﻿namespace TexasHoldem.Logic.Helpers
+﻿namespace LobbyServer.pokerlogic.Helpers
 {
 	using System.Collections.Generic;
 	using System.Linq;
-	using TexasHoldem.Logic;
-	using TexasHoldem.Logic.Cards;
+	using LobbyServer.pokerlogic;
+	using LobbyServer.pokerlogic.Cards;
 
 	/// <summary>
 	/// Class containing helper methods for evaluating and comparing player's hands.

@@ -1,4 +1,4 @@
-﻿namespace TexasHoldem.Logic.Cards
+﻿namespace LobbyServer.pokerlogic.Cards
 {
 	public interface IDeck
 	{

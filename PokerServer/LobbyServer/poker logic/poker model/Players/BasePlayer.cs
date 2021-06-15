@@ -1,9 +1,9 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Threading.Tasks;
-	using TexasHoldem.Logic.Cards;
+	using LobbyServer.pokerlogic.Cards;
 
 	public abstract class BasePlayer : IPlayer
 	{

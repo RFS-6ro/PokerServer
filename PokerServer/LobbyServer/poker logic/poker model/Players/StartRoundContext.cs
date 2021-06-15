@@ -1,9 +1,9 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	using PokerSynchronisation;
 	using System.Collections.Generic;
-	using TexasHoldem.Logic.Cards;
-	using TexasHoldem.Logic.GameMechanics;
+	using LobbyServer.pokerlogic.Cards;
+	using LobbyServer.pokerlogic.GameMechanics;
 
 	public class StartRoundContext : IStartRoundContext
 	{

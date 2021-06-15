@@ -1,8 +1,8 @@
-﻿namespace TexasHoldem.Logic.Cards
+﻿namespace LobbyServer.pokerlogic.Cards
 {
 	using System.Collections.Generic;
 	using System.Linq;
-	using TexasHoldem.Logic.Extensions;
+	using LobbyServer.pokerlogic.Extensions;
 
 	public class Deck : IDeck
 	{

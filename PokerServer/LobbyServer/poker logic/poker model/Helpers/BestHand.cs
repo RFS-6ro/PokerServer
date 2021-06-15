@@ -1,9 +1,9 @@
-﻿namespace TexasHoldem.Logic.Helpers
+﻿namespace LobbyServer.pokerlogic.Helpers
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
-	using TexasHoldem.Logic.Cards;
+	using LobbyServer.pokerlogic.Cards;
 
 	public class BestHand : IComparable<BestHand>
 	{

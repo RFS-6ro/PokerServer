@@ -158,9 +158,7 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new PlayerTurnSendingData(packet.GetRawBytes());
 
-
-			ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player);
-			player.
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player).ShowTurn(sendingData);
 		}
 
 		private void UpdateTimer(UniCastPacket packet)
@@ -249,8 +247,7 @@ namespace TestingClient.Lobby.Handlers
 		private void NewPlayerConnect(UniCastPacket packet)
 		{
 			var sendingData = new NewPlayerConnectSendingData(packet.GetRawBytes());
-
-			ConsoleUiDecorator newPlayer = IStaticInstance<PokerInitializer>.Instance.AddNewPlayer(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.AddNewPlayer(sendingData);
 		}
 
 		private void CurrentGameState(UniCastPacket packet)

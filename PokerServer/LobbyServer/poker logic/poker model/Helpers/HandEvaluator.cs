@@ -1,8 +1,8 @@
-﻿namespace TexasHoldem.Logic.Helpers
+﻿namespace LobbyServer.pokerlogic.Helpers
 {
 	using System.Collections.Generic;
 	using System.Linq;
-	using TexasHoldem.Logic.Cards;
+	using LobbyServer.pokerlogic.Cards;
 
 	// For performance considerations class is not implemented using Chain of Responsibility
 	public class HandEvaluator : IHandEvaluator

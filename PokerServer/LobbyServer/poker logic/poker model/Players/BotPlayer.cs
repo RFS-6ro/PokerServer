@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using TexasHoldem.Logic.Extensions;
-using TexasHoldem.Logic.Players;
+using LobbyServer.pokerlogic.Extensions;
 
-namespace GameCore.Poker.Model.Player
+namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	public class BotPlayer : BasePlayer
 	{

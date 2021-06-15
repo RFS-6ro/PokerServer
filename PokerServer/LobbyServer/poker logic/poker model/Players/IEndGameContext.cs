@@ -1,7 +1,7 @@
-﻿namespace TexasHoldem.Logic.Players
+﻿namespace LobbyServer.pokerlogic.pokermodel.Players
 {
-    public interface IEndGameContext
-    {
-        string WinnerName { get; }
-    }
+	public interface IEndGameContext
+	{
+		string WinnerName { get; }
+	}
 }

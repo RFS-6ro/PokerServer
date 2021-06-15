@@ -27,7 +27,7 @@ namespace TestingClient
 
 		public ConsoleUiDecorator()
 		{
-
+			SetEmpty();
 		}
 
 		public void SetEmpty()
@@ -37,7 +37,13 @@ namespace TestingClient
 
 		public void SetPlayerData(Guid guid, PlayerData data)
 		{
+			if (guid == Guid.Empty)
+			{
+				SetEmpty();
+				return;
+			}
 
+			throw new NotImplementedException();
 		}
 
 		public void StartGame(StartGameSendingData sendingData)
@@ -79,7 +85,6 @@ namespace TestingClient
 
 		public void StartTurn(StartTurnSendingData sendingData)
 		{
-
 		}
 
 		public void SetTimer(int amount)
@@ -89,8 +94,7 @@ namespace TestingClient
 
 		public void ShowTurn(PlayerTurnSendingData sendingData)
 		{
-
-			ConsoleHelper.WriteOnConsole(_row + 1, 2, sendingData.MoneyLeft + "   ");
+			SetMoney(sendingData.MoneyLeft);
 
 			var action = sendingData.LastPlayerAction;
 
@@ -125,12 +129,12 @@ namespace TestingClient
 				? sendingData.MoneyLeft
 				: sendingData.MoneyLeft - sendingData.LastPlayerActionAmount - sendingData.MoneyToCall;
 
-			ConsoleHelper.WriteOnConsole(_row + 1, 2, moneyAfterAction + "   ");
+			SetMoney(moneyAfterAction);
 		}
 
 		public void SetMoney(int amount)
 		{
-			ConsoleHelper.WriteOnConsole(_row + 1, 2, amount.ToString());
+			ConsoleHelper.WriteOnConsole(_row + 1, 2, amount.ToString() + "   ");
 		}
 
 		public void EndTurn(EndTurnSendingData sendingData)
@@ -165,7 +169,15 @@ namespace TestingClient
 			_width = width;
 			_commonRow = commonRow;
 
-			ConsoleHelper.WriteOnConsole(_row, 0, new string('═', _width), PlayerBoxColor);
+			if (Name != null && Name != string.Empty)
+			{
+				string top = new string('═', 5) + Name + new string('═', 5);
+				ConsoleHelper.WriteOnConsole(_row, 0, top, PlayerBoxColor);
+			}
+			else
+			{
+				ConsoleHelper.WriteOnConsole(_row, 0, new string('═', _width), PlayerBoxColor);
+			}
 			ConsoleHelper.WriteOnConsole(_row + 4, 0, new string('═', _width), PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, 0, "╔", PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, _width - 1, "╗", PlayerBoxColor);
@@ -190,5 +202,54 @@ namespace TestingClient
 			ConsoleHelper.WriteOnConsole(row, col, " " + ConsoleHelper.ToFriendlyString(type, suit) + " ", ConsoleColor.Gray, ConsoleColor.DarkGray);
 		}
 
+		private void DrawPlayerOptions(int moneyToCall)
+		{
+			var col = 2;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "Select action: [");
+			col += 16;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "C", ConsoleColor.Yellow);
+			col++;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "]heck/[");
+			col += 7;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "C", ConsoleColor.Yellow);
+			col++;
+
+			var callString = moneyToCall <= 0 ? "]all, [" : "]all(" + moneyToCall + "), [";
+
+			ConsoleHelper.WriteOnConsole(_row + 2, col, callString);
+			col += callString.Length;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "R", ConsoleColor.Yellow);
+			col++;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "]aise, [");
+			col += 8;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "F", ConsoleColor.Yellow);
+			col++;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "]old, [");
+			col += 7;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "A", ConsoleColor.Yellow);
+			col++;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "]ll-in");
+
+			//TODOSEND: turn able bools, money to call
+		}
+
+		private void DrawRestrictedPlayerOptions(int moneyToCall)
+		{
+			var col = 2;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "Select action: [");
+			col += 16;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "C", ConsoleColor.Yellow);
+			col++;
+
+			var callString = moneyToCall <= 0 ? "]all, [" : "]all(" + moneyToCall + "), [";
+
+			ConsoleHelper.WriteOnConsole(_row + 2, col, callString);
+			col += callString.Length;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "F", ConsoleColor.Yellow);
+			col++;
+			ConsoleHelper.WriteOnConsole(_row + 2, col, "]old");
+
+			//TODOSEND: turn able bools, money to call
+		}
 	}
 }

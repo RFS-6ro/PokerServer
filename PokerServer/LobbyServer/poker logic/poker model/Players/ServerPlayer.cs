@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using LobbyServer.Client;
 using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.pokermodel.UI;
-using TexasHoldem.Logic.Players;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;

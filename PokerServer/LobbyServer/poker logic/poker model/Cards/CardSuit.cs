@@ -1,13 +1,13 @@
-﻿namespace TexasHoldem.Logic.Cards
+﻿namespace LobbyServer.pokerlogic.Cards
 {
-    public enum CardSuit
-    {
-        Club = 0, // ♣
-        Diamond = 1, // ♦
-        Heart = 2, // ♥
-        Spade = 3, // ♠
+	public enum CardSuit
+	{
+		Club = 0, // ♣
+		Diamond = 1, // ♦
+		Heart = 2, // ♥
+		Spade = 3, // ♠
 
-        Count,
-        Shirt,
-    }
+		Count,
+		Shirt,
+	}
 }

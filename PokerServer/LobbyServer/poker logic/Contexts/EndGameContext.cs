@@ -1,12 +1,12 @@
-﻿namespace GameCore.Poker.Contexts
+﻿namespace LobbyServer.pokerlogic.Contexts
 {
-    public class EndGameContext
-    {
-        public string WinnerName { get; }
+	public class EndGameContext
+	{
+		public string WinnerName { get; }
 
-        public EndGameContext(string winnerName)
-        {
-            WinnerName = winnerName;
-        }
-    }
+		public EndGameContext(string winnerName)
+		{
+			WinnerName = winnerName;
+		}
+	}
 }
