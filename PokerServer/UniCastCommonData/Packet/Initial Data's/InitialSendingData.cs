@@ -297,6 +297,9 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class StartTurnSendingData : InitialSendingData
 	{
+		protected Guid _player;
+		public Guid Player => _player;
+
 		private int _time;
 		public int Time => _time;
 
@@ -351,10 +354,12 @@ namespace UniCastCommonData.Packet.InitialDatas
 			_isAllIn = data.ToBoolean(80);
 			_canRaise = data.ToBoolean(81);
 			_canCheck = data.ToBoolean(82);
+			_player = data.ToGuid(83);
 		}
 
-		public StartTurnSendingData(int time, int gameRoundType, int smallBlind, int money, int pot, int currentRoundBet, int maxMoneyPerPlayer, int minRaise, int myMoneyInTheRound, int moneyToCall, bool isAllIn, bool canRaise, bool canCheck, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public StartTurnSendingData(Guid player, int time, int gameRoundType, int smallBlind, int money, int pot, int currentRoundBet, int maxMoneyPerPlayer, int minRaise, int myMoneyInTheRound, int moneyToCall, bool isAllIn, bool canRaise, bool canCheck, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
+			_player = player;
 			_time = time;
 			_gameRoundType = gameRoundType;
 			_smallBlind = smallBlind;
@@ -388,7 +393,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 			data.AddRange(_isAllIn.ToByteArray());
 			data.AddRange(_canRaise.ToByteArray());
 			data.AddRange(_canCheck.ToByteArray());
-
+			data.AddRange(_player.ToByteArray());
 
 			return data.ToArray();
 		}
@@ -596,6 +601,15 @@ namespace UniCastCommonData.Packet.InitialDatas
 		private int _lastPlayerActionAmount;
 		public int LastPlayerActionAmount => _lastPlayerActionAmount;
 
+		private int _moneyLeft;
+		public int MoneyLeft => _moneyLeft;
+
+		private int _moneyInTheRound;
+		public int MoneyInTheRound => _moneyInTheRound;
+
+		private int _moneyToCall;
+		public int MoneyToCall => _moneyToCall;
+
 		private string _lastPlayerAction;
 		public string LastPlayerAction => _lastPlayerAction;
 
@@ -603,11 +617,17 @@ namespace UniCastCommonData.Packet.InitialDatas
 		{
 			_player = data.ToGuid(40);
 			_lastPlayerActionAmount = data.ToInt32(56);
-			_lastPlayerAction = data.ToString(60);
+			_moneyLeft = data.ToInt32(60);
+			_moneyInTheRound = data.ToInt32(64);
+			_moneyToCall = data.ToInt32(68);
+			_lastPlayerAction = data.ToString(72);
 		}
 
-		public PlayerTurnSendingData(Guid playerGuid, int lastPlayerActionAmount, string lastPlayerAction, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public PlayerTurnSendingData(Guid playerGuid, int moneyLeft, int moneyInTheRound, int moneyToCall, int lastPlayerActionAmount, string lastPlayerAction, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
+			_moneyInTheRound = moneyInTheRound;
+			_moneyToCall = moneyToCall;
+			_moneyLeft = moneyLeft;
 			_player = playerGuid;
 			_lastPlayerAction = lastPlayerAction;
 			_lastPlayerActionAmount = lastPlayerActionAmount;
@@ -618,6 +638,9 @@ namespace UniCastCommonData.Packet.InitialDatas
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
 			data.AddRange(_lastPlayerActionAmount.ToByteArray());
+			data.AddRange(_moneyLeft.ToByteArray());
+			data.AddRange(_moneyInTheRound.ToByteArray());
+			data.AddRange(_moneyToCall.ToByteArray());
 			data.AddRange(_lastPlayerAction.ToByteArray());
 			return data.ToArray();
 		}
@@ -669,18 +692,24 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class EndTurnSendingData : InitialSendingData
 	{
+		protected Guid _player;
+		public Guid Player => _player;
+
 		public EndTurnSendingData(byte[] data) : base(data)
 		{
+			_player = data.ToGuid(40);
 		}
 
-		public EndTurnSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public EndTurnSendingData(Guid playerGuid, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
+			_player = playerGuid;
 		}
 
 		public override byte[] GetRawBytes()
 		{
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
+			data.AddRange(_player.ToByteArray());
 			return data.ToArray();
 		}
 	}

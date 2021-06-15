@@ -124,20 +124,8 @@
 							SidePots);
 
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
-								 new PlayerTurnSendingData(
-									 player.PlayerGuid,
-									 -1,
-									 string.Empty,
-									 Guid.Empty,
-									 Server.Id,
-									 Server.ServerType,
-									 (int)lobbyTOclient.PlayerTurn),
-								 null);
-				//SEND player.ChairView.SetGameStateHolder(string.Empty);
-
-
-				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new StartTurnSendingData(
+									 player.PlayerGuid,
 									 (int)(context.TimeForTurn * 1000),
 									 (int)context.RoundType,
 									 _smallBlind,
@@ -157,20 +145,30 @@
 									 (int)lobbyTOclient.StartTurn),
 								 null);
 
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new PlayerTurnSendingData(
+									 player.PlayerGuid,
+									 context.MoneyLeft,
+									 context.MyMoneyInTheRound,
+									 context.MoneyToCall,
+									 -1,
+									 string.Empty,
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.PlayerTurn),
+								 null);
+				//SEND player.ChairView.SetGameStateHolder(string.Empty);
+
 				PlayerAction action = await player.AwaitTurn(context);
 				//PlayerAction action = player.GetTurn(context);
 
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
-								 new EndTurnSendingData(
-									 Guid.Empty,
-									 Server.Id,
-									 Server.ServerType,
-									 (int)lobbyTOclient.EndTurn),
-								 null);
-
-				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new PlayerTurnSendingData(
 									 player.PlayerGuid,
+									 context.MoneyLeft,
+									 context.MyMoneyInTheRound,
+									 context.MoneyToCall,
 									 action.Money,
 									 action.ToString(),
 									 Guid.Empty,
@@ -180,11 +178,26 @@
 								 null);
 				//SEND player.ChairView.SetGameStateHolder(action.ToString());
 
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+								 new EndTurnSendingData(
+									 player.PlayerGuid,
+									 Guid.Empty,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.EndTurn),
+								 null);
 
 				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
 
 				Dictionary<Guid, int> moneys = new();
-				moneys.Add(player.PlayerGuid, player.PlayerMoney.Money);
+				if (moneys.ContainsKey(player.PlayerGuid))
+				{
+					moneys[player.PlayerGuid] = player.PlayerMoney.Money;
+				}
+				else
+				{
+					moneys.Add(player.PlayerGuid, player.PlayerMoney.Money);
+				}
 
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new UpdatePlayersMoneySendingData(
@@ -284,6 +297,9 @@
 			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 							 new PlayerTurnSendingData(
 								 player.PlayerGuid,
+								 player.PlayerMoney.Money,
+								 0,
+								 0,
 								 post.Money,
 								 post.ToString(),
 								 Guid.Empty,

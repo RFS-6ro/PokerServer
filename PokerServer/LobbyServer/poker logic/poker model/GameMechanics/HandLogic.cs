@@ -419,14 +419,13 @@ namespace GameCore.Poker.Model
 
 		private async Task PlayRound(PokerSynchronisation.GameRoundType gameRoundType, int communityCardsCount)
 		{
-			List<int> cards = new();
+			List<(int, int)> cards = new();
 			for (var i = 0; i < communityCardsCount; i++)
 			{
 				Card card = deck.GetNextCard();
 
 				communityCards.Add(card);
-				cards.Add((int)card.Type);
-				cards.Add((int)card.Suit);
+				cards.Add(((int)card.Type, (int)card.Suit));
 				//SEND CardController.Dispence(_tableViewModel, card, communityCards.Count - 1);
 			}
 

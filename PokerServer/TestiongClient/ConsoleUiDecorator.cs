@@ -40,13 +40,18 @@ namespace TestingClient
 
 		}
 
-		public void StartGame()
+		public void StartGame(StartGameSendingData sendingData)
 		{
 
 		}
 
-		public void StartHand()
+		public void StartHand(StartHandSendingData sendingData)
 		{
+			if (Name == sendingData.FirstPlayerName)
+			{
+				SetDealer();
+			}
+
 			var dealerSymbol = _isDealer ? "D" : " ";
 			ConsoleHelper.WriteOnConsole(_row + 1, 1, dealerSymbol, ConsoleColor.Green);
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "                            ");
@@ -67,12 +72,12 @@ namespace TestingClient
 			DrawSingleCard(_row + 1, 10, type2, suit2);
 		}
 
-		public void StartRound()
+		public void StartRound(StartRoundSendingData sendingData)
 		{
 
 		}
 
-		public void StartTurn()
+		public void StartTurn(StartTurnSendingData sendingData)
 		{
 
 		}
@@ -82,9 +87,45 @@ namespace TestingClient
 
 		}
 
-		public void ShowTurn()
+		public void ShowTurn(PlayerTurnSendingData sendingData)
 		{
 
+			ConsoleHelper.WriteOnConsole(_row + 1, 2, sendingData.MoneyLeft + "   ");
+
+			var action = sendingData.LastPlayerAction;
+
+			if (action == "Fold")
+			{
+				Muck(sendingData.MoneyLeft);
+			}
+
+			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
+
+			var lastAction = action;
+
+			if (action == "Call")
+			{
+				lastAction += $"({sendingData.MoneyToCall})";
+			}
+			else if (action.Contains("Raise"))
+			{
+				lastAction += $"({sendingData.LastPlayerActionAmount + sendingData.MoneyInTheRound + sendingData.MoneyToCall})";
+			}
+
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
+
+			if (action == string.Empty)
+			{
+				return;
+			}
+
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + lastAction);
+
+			var moneyAfterAction = action == "Fold"
+				? sendingData.MoneyLeft
+				: sendingData.MoneyLeft - sendingData.LastPlayerActionAmount - sendingData.MoneyToCall;
+
+			ConsoleHelper.WriteOnConsole(_row + 1, 2, moneyAfterAction + "   ");
 		}
 
 		public void SetMoney(int amount)
@@ -92,22 +133,22 @@ namespace TestingClient
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, amount.ToString());
 		}
 
-		public void EndTurn()
+		public void EndTurn(EndTurnSendingData sendingData)
 		{
 
 		}
 
-		public void EndRound()
+		public void EndRound(EndRoundSendingData sendingData)
 		{
 
 		}
 
-		public void EndHand()
+		public void EndHand(EndHandSendingData sendingData)
 		{
 			_isDealer = false;
 		}
 
-		public void EndGame()
+		public void EndGame(EndGameSendingData sendingData)
 		{
 
 		}

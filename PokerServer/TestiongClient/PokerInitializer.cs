@@ -35,6 +35,7 @@ namespace TestingClient
 		{
 			if (receiverGuid == Guid.Empty)
 			{
+				// ??
 				//return main player
 			}
 			throw new NotImplementedException();

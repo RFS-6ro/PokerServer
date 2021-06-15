@@ -36,8 +36,8 @@ namespace TestingClient
 			if (CommunityCards != null)
 			{
 				var cardsAsString = CommunityCards.CardsToString();
-				var cardsLength = cardsAsString.Length / 2;
-				var cardsStartCol = (_width / 2) - (cardsLength / 2);
+				var cardsLength = cardsAsString.Length / 2;//15
+				var cardsStartCol = (_width / 2) - (cardsLength / 2);//7
 				var cardIndex = 0;
 				var spacing = 0;
 
@@ -49,6 +49,11 @@ namespace TestingClient
 					spacing += communityCard.Item1 == 10 ? 1 : 0;
 				}
 			}
+			else
+			{
+				var cardsStartCol = (_width / 2) - ((17 / 2) / 2);
+				ConsoleHelper.WriteOnConsole(1, cardsStartCol, "                 ");
+			}
 		}
 
 		private void DrawSingleCard(int row, int col, int type, int suit)
@@ -56,6 +61,12 @@ namespace TestingClient
 			var cardColor = ConsoleHelper.GetCardColor(type, suit);
 			ConsoleHelper.WriteOnConsole(row, col, " " + ConsoleHelper.ToFriendlyString(type, suit) + " ", cardColor, ConsoleColor.White);
 			ConsoleHelper.WriteOnConsole(row, col + 2 + ConsoleHelper.ToFriendlyString(type, suit).Length, " ");
+		}
+
+		public void ClearCards()
+		{
+			CommunityCards = null;
+			DrawCommunityCards();
 		}
 	}
 }

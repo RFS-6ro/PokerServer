@@ -97,7 +97,9 @@ namespace GameCore.Poker.Model
 					player.PlayerMoney.Money,
 					player.PlayerMoney.CurrentRoundBet,
 					player.PlayerMoney.LastPlayerAction.ToString(),
-					player.PlayerMoney.LastPlayerAction.Money);
+					player.PlayerMoney.LastPlayerAction.Money,
+					allPlayers.ToList().IndexOf(player)
+				);
 
 				return playerData;
 			}
