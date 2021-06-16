@@ -41,50 +41,42 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 
 		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
-			if (!context.CanRaise)
-			{
-				DrawRestrictedPlayerOptions(context.MoneyToCall);
-			}
-			else
-			{
-				DrawPlayerOptions(context.MoneyToCall);
-			}
-
 			int passedTime = 0;
 
 			while (passedTime < context.TimeForTurn)
 			{
-				var key = Console.ReadKey(true);
+				//TODORECEIVE: player turn
+				//var key = Console.ReadKey(true);
 				PlayerAction action = null;
-				switch (key.Key)
-				{
-				case ConsoleKey.C:
-					action = PlayerAction.CheckOrCall();
-					break;
-				case ConsoleKey.R:
-					if (!context.CanRaise)
-					{
-						continue;
-					}
-					int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
-					action = PlayerAction.Raise(amount);
-					break;
-				case ConsoleKey.F:
-					action = PlayerAction.Fold();
-					break;
-				case ConsoleKey.A:
-					if (!context.CanRaise)
-					{
-						continue;
-					}
+				//switch (key.Key)
+				//{
+				//case ConsoleKey.C:
+				//	action = PlayerAction.CheckOrCall();
+				//	break;
+				//case ConsoleKey.R:
+				//	if (!context.CanRaise)
+				//	{
+				//		continue;
+				//	}
+				//	int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
+				//	action = PlayerAction.Raise(amount);
+				//	break;
+				//case ConsoleKey.F:
+				//	action = PlayerAction.Fold();
+				//	break;
+				//case ConsoleKey.A:
+				//	if (!context.CanRaise)
+				//	{
+				//		continue;
+				//	}
 
-					action = context.MoneyLeft > 0
-								 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
-								 : PlayerAction.CheckOrCall();
-					break;
-				}
+				//	action = context.MoneyLeft > 0
+				//				 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
+				//				 : PlayerAction.CheckOrCall();
+				//	break;
+				//}
 
-				if (action == null)
+				if (action != null)
 				{
 					return action;
 				}
@@ -167,56 +159,6 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			_playerRaiseAmount = -1;
 
 			return amount;
-		}
-
-		private void DrawPlayerOptions(int moneyToCall)
-		{
-			var col = 2;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "Select action: [");
-			col += 16;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "C", ConsoleColor.Yellow);
-			col++;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "]heck/[");
-			col += 7;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "C", ConsoleColor.Yellow);
-			col++;
-
-			var callString = moneyToCall <= 0 ? "]all, [" : "]all(" + moneyToCall + "), [";
-
-			ConsoleHelper.WriteOnConsole(Row + 2, col, callString);
-			col += callString.Length;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "R", ConsoleColor.Yellow);
-			col++;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "]aise, [");
-			col += 8;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "F", ConsoleColor.Yellow);
-			col++;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "]old, [");
-			col += 7;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "A", ConsoleColor.Yellow);
-			col++;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "]ll-in");
-
-			//TODOSEND: turn able bools, money to call
-		}
-
-		private void DrawRestrictedPlayerOptions(int moneyToCall)
-		{
-			var col = 2;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "Select action: [");
-			col += 16;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "C", ConsoleColor.Yellow);
-			col++;
-
-			var callString = moneyToCall <= 0 ? "]all, [" : "]all(" + moneyToCall + "), [";
-
-			ConsoleHelper.WriteOnConsole(Row + 2, col, callString);
-			col += callString.Length;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "F", ConsoleColor.Yellow);
-			col++;
-			ConsoleHelper.WriteOnConsole(Row + 2, col, "]old");
-
-			//TODOSEND: turn able bools, money to call
 		}
 	}
 }

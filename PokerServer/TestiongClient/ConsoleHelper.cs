@@ -26,6 +26,9 @@ namespace TestingClient
 			string friendlySuit;
 			switch (suit)
 			{
+			case -1:
+				friendlySuit = " ";
+				break;
 			case 0:
 				friendlySuit = "\u2663"; // ♣
 				break;
@@ -47,6 +50,9 @@ namespace TestingClient
 
 			switch (type)
 			{
+			case -1:
+				friendlySuit = " ";
+				break;
 			case 2:
 				friendlyType = "2";
 				break;

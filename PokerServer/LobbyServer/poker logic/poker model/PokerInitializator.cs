@@ -76,7 +76,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 		//_readyToPlay.Add(new ServerPlayer(guid, name));
 
-		List<(Guid, PlayerData)> datas = new();
+		List<(Guid, PlayerData)> datas = new List<(Guid, PlayerData)>();
 
 		for (int i = 0; i < CurrentPlayers.Count; ++i)
 		{
@@ -97,7 +97,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 				activePlayerGuid = Guid.Empty;
 			}
 
-			datas.Add((activePlayer.Guid, activePlayerData));
+			datas.Add((activePlayerGuid, activePlayerData));
 		}
 
 		Sender.SendAsync(new CurrentGameStateSendingData(
@@ -129,15 +129,6 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 							 null);
 			//SEND: disconnect event
 		}
-		//else
-		//{
-		//	disconnectingPlayer = _readyToPlay.Find((x) => x.Guid == guid);
-		//	if (disconnectingPlayer != null)
-		//	{
-		//		_readyToPlay.Remove(disconnectingPlayer);
-		//	}
-		//}
-
 	}
 
 	public async Task Init()

@@ -58,6 +58,8 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					player.PlayerMoney.Money,
 					_smallBlind,
 					_players[0].Name);
+
+				_tableViewModel.StartHand();
 				player.StartHand(startHandContext);
 
 				Sender.SendAsync(new StartHandSendingData(
@@ -111,7 +113,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 			DetermineWinnerAndAddPot(bettingLogic.Pot, bettingLogic.MainPot, bettingLogic.SidePots);
 
-			_tableViewModel.ClearCards();
+			await Task.Delay(5000);
 
 			foreach (var player in _players)
 			{
@@ -126,6 +128,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 				//SEND player.ChairView.ClearCards();
 			}
 
+
 			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
 							 new ClearCardsSendingData(
 								 Guid.Empty,
@@ -135,7 +138,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 								 (int)lobbyTOclient.ClearCards),
 							 null);
 
-			await Task.Delay(5 * 1000);
+			await Task.Delay(1000);
 		}
 
 		private void ResetStates(bool all = false)
@@ -185,7 +188,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 									 player.PlayerGuid,
 									 Server.Id,
 									 Server.ServerType,
-									 (int)lobbyTOclient.PlayerTurn),
+									 (int)lobbyTOclient.DealCardsToPlayer),
 								 null);
 			}
 
@@ -233,6 +236,8 @@ namespace LobbyServer.pokerlogic.GameMechanics
 		{
 			Dictionary<Guid, int> moneys = new();
 			Dictionary<Guid, (int type1, int suit1, int type2, int suit2)> cards = new();
+			List<(Guid, int, string)> winners = new();
+
 			if (_players.Count(x => x.PlayerMoney.InHand) == 1)
 			{
 				var winner = _players.FirstOrDefault(x => x.PlayerMoney.InHand);
@@ -247,6 +252,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 				);
 				//SEND BetController.MoveBet(_tableViewModel, pot, winner.ChairView);
 				moneys.Add(winner.PlayerGuid, winner.PlayerMoney.Money);
+				winners.Add(ConfigureWinner(winner, pot));
 				//SEND winner?.ChairView.ShowCards();
 			}
 			else
@@ -257,6 +263,13 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					if (player.PlayerMoney.InHand)
 					{
 						showdownCards.Add(player.Name, player.Cards);
+						cards.Add(player.PlayerGuid,
+								 (
+									(int)player.Cards[0].Type,
+									(int)player.Cards[0].Suit,
+									(int)player.Cards[1].Type,
+									(int)player.Cards[1].Suit
+								 ));
 					}
 				}
 
@@ -270,6 +283,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 						_players[0].PlayerMoney.Money += pot;
 						//SEND BetController.MoveBet(_tableViewModel, pot, _players[0].ChairView);
 						moneys.Add(_players[0].PlayerGuid, _players[0].PlayerMoney.Money);
+						winners.Add(ConfigureWinner(_players[0], pot));
 						//SEND _players[0]?.ChairView.ShowCards();
 					}
 					else if (betterHand < 0)
@@ -277,6 +291,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 						_players[1].PlayerMoney.Money += pot;
 						//SEND BetController.MoveBet(_tableViewModel, pot, _players[1].ChairView);
 						moneys.Add(_players[1].PlayerGuid, _players[1].PlayerMoney.Money);
+						winners.Add(ConfigureWinner(_players[1], pot));
 						//SEND _players[1]?.ChairView.ShowCards();
 					}
 					else
@@ -284,29 +299,16 @@ namespace LobbyServer.pokerlogic.GameMechanics
 						_players[0].PlayerMoney.Money += pot / 2;
 						//SEND BetController.MoveBet(_tableViewModel, pot / 2, _players[0].ChairView);
 						moneys.Add(_players[0].PlayerGuid, _players[0].PlayerMoney.Money);
+						winners.Add(ConfigureWinner(_players[0], pot / 2));
 						//SEND _players[0]?.ChairView.ShowCards();
+
+
 						_players[1].PlayerMoney.Money += pot / 2;
 						//SEND BetController.MoveBet(_tableViewModel, pot / 2, _players[1].ChairView);
 						moneys.Add(_players[1].PlayerGuid, _players[1].PlayerMoney.Money);
+						winners.Add(ConfigureWinner(_players[1], pot / 2));
 						//SEND _players[1]?.ChairView.ShowCards();
 					}
-
-					cards.Add(_players[0].PlayerGuid,
-							 (
-								(int)_players[0].Cards[0].Type,
-								(int)_players[0].Cards[0].Suit,
-								(int)_players[0].Cards[1].Type,
-								(int)_players[0].Cards[1].Suit
-							 )
-					);
-					cards.Add(_players[1].PlayerGuid,
-							 (
-								(int)_players[1].Cards[0].Type,
-								(int)_players[1].Cards[0].Suit,
-								(int)_players[1].Cards[1].Type,
-								(int)_players[1].Cards[1].Suit
-							 )
-					);
 				}
 				else
 				{
@@ -358,18 +360,8 @@ namespace LobbyServer.pokerlogic.GameMechanics
 									foreach (var nominee in nominees)
 									{
 										var player = _players.First(x => x.Name == nominee);
-										player.PlayerMoney.Money += prize;
-										//SEND BetController.MoveBet(_tableViewModel, prize, player.ChairView);
 										moneys.Add(player.PlayerGuid, player.PlayerMoney.Money);
-										//SEND player?.ChairView.ShowCards();
-										cards.Add(_players[0].PlayerGuid,
-												 (
-													(int)player.Cards[0].Type,
-													(int)player.Cards[0].Suit,
-													(int)player.Cards[1].Type,
-													(int)player.Cards[1].Suit
-												 )
-										);
+										winners.Add(ConfigureWinner(player, prize));
 									}
 								}
 								else
@@ -397,6 +389,15 @@ namespace LobbyServer.pokerlogic.GameMechanics
 			}
 
 			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
+							 new WinnersSendingData(
+								 winners,
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.Winners),
+							 null);
+
+			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
 							 new OpponentCardsSendingData(
 								 cards,
 								 Guid.Empty,
@@ -414,6 +415,17 @@ namespace LobbyServer.pokerlogic.GameMechanics
 								 Server.ServerType,
 								 (int)lobbyTOclient.UpdatePlayersMoney),
 							 null);
+		}
+
+		private (Guid, int, string) ConfigureWinner(ConsoleUiDecorator player, int prize)
+		{
+			player.PlayerMoney.Money += prize;
+			//SEND BetController.MoveBet(_tableViewModel, prize, player.ChairView);
+			string handType = Helpers.Helpers.GetHandRank(player.Cards.Concat(communityCards).ToList()).ToString();
+			string handString = handType + new string(' ', 13 - handType.Length);
+			player.SetWinner(prize, handType);
+
+			return (player.PlayerGuid, prize, handString);
 		}
 
 		private async Task PlayRound(PokerSynchronisation.GameRoundType gameRoundType, int communityCardsCount)
@@ -446,6 +458,8 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					bettingLogic.Pot,
 					bettingLogic.MainPot,
 					bettingLogic.SidePots);
+
+				_tableViewModel.StartRound(startRoundContext);
 				player.StartRound(startRoundContext);
 
 				Sender.SendAsync(new StartRoundSendingData(

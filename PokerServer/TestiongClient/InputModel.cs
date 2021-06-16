@@ -1,4 +1,5 @@
-﻿using PokerSynchronisation;
+﻿using System;
+using PokerSynchronisation;
 using UniCastCommonData;
 
 namespace TestingClient
@@ -7,9 +8,36 @@ namespace TestingClient
 	{
 		private static TurnType _turnType;
 		private static int _amount;
+		private static bool _isCleared = true;
 
-		public static void SetTurn(string turnMessage)
+		private static Action _onTurnSetted;
+
+		public static event Action OnTurnSetted
 		{
+			add
+			{
+				_onTurnSetted += value;
+				if (_isCleared == false)
+				{
+					_onTurnSetted?.Invoke();
+				}
+			}
+			remove
+			{
+				_onTurnSetted -= value;
+			}
+		}
+
+		public static void ClearTurn()
+		{
+			_turnType = TurnType.None;
+			_amount = -1;
+			_isCleared = true;
+		}
+
+		public static bool SetTurn(string turnMessage)
+		{
+			_isCleared = false;
 			turnMessage = turnMessage.ToLower();
 			if (turnMessage.Contains("r"))
 			{
@@ -19,33 +47,45 @@ namespace TestingClient
 				{
 					_amount = amount;
 				}
+				else
+				{
+					ClearTurn();
+					return false;
+				}
 			}
-			else
-			if (turnMessage.Contains("f"))
+			else if (turnMessage.Contains("f"))
 			{
 				_turnType = TurnType.Fold;
 			}
-			else
-			if (turnMessage.Contains("a"))
+			else if (turnMessage.Contains("a"))
 			{
 				_turnType = TurnType.AllIn;
 			}
-			if (turnMessage.Contains("c"))
+			else if (turnMessage.Contains("c"))
 			{
 				_turnType = TurnType.Call;
 			}
+			else
+			{
+				ClearTurn();
+				return false;
+			}
+
+			_onTurnSetted.Invoke();
+			return true;
 		}
 
 		public static byte[] GetTurn()
 		{
-			if (_turnType == TurnType.None)
+			if (_isCleared)
 			{
 				return null;
 			}
+
 			byte[] data = new byte[8];
 			((int)_turnType).ToByteArray().CopyTo(data, 0);
 			(_amount).ToByteArray().CopyTo(data, 4);
-			_turnType = TurnType.None;
+			ClearTurn();
 			return data;
 		}
 	}

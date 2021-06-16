@@ -16,23 +16,20 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 	{
 		public Guid PlayerGuid { get; protected set; }
 
-		private const ConsoleColor PlayerBoxColor = ConsoleColor.DarkGreen;
+		private ConsoleColor PlayerBoxColor = ConsoleColor.DarkGreen;
 
 		private int _row;
 
 		private int _width;
 
-		private int _commonRow;
-
 		private Card firstCard;
 
 		private Card secondCard;
 
-		private IReadOnlyCollection<Card> CommunityCards { get; set; }
-
 		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
 		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
 
+		public int Time = 0;
 		public bool IsDealer;
 
 		public override void SetPlayer(IPlayer player)
@@ -47,7 +44,6 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public override void StartHand(IStartHandContext context)
 		{
-			UpdateCommonRows(0, 0, new int[] { });
 			IsDealer = context.FirstPlayerName == Player.Name;
 			var dealerSymbol = context.FirstPlayerName == Player.Name ? "D" : " ";
 
@@ -77,12 +73,6 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public override void StartRound(IStartRoundContext context)
 		{
-			CommunityCards = context.CommunityCards;
-			UpdateCommonRows(
-				context.CurrentPot,
-				context.CurrentMainPot.AmountOfMoney,
-				context.CurrentSidePots.Select(s => s.AmountOfMoney));
-
 			ConsoleHelper.WriteOnConsole(_row + 1, _width - 11, context.RoundType + "   ");
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
 			base.StartRound(context);
@@ -90,8 +80,6 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public override PlayerAction PostingBlind(IPostingBlindContext context)
 		{
-			UpdateCommonRows(context.CurrentPot, context.CurrentPot, new int[] { });
-
 			var action = base.PostingBlind(context);
 
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
@@ -106,18 +94,13 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
-			UpdateCommonRows(
-				context.CurrentPot,
-				context.MainPot.AmountOfMoney,
-				context.SidePots.Select(s => s.AmountOfMoney));
-
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, context.MoneyLeft + "   ");
 
 			var action = await base.GetTurn(context);
 
 			if (action.Type == TurnType.Fold)
 			{
-				Muck(context.MoneyLeft);
+				Muck();
 			}
 
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
@@ -145,6 +128,13 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			return action;
 		}
 
+		private void DrawSingleCard(int row, int col, Card card)
+		{
+			var cardColor = GetCardColor(card);
+			ConsoleHelper.WriteOnConsole(row, col, " " + card + " ", cardColor, ConsoleColor.White);
+			ConsoleHelper.WriteOnConsole(row, col + 2 + card.ToString().Length, " ");
+		}
+
 		public async override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
 			PlayerAction action = await GetTurn(context);
@@ -152,57 +142,55 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			return action;
 		}
 
-		private void Muck(int moneyLeft)
+		public void SetWinner(int prize, string handRank)
+		{
+			PlayerBoxColor = ConsoleColor.DarkYellow;
+			DrawGameBox(_row, _width);
+
+			//write prize and hand
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, $"Winner: prize:{prize} with hand rank: {handRank}");
+
+			PlayerBoxColor = ConsoleColor.DarkGreen;
+		}
+
+		public void ResetWinner()
+		{
+			PlayerBoxColor = ConsoleColor.DarkGreen;
+			DrawGameBox(_row, _width);
+
+			//delete prize and hand
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width));
+		}
+
+		private void Muck()
 		{
 			DrawMuckedSingleCard(_row + 1, 10, firstCard);
 			DrawMuckedSingleCard(_row + 1, 14, secondCard);
 		}
 
-		private void UpdateCommonRows(int pot, int mainPot, IEnumerable<int> sidePots)
-		{
-			// Clear the first common row
-			ConsoleHelper.WriteOnConsole(_commonRow, 0, new string(' ', _width - 1));
-
-			DrawCommunityCards();
-
-			var potAsString = "Pot: " + pot;
-			ConsoleHelper.WriteOnConsole(_commonRow, _width - potAsString.Length - 2, potAsString);
-
-			if (sidePots.Count() == 0)
-			{
-				// Clear the side pots
-				ConsoleHelper.WriteOnConsole(_commonRow + 1, 0, new string(' ', _width - 1));
-			}
-			else
-			{
-				var mainPotAsString = "Main Pot: " + mainPot;
-				ConsoleHelper.WriteOnConsole(_commonRow, 2, mainPotAsString);
-
-				var sidePotsAsString = "Side Pots: ";
-				foreach (var item in sidePots)
-				{
-					sidePotsAsString += item + " | ";
-				}
-
-				ConsoleHelper.WriteOnConsole(_commonRow + 1, 2, sidePotsAsString.Remove(sidePotsAsString.Length - 2, 2));
-			}
-		}
-
-		public void DrawGameBox(int row, int width, int commonRow)
+		public void DrawGameBox(int row, int width)
 		{
 			_row = row;
 			_width = width;
-			_commonRow = commonRow;
-
+			string top;
 			if (Name != null && Name != string.Empty)
 			{
-				string top = new string('═', 5) + Name + new string('═', 5);
-				ConsoleHelper.WriteOnConsole(_row, 0, top, PlayerBoxColor);
+				top = new string('═', 5) + Name + "═";
+				if (Time != 0)
+				{
+					string time = Time.ToString();
+					top += time + new string('═', 5 - time.Length);
+				}
+				else
+				{
+					top += new string('═', 4);
+				}
 			}
 			else
 			{
-				ConsoleHelper.WriteOnConsole(_row, 0, new string('═', _width), PlayerBoxColor);
+				top = new string('═', _width);
 			}
+			ConsoleHelper.WriteOnConsole(_row, 0, top, PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row + 4, 0, new string('═', _width), PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, 0, "╔", PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, _width - 1, "╗", PlayerBoxColor);
@@ -215,32 +203,6 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			}
 		}
 
-		private void DrawCommunityCards()
-		{
-			if (CommunityCards != null)
-			{
-				var cardsAsString = CommunityCards.CardsToString();
-				var cardsLength = cardsAsString.Length / 2;
-				var cardsStartCol = (_width / 2) - (cardsLength / 2);
-				var cardIndex = 0;
-				var spacing = 0;
-
-				foreach (var communityCard in CommunityCards)
-				{
-					DrawSingleCard(_commonRow, cardsStartCol + (cardIndex * 4) + spacing, communityCard);
-					cardIndex++;
-
-					spacing += communityCard.Type == CardType.Ten ? 1 : 0;
-				}
-			}
-		}
-
-		private void DrawSingleCard(int row, int col, Card card)
-		{
-			var cardColor = GetCardColor(card);
-			ConsoleHelper.WriteOnConsole(row, col, " " + card + " ", cardColor, ConsoleColor.White);
-			ConsoleHelper.WriteOnConsole(row, col + 2 + card.ToString().Length, " ");
-		}
 
 		private void DrawMuckedSingleCard(int row, int col, Card card)
 		{
@@ -261,6 +223,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public override void EndHand(IEndHandContext context)
 		{
+			ResetWinner()
 			IsDealer = false;
 			base.EndHand(context);
 		}

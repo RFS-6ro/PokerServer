@@ -41,6 +41,8 @@ namespace TestingClient.Lobby.Handlers
 		ClearCards,
 		PlayerDisconnect,
 
+		Winners,
+
 		Count,
 
 
@@ -82,34 +84,37 @@ namespace TestingClient.Lobby.Handlers
 
 			Handlers.Add((int)lobbyTOclient.ClearCards, ClearCards);
 			Handlers.Add((int)lobbyTOclient.PlayerDisconnect, PlayerDisconnect);
+
+			Handlers.Add((int)lobbyTOclient.Winners, Winners);
 		}
 
 		private void PlayerDisconnect(UniCastPacket packet)
 		{
 			var sendingData = new PlayerDisconnectSendingData(packet.GetRawBytes());
 
-			ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.RemovePlayer(sendingData.Player);
+			IStaticInstance<PokerInitializer>.Instance.RemovePlayer(sendingData.Player);
 		}
 
 		private void ClearCards(UniCastPacket packet)
 		{
 			var sendingData = new ClearCardsSendingData(packet.GetRawBytes());
 
-			if (sendingData.CardKeeper == Guid.Empty)
-			{
-				//clear all cards;
-				foreach (var player in IStaticInstance<PokerInitializer>.Instance.Decorators)
-				{
-					player.SetCards(-1, -1, -1, -1);
-				}
+			PokerInitializer initializer = IStaticInstance<PokerInitializer>.Instance;
 
-				IStaticInstance<PokerInitializer>.Instance.Table.ClearCards();
-			}
-			else
+			if (sendingData.CardKeeper != Guid.Empty)
 			{
-				ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.CardKeeper);
+				ConsoleUiDecorator player = initializer.FindPlayerByGuid(sendingData.CardKeeper);
+				player.SetCards(-1, -1, -1, -1);
+				return;
+			}
+
+			//clear all cards;
+			foreach (var player in initializer.Decorators)
+			{
 				player.SetCards(-1, -1, -1, -1);
 			}
+
+			initializer.Table.ClearCards();
 		}
 
 		private void EndGame(UniCastPacket packet)
@@ -129,7 +134,6 @@ namespace TestingClient.Lobby.Handlers
 		private void EndRound(UniCastPacket packet)
 		{
 			var sendingData = new EndRoundSendingData(packet.GetRawBytes());
-
 			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndRound(sendingData);
 		}
 
@@ -202,15 +206,33 @@ namespace TestingClient.Lobby.Handlers
 			IStaticInstance<PokerInitializer>.Instance.Table.AddCards(sendingData.Cards);
 		}
 
+		private void Winners(UniCastPacket packet)
+		{
+			var sendingData = new WinnersSendingData(packet.GetRawBytes());
+
+			IStaticInstance<PokerInitializer>.Instance.HighlightWinners(sendingData.Winners);
+		}
+
 		private void DealCardsToPlayer(UniCastPacket packet)
 		{
 			var sendingData = new DealCardsToPlayerSendingData(packet.GetRawBytes());
 
-			ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid);
-			player.SetCards(sendingData.CardType1,
-							sendingData.CardSuit1,
-							sendingData.CardType2,
-							sendingData.CardSuit2);
+			List<ConsoleUiDecorator> players = IStaticInstance<PokerInitializer>.Instance.Decorators;
+			foreach (var player in players)
+			{
+				if (player.PlayerGuid == sendingData.ReceiverGuid)
+				{
+					player.SetCards(sendingData.CardType1,
+									sendingData.CardSuit1,
+									sendingData.CardType2,
+									sendingData.CardSuit2);
+				}
+				else
+				{
+					player.SetCards(15, 4, 15, 4);
+				}
+			}
+
 		}
 
 		private void StartTurn(UniCastPacket packet)
@@ -223,8 +245,7 @@ namespace TestingClient.Lobby.Handlers
 		private void StartGame(UniCastPacket packet)
 		{
 			var sendingData = new StartGameSendingData(packet.GetRawBytes());
-			ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid);
-			player.SetMoney(sendingData.StartMoney);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).SetMoney(sendingData.StartMoney);
 		}
 
 		private void StartRound(UniCastPacket packet)
@@ -232,14 +253,14 @@ namespace TestingClient.Lobby.Handlers
 			var sendingData = new StartRoundSendingData(packet.GetRawBytes());
 
 			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartRound(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.Table.ShowPot(sendingData.Pot);
 		}
 
 		private void StartHand(UniCastPacket packet)
 		{
 			var sendingData = new StartHandSendingData(packet.GetRawBytes());
 
-			ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid);
-			player.StartHand(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartHand(sendingData);
 			IStaticInstance<PokerInitializer>.Instance.Table.DrawCommunityCards();
 			IStaticInstance<PokerInitializer>.Instance.Table.ShowPot(0);
 		}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UniCastCommonData;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Network.MessageHandlers;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace LobbyServer.Client.Handlers
 {
@@ -32,10 +33,14 @@ namespace LobbyServer.Client.Handlers
 
 		private void ReceiveTurn(UniCastPacket obj)
 		{
+			//TODORECEIVE INPUT
 		}
 
 		private void Disconnect(UniCastPacket packet)
 		{
+			DisconnectSendingData sendingData = new DisconnectSendingData(packet.GetRawBytes());
+			//DISCONNECT
+			IStaticInstance<PokerInitializator>.Instance.RemovePlayer(sendingData.Player);
 		}
 
 		private void Connect(UniCastPacket packet)

@@ -15,7 +15,12 @@ namespace TestingClient
 			{
 				string name = input.Split(' ')[2];
 				_mediator.SetName(name);
+				return;
 			}
+
+			//TODO: check all actions here
+
+			InputModel.SetTurn(input);
 		}
 	}
 }

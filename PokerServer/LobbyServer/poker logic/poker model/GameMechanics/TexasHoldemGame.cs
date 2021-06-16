@@ -95,7 +95,7 @@ namespace GameCore.Poker.Model
 					player.PlayerMoney.CurrentRoundBet,
 					player.PlayerMoney.LastPlayerAction.ToString(),
 					player.PlayerMoney.LastPlayerAction.Money,
-					allPlayers.ToList().IndexOf(player),
+					-1,
 					player.Cards.Count != 0,
 					player.IsDealer
 				);

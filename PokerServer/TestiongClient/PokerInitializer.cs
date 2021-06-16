@@ -11,10 +11,11 @@ namespace TestingClient
 	{
 		public const int MaxPlayers = 9;
 
-		public List<ServerPlayer> CurrentPlayers = new(MaxPlayers);
 		public List<ConsoleUiDecorator> Decorators = new(MaxPlayers);
 
 		public TableViewModel Table { get; }
+
+		private ConsoleUiDecorator _mainPlayer;
 
 		public PokerInitializer()
 		{
@@ -22,9 +23,8 @@ namespace TestingClient
 			Table = new TableViewModel(30);
 			for (int i = 0; i < MaxPlayers; i++)
 			{
-				CurrentPlayers.Add(null);
 				ConsoleUiDecorator decorator = new ConsoleUiDecorator();
-				decorator.DrawGameBox((6 * i) + 3, 30, 1);
+				decorator.DrawGameBox((6 * i) + 3, 30);
 				Decorators.Add(decorator);
 			}
 		}
@@ -34,6 +34,8 @@ namespace TestingClient
 			var keys = sendingData.Datas.Select((x) => x.Item1).ToList();
 
 			int realPlayerIndex = keys.IndexOf(IStaticInstance<Client_Lobby>.Instance.Id);
+
+			_mainPlayer = Decorators[realPlayerIndex];
 
 			for (int i = realPlayerIndex; i < sendingData.Datas.Count; i++)
 			{
@@ -52,10 +54,10 @@ namespace TestingClient
 		{
 			if (receiverGuid == Guid.Empty)
 			{
-				// ??
-				//return main player
+				return _mainPlayer;
 			}
-			throw new NotImplementedException();
+
+			return Decorators.Find((x) => x.PlayerGuid == receiverGuid);
 		}
 
 		public void AddNewPlayer(NewPlayerConnectSendingData sendingData)
@@ -63,9 +65,25 @@ namespace TestingClient
 			Decorators[sendingData.Index].SetPlayerData(sendingData.Guid, new PlayerData(sendingData.Name, sendingData.Money, 0, string.Empty, 0, sendingData.Index, false, false));
 		}
 
-		public ConsoleUiDecorator RemovePlayer(Guid player)
+		public void RemovePlayer(Guid player)
 		{
-			throw new NotImplementedException();
+			ConsoleUiDecorator decorator = Decorators.FirstOrDefault((x) => x.PlayerGuid == player);
+			if (decorator != null)
+			{
+				decorator.SetEmpty();
+			}
+		}
+
+		public void HighlightWinners(List<(Guid, int, string)> winners)
+		{
+			foreach (var winner in winners)
+			{
+				ConsoleUiDecorator decorator = Decorators.FirstOrDefault((x) => x.PlayerGuid == winner.Item1);
+				if (decorator != null)
+				{
+					decorator.SetWinner(winner.Item2, winner.Item3);
+				}
+			}
 		}
 	}
 }

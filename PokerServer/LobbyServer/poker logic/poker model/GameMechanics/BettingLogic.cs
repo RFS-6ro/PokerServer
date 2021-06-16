@@ -126,7 +126,7 @@
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new StartTurnSendingData(
 									 player.PlayerGuid,
-									 (int)(context.TimeForTurn * 1000),
+									 context.TimeForTurn * 1000,
 									 (int)context.RoundType,
 									 _smallBlind,
 									 player.PlayerMoney.Money,
@@ -160,6 +160,7 @@
 								 null);
 				//SEND player.ChairView.SetGameStateHolder(string.Empty);
 
+				_tableViewModel.UpdateTableBeforeTurn(context);
 				PlayerAction action = await player.AwaitTurn(context);
 				//PlayerAction action = player.GetTurn(context);
 
@@ -212,7 +213,7 @@
 
 				RoundBets.Add(new PlayerActionAndName(player.Name, action));
 
-				//TODOSEND BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
+				//SEND BetController.MoveBet(player.ChairView, player.PlayerMoney.CurrentRoundBet, player.ChairView);
 
 				if (action.Type == TurnType.Fold)
 				{
@@ -285,14 +286,16 @@
 		public void PlaceBlindForPlayer(ConsoleUiDecorator player)
 		{
 			PlayerAction post = PlayerAction.Post(Pot == 0 ? _smallBlind : _smallBlind * 2);
+			IPostingBlindContext context = new PostingBlindContext(
+							player.PlayerMoney.DoPlayerAction(post, 0),
+							Pot - _smallBlind,
+							player.PlayerMoney.Money);
+
+			_tableViewModel.UpdateTableBeforePostingBlind(context);
 			RoundBets.Add(
 				new PlayerActionAndName(
 					player.Name,
-					player.PostingBlind(
-						new PostingBlindContext(
-							player.PlayerMoney.DoPlayerAction(post, 0),
-							Pot - _smallBlind,
-							player.PlayerMoney.Money))));
+					player.PostingBlind(context)));
 
 			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 							 new PlayerTurnSendingData(

@@ -482,6 +482,47 @@ namespace UniCastCommonData.Packet.InitialDatas
 		}
 	}
 
+	public class WinnersSendingData : InitialSendingData
+	{
+		public List<(Guid, int, string)> Winners = new();
+
+		public WinnersSendingData(byte[] data) : base(data)
+		{
+			int length = data.ToInt32(40);
+
+			for (int i = 0; i < length; i++)
+			{
+				Winners.Add((
+					data.ToGuid(44 + 37 * i),
+					data.ToInt32(60 + 37 * i),
+					data.ToString(64 + 37 * i)
+				));
+			}
+		}
+
+		public WinnersSendingData(List<(Guid, int, string)> winners, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		{
+			Winners = winners;
+		}
+
+		public override byte[] GetRawBytes()
+		{
+			List<byte> data = new List<byte>();
+			data.AddRange(base.GetRawBytes());
+
+			data.AddRange(Winners.Count.ToByteArray());
+
+			foreach (var winner in Winners)
+			{
+				data.AddRange(winner.Item1.ToByteArray());
+				data.AddRange(winner.Item2.ToByteArray());
+				data.AddRange(winner.Item3.ToByteArray());
+			}
+
+			return data.ToArray();
+		}
+	}
+
 	public class DealerButtonSendingData : InitialSendingData
 	{
 		protected Guid _dealer;
@@ -502,6 +543,30 @@ namespace UniCastCommonData.Packet.InitialDatas
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
 			data.AddRange(_dealer.ToByteArray());
+			return data.ToArray();
+		}
+	}
+
+	public class DisconnectSendingData : InitialSendingData
+	{
+		protected Guid _player;
+		public Guid Player => _player;
+
+		public DisconnectSendingData(byte[] data) : base(data)
+		{
+			_player = data.ToGuid(40);
+		}
+
+		public DisconnectSendingData(Guid player, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		{
+			_player = player;
+		}
+
+		public override byte[] GetRawBytes()
+		{
+			List<byte> data = new List<byte>();
+			data.AddRange(base.GetRawBytes());
+			data.AddRange(_player.ToByteArray());
 			return data.ToArray();
 		}
 	}

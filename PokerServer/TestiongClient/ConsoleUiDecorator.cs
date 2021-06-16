@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using TestingClient.Lobby;
+using UniCastCommonData;
 using UniCastCommonData.Packet.InitialDatas;
 
 namespace TestingClient
 {
 	public class ConsoleUiDecorator
 	{
-		private int _commonRow = 1;
-
-		private const ConsoleColor PlayerBoxColor = ConsoleColor.DarkGreen;
+		private ConsoleColor PlayerBoxColor = ConsoleColor.DarkGreen;
 
 		private int _row;
 
@@ -21,6 +23,9 @@ namespace TestingClient
 		private int _type2;
 		private int _suit2;
 
+		public int Time = 0;
+		private bool _isRealPlayer = false;
+
 		public Guid PlayerGuid { get; set; }
 
 		public string Name { get; set; }
@@ -32,7 +37,15 @@ namespace TestingClient
 
 		public void SetEmpty()
 		{
-
+			Time = 0;
+			Name = string.Empty;
+			PlayerGuid = Guid.Empty;
+			_isRealPlayer = false;
+			SetBet(0);
+			SetMoney(-1);
+			SetDealer(false);
+			SetCards(-1, -1, -1, -1);
+			DrawGameBox(_row, _width);
 		}
 
 		public void SetPlayerData(Guid guid, PlayerData data)
@@ -43,29 +56,54 @@ namespace TestingClient
 				return;
 			}
 
-			throw new NotImplementedException();
+			PlayerGuid = guid;
+			Name = data.Name;
+
+			_isRealPlayer = guid == IStaticInstance<Client_Lobby>.Instance.Id;
+
+			SetDealer(data.IsDealer);
+			DrawGameBox(_row, _width);
+
+			if (data.InGame)
+			{
+				SetCards(15, 4, 15, 4);
+				SetBet(data.Bet);
+			}
+
+			SetMoney(data.Money);
+
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
+
+			if (data.LastPlayerAction == string.Empty)
+			{
+				return;
+			}
+
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + data.LastPlayerAction);
 		}
 
 		public void StartGame(StartGameSendingData sendingData)
 		{
-
+			SetBet(0);
+			DrawGameBox(_row, _width);
+			SetMoney(sendingData.StartMoney);
 		}
 
 		public void StartHand(StartHandSendingData sendingData)
 		{
-			if (Name == sendingData.FirstPlayerName)
-			{
-				SetDealer();
-			}
+			SetBet(0);
+			SetDealer(Name == sendingData.FirstPlayerName);
+
+			DrawGameBox(_row, _width);
+		}
+
+		public void SetDealer(bool value = true)
+		{
+			_isDealer = value;
 
 			var dealerSymbol = _isDealer ? "D" : " ";
 			ConsoleHelper.WriteOnConsole(_row + 1, 1, dealerSymbol, ConsoleColor.Green);
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "                            ");
-		}
-
-		public void SetDealer()
-		{
-			_isDealer = true;
 		}
 
 		public void SetCards(int type1, int suit1, int type2, int suit2)
@@ -80,27 +118,81 @@ namespace TestingClient
 
 		public void StartRound(StartRoundSendingData sendingData)
 		{
-
+			SetBet(0);
+			DrawGameBox(_row, _width);
+			SetMoney(sendingData.Money);
 		}
 
 		public void StartTurn(StartTurnSendingData sendingData)
 		{
+			if (_isRealPlayer == false)
+			{
+				return;
+			}
+
+			if (!sendingData.CanRaise)
+			{
+				DrawRestrictedPlayerOptions(sendingData.MoneyToCall);
+			}
+			else
+			{
+				DrawPlayerOptions(sendingData.MoneyToCall);
+			}
+
+			InputModel.OnTurnSetted += OnTurnSetted;
+		}
+
+		private void OnTurnSetted()
+		{
+			//TODOSEND: player input
+
+		}
+
+		public void SetBet(int amount)
+		{
+			string bet = amount <= 0 ? "      " : amount.ToString();
+
+			ConsoleHelper.WriteOnConsole(_row, 20, $" Bet = {bet} ", ConsoleColor.Black, ConsoleColor.White);
 		}
 
 		public void SetTimer(int amount)
 		{
+			Time = amount;
+			DrawGameBox(_row, _width);
+		}
 
+		public void SetWinner(int prize, string handRank)
+		{
+			PlayerBoxColor = ConsoleColor.DarkYellow;
+			DrawGameBox(_row, _width);
+
+			//write prize and hand
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, $"Winner: {prize} / {handRank}");
+
+			PlayerBoxColor = ConsoleColor.DarkGreen;
+		}
+
+		public void ResetWinner()
+		{
+			PlayerBoxColor = ConsoleColor.DarkGreen;
+			DrawGameBox(_row, _width);
+
+			//delete prize and hand
+			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width));
 		}
 
 		public void ShowTurn(PlayerTurnSendingData sendingData)
 		{
+			int betAmount = -1;
+			DrawGameBox(_row, _width);
+
 			SetMoney(sendingData.MoneyLeft);
 
 			var action = sendingData.LastPlayerAction;
 
 			if (action == "Fold")
 			{
-				Muck(sendingData.MoneyLeft);
+				Muck();
 			}
 
 			ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', _width - 3));
@@ -109,11 +201,16 @@ namespace TestingClient
 
 			if (action == "Call")
 			{
-				lastAction += $"({sendingData.MoneyToCall})";
+				betAmount = sendingData.MoneyToCall;
+				lastAction += $"({betAmount})";
 			}
 			else if (action.Contains("Raise"))
 			{
-				lastAction += $"({sendingData.LastPlayerActionAmount + sendingData.MoneyInTheRound + sendingData.MoneyToCall})";
+				betAmount = sendingData.LastPlayerActionAmount + sendingData.MoneyInTheRound + sendingData.MoneyToCall;
+			}
+			else if (action.Contains("Post"))
+			{
+				betAmount = sendingData.LastPlayerActionAmount;
 			}
 
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width - 3));
@@ -129,55 +226,82 @@ namespace TestingClient
 				? sendingData.MoneyLeft
 				: sendingData.MoneyLeft - sendingData.LastPlayerActionAmount - sendingData.MoneyToCall;
 
+			SetBet(betAmount);
+
 			SetMoney(moneyAfterAction);
 		}
 
 		public void SetMoney(int amount)
 		{
-			ConsoleHelper.WriteOnConsole(_row + 1, 2, amount.ToString() + "   ");
+			string money = amount < 0 ? "         " : amount.ToString();
+			ConsoleHelper.WriteOnConsole(_row + 1, 2, money + "   ");
 		}
 
 		public void EndTurn(EndTurnSendingData sendingData)
 		{
-
+			Time = 0;
+			DrawGameBox(_row, _width);
 		}
 
 		public void EndRound(EndRoundSendingData sendingData)
 		{
-
+			SetBet(0);
+			DrawGameBox(_row, _width);
 		}
 
 		public void EndHand(EndHandSendingData sendingData)
 		{
-			_isDealer = false;
+			SetBet(0);
+			ResetWinner();
+			SetDealer(false);
+			DrawGameBox(_row, _width);
 		}
 
 		public void EndGame(EndGameSendingData sendingData)
 		{
-
+			DrawGameBox(_row, _width);
 		}
 
-		private void Muck(int moneyLeft)
+		private void Muck()
 		{
+			SetBet(0);
 			DrawMuckedSingleCard(_row + 1, 10, _type1, _suit1);
 			DrawMuckedSingleCard(_row + 1, 14, _type2, _suit2);
 		}
 
-		public void DrawGameBox(int row, int width, int commonRow)
+		public void DrawGameBox(int row, int width)
 		{
 			_row = row;
 			_width = width;
-			_commonRow = commonRow;
 
+			string top;
 			if (Name != null && Name != string.Empty)
 			{
-				string top = new string('═', 5) + Name + new string('═', 5);
-				ConsoleHelper.WriteOnConsole(_row, 0, top, PlayerBoxColor);
+				if (_isRealPlayer)
+				{
+					top = new string(new char[] { '═', 'Y', 'O', 'U', '═' });
+				}
+				else
+				{
+					top = new string('═', 5);
+				}
+
+				top += Name + "═";
+				if (Time != 0)
+				{
+					string time = Time.ToString();
+					top += time + new string('═', 5 - time.Length);
+				}
+				else
+				{
+					top += new string('═', 4);
+				}
 			}
 			else
 			{
-				ConsoleHelper.WriteOnConsole(_row, 0, new string('═', _width), PlayerBoxColor);
+				top = new string('═', _width);
 			}
+			ConsoleHelper.WriteOnConsole(_row, 0, top, PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row + 4, 0, new string('═', _width), PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, 0, "╔", PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, _width - 1, "╗", PlayerBoxColor);
@@ -229,8 +353,6 @@ namespace TestingClient
 			ConsoleHelper.WriteOnConsole(_row + 2, col, "A", ConsoleColor.Yellow);
 			col++;
 			ConsoleHelper.WriteOnConsole(_row + 2, col, "]ll-in");
-
-			//TODOSEND: turn able bools, money to call
 		}
 
 		private void DrawRestrictedPlayerOptions(int moneyToCall)
@@ -248,8 +370,6 @@ namespace TestingClient
 			ConsoleHelper.WriteOnConsole(_row + 2, col, "F", ConsoleColor.Yellow);
 			col++;
 			ConsoleHelper.WriteOnConsole(_row + 2, col, "]old");
-
-			//TODOSEND: turn able bools, money to call
 		}
 	}
 }
