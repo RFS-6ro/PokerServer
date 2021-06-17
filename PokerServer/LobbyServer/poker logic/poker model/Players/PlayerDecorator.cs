@@ -10,7 +10,7 @@
 	{
 		protected PlayerDecorator() { }
 
-		public virtual string Name => Player.Name;
+		public virtual string Name { get; protected set; } = "Empty";
 
 		public int BuyIn => Player.BuyIn;
 

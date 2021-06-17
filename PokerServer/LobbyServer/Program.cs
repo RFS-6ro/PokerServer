@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using UniCastCommonData;
 
 namespace LobbyServer
@@ -15,9 +17,22 @@ namespace LobbyServer
 
 			await _mediator.StartServers(args);
 
+			Console.WriteLine();
+			Console.WriteLine();
+			Console.WriteLine();
+			Console.WriteLine();
+			await Task.Factory.StartNew(
+				() => { a.Init(); },
+				CancellationToken.None,
+				TaskCreationOptions.None,
+				SynchronizationContext.Current != null ?
+					TaskScheduler.FromCurrentSynchronizationContext() :
+					TaskScheduler.Current);
+			//Thread consoleInput = new Thread(new ThreadStart(() =>
 			new ConsoleInput<LobbyServerMediator>(_mediator);
+			//consoleInput.Start();
 
-			await a.Init();
+
 		}
 	}
 }

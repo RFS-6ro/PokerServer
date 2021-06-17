@@ -17,10 +17,10 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public InitialSendingData(byte[] data)
 		{
-			ActorType = (ActorType)data.ToInt32();
-			Action = data.ToInt32(4);
-			SenderGuid = data.ToGuid(8);
-			ReceiverGuid = data.ToGuid(24);
+			ActorType = (ActorType)data.ToInt32(4);
+			Action = data.ToInt32(8);
+			SenderGuid = data.ToGuid(12);
+			ReceiverGuid = data.ToGuid(28);
 		}
 
 		public InitialSendingData(Guid receiverGuid, Guid senderGuid, ActorType actorType, int action)
@@ -75,26 +75,15 @@ namespace UniCastCommonData.Packet.InitialDatas
 			data.AddRange(Money.ToByteArray());//4
 			data.AddRange(Bet.ToByteArray());//4
 			data.AddRange(LastPlayerActionAmount.ToByteArray());//4
-			data.AddRange(20.ToByteArray());//4
 			data.AddRange(Index.ToByteArray());//4
 			data.AddRange(InGame.ToByteArray());//1
 			data.AddRange(IsDealer.ToByteArray());//1
 
-			if (Name.Length > 20)
-			{
-				Name.Take(20);
-			}
-			else
-			{
-				for (int i = 0; i < 20 - Name.Length; i++)
-				{
-					Name += " ";
-				}
 
-				data.AddRange(Name.ToByteArray()); //20
+			if (Name == string.Empty)
+			{
+				Name = "Empty";
 			}
-
-			data.AddRange(20.ToByteArray());//4
 
 			if (Name.Length > 20)
 			{
@@ -102,13 +91,20 @@ namespace UniCastCommonData.Packet.InitialDatas
 			}
 			else
 			{
-				for (int i = 0; i < 20 - Name.Length; i++)
-				{
-					Name += " ";
-				}
-
-				data.AddRange(Name.ToByteArray()); //20
+				Name += new string(' ', 20 - Name.Length);
 			}
+			data.AddRange(Name.ToByteArray()); //20
+
+			if (LastPlayerAction.Length > 20)
+			{
+				LastPlayerAction.Take(20);
+			}
+			else
+			{
+				LastPlayerAction += new string(' ', 20 - LastPlayerAction.Length);
+			}
+
+			data.AddRange(LastPlayerAction.ToByteArray()); //20
 
 			return data.ToArray();
 		}
@@ -120,19 +116,19 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public CurrentGameStateSendingData(byte[] data) : base(data)
 		{
-			int length = data.ToInt32(40);
+			int length = data.ToInt32(44);
 
 			for (int i = 0; i < length; i++)
 			{
-				Guid key = data.ToGuid(44 + 82 * i);//16
-				int money = data.ToInt32(60 + 82 * i);//20
-				int bet = data.ToInt32(64 + 82 * i);//24
-				int lastPlayerActionAmount = data.ToInt32(68 + 82 * i);//28
-				int index = data.ToInt32(72 + 82 * i);//32
-				bool inGame = data.ToBoolean(73 + 82 * i);//33
-				bool isDealer = data.ToBoolean(74 + 82 * i);//34
-				string name = data.ToString(78 + 82 * i);//58
-				string lastPlayerAction = data.ToString(102 + 82 * i);//82
+				Guid key = data.ToGuid(48 + 82 * i);//16
+				int money = data.ToInt32(64 + 82 * i);//20
+				int bet = data.ToInt32(68 + 82 * i);//24
+				int lastPlayerActionAmount = data.ToInt32(72 + 82 * i);//28
+				int index = data.ToInt32(76 + 82 * i);//32
+				bool inGame = data.ToBoolean(80 + 82 * i);//33
+				bool isDealer = data.ToBoolean(81 + 82 * i);//34
+				string name = data.ToString(82 + 82 * i);//58
+				string lastPlayerAction = data.ToString(106 + 82 * i);//82
 				Datas.Add((key, new PlayerData(name, money, bet, lastPlayerAction, lastPlayerActionAmount, index, inGame, isDealer)));
 			}
 		}
@@ -175,10 +171,10 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public NewPlayerConnectSendingData(byte[] data) : base(data)
 		{
-			_guid = data.ToGuid(40);
-			_index = data.ToInt32(56);
-			_name = data.ToString(60);
-			_money = data.ToInt32(64 + _name.Length);
+			_guid = data.ToGuid(40 + 4);
+			_index = data.ToInt32(56 + 4);
+			_name = data.ToString(60 + 4);
+			_money = data.ToInt32(64 + 4 + _name.Length);
 		}
 
 		public NewPlayerConnectSendingData(int money, string name, int index, Guid guid, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -209,7 +205,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public StartGameSendingData(byte[] data) : base(data)
 		{
-			_startMoney = data.ToInt32(40);
+			_startMoney = data.ToInt32(40 + 4);
 		}
 
 		public StartGameSendingData(int startMoney, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -242,10 +238,10 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public StartHandSendingData(byte[] data) : base(data)
 		{
-			_handNumber = data.ToInt32(40);
-			_money = data.ToInt32(44);
-			_smallBlind = data.ToInt32(48);
-			_firstPlayerName = data.ToString(52);
+			_handNumber = data.ToInt32(40 + 4);
+			_money = data.ToInt32(44 + 4);
+			_smallBlind = data.ToInt32(48 + 4);
+			_firstPlayerName = data.ToString(52 + 4);
 		}
 
 		public StartHandSendingData(int handNumber, int money, int smallBlind, string firstPlayerName, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -279,8 +275,8 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public StartRoundSendingData(byte[] data) : base(data)
 		{
-			_pot = data.ToInt32(40);
-			_money = data.ToInt32(44);
+			_pot = data.ToInt32(40 + 4);
+			_money = data.ToInt32(44 + 4);
 		}
 
 		public StartRoundSendingData(int pot, int money, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -346,20 +342,20 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public StartTurnSendingData(byte[] data) : base(data)
 		{
-			_time = data.ToInt32(40);
-			_gameRoundType = data.ToInt32(44);
-			_smallBlind = data.ToInt32(48);
-			_money = data.ToInt32(52);
-			_pot = data.ToInt32(56);
-			_currentRoundBet = data.ToInt32(60);
-			_maxMoneyPerPlayer = data.ToInt32(64);
-			_minRaise = data.ToInt32(68);
-			_myMoneyInTheRound = data.ToInt32(72);
-			_moneyToCall = data.ToInt32(76);
-			_isAllIn = data.ToBoolean(80);
-			_canRaise = data.ToBoolean(81);
-			_canCheck = data.ToBoolean(82);
-			_player = data.ToGuid(83);
+			_time = data.ToInt32(40 + 4);
+			_gameRoundType = data.ToInt32(44 + 4);
+			_smallBlind = data.ToInt32(48 + 4);
+			_money = data.ToInt32(52 + 4);
+			_pot = data.ToInt32(56 + 4);
+			_currentRoundBet = data.ToInt32(60 + 4);
+			_maxMoneyPerPlayer = data.ToInt32(64 + 4);
+			_minRaise = data.ToInt32(68 + 4);
+			_myMoneyInTheRound = data.ToInt32(72 + 4);
+			_moneyToCall = data.ToInt32(76 + 4);
+			_isAllIn = data.ToBoolean(80 + 4);
+			_canRaise = data.ToBoolean(81 + 4);
+			_canCheck = data.ToBoolean(82 + 4);
+			_player = data.ToGuid(83 + 4);
 		}
 
 		public StartTurnSendingData(Guid player, int time, int gameRoundType, int smallBlind, int money, int pot, int currentRoundBet, int maxMoneyPerPlayer, int minRaise, int myMoneyInTheRound, int moneyToCall, bool isAllIn, bool canRaise, bool canCheck, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -420,10 +416,10 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public DealCardsToPlayerSendingData(byte[] data) : base(data)
 		{
-			_cardType1 = data.ToInt32(40);
-			_cardSuit1 = data.ToInt32(44);
-			_cardType2 = data.ToInt32(48);
-			_cardSuit2 = data.ToInt32(52);
+			_cardType1 = data.ToInt32(40 + 4);
+			_cardSuit1 = data.ToInt32(44 + 4);
+			_cardType2 = data.ToInt32(48 + 4);
+			_cardSuit2 = data.ToInt32(52 + 4);
 		}
 
 		public DealCardsToPlayerSendingData(int cardType1, int cardSuit1, int cardType2, int cardSuit2, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -452,11 +448,11 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public DealCardsToTableSendingData(byte[] data) : base(data)
 		{
-			int length = data.ToInt32(40);
+			int length = data.ToInt32(40 + 4);
 
 			for (int i = 0; i < length; i++)
 			{
-				Cards.Add((data.ToInt32(44 + 8 * i), data.ToInt32(48 + 8 * i)));
+				Cards.Add((data.ToInt32(44 + 4 + 8 * i), data.ToInt32(48 + 4 + 8 * i)));
 			}
 		}
 
@@ -488,14 +484,14 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public WinnersSendingData(byte[] data) : base(data)
 		{
-			int length = data.ToInt32(40);
+			int length = data.ToInt32(40 + 4);
 
 			for (int i = 0; i < length; i++)
 			{
 				Winners.Add((
-					data.ToGuid(44 + 37 * i),
-					data.ToInt32(60 + 37 * i),
-					data.ToString(64 + 37 * i)
+					data.ToGuid(44 + 4 + 37 * i),
+					data.ToInt32(60 + 4 + 37 * i),
+					data.ToString(64 + 4 + 37 * i)
 				));
 			}
 		}
@@ -530,7 +526,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public DealerButtonSendingData(byte[] data) : base(data)
 		{
-			_dealer = data.ToGuid(40);
+			_dealer = data.ToGuid(40 + 4);
 		}
 
 		public DealerButtonSendingData(Guid dealer, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -554,7 +550,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public DisconnectSendingData(byte[] data) : base(data)
 		{
-			_player = data.ToGuid(40);
+			_player = data.ToGuid(40 + 4);
 		}
 
 		public DisconnectSendingData(Guid player, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -578,7 +574,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public UpdatePotSendingData(byte[] data) : base(data)
 		{
-			_pot = data.ToInt32(40);
+			_pot = data.ToInt32(40 + 4);
 		}
 
 		public UpdatePotSendingData(int pot, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -601,12 +597,12 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public UpdatePlayersMoneySendingData(byte[] data) : base(data)
 		{
-			int length = data.ToInt32(40);
+			int length = data.ToInt32(40 + 4);
 
 			for (int i = 0; i < length; i++)
 			{
-				Guid key = data.ToGuid(44 + 20 * i);
-				int value = data.ToInt32(60 + 20 * i);
+				Guid key = data.ToGuid(44 + 4 + 20 * i);
+				int value = data.ToInt32(60 + 4 + 20 * i);
 				Moneys.Add(key, value);
 			}
 		}
@@ -643,8 +639,8 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public UpdateTimerSendingData(byte[] data) : base(data)
 		{
-			_player = data.ToGuid(40);
-			_milliseconds = data.ToInt32(56);
+			_player = data.ToGuid(40 + 4);
+			_milliseconds = data.ToInt32(56 + 4);
 		}
 
 		public UpdateTimerSendingData(Guid player, int milliseconds, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -680,20 +676,28 @@ namespace UniCastCommonData.Packet.InitialDatas
 		private int _moneyToCall;
 		public int MoneyToCall => _moneyToCall;
 
+		private int _minRaise;
+		public int MinRaise => _minRaise;
+
+		private int _maxBet;
+		public int MaxBet => _maxBet;
+
 		private string _lastPlayerAction;
 		public string LastPlayerAction => _lastPlayerAction;
 
 		public PlayerTurnSendingData(byte[] data) : base(data)
 		{
-			_player = data.ToGuid(40);
-			_lastPlayerActionAmount = data.ToInt32(56);
-			_moneyLeft = data.ToInt32(60);
-			_moneyInTheRound = data.ToInt32(64);
-			_moneyToCall = data.ToInt32(68);
-			_lastPlayerAction = data.ToString(72);
+			_player = data.ToGuid(40 + 4);
+			_lastPlayerActionAmount = data.ToInt32(56 + 4);
+			_moneyLeft = data.ToInt32(60 + 4);
+			_moneyInTheRound = data.ToInt32(64 + 4);
+			_moneyToCall = data.ToInt32(68 + 4);
+			_minRaise = data.ToInt32(72 + 4);
+			_maxBet = data.ToInt32(76 + 4);
+			_lastPlayerAction = data.ToString(80 + 4);
 		}
 
-		public PlayerTurnSendingData(Guid playerGuid, int moneyLeft, int moneyInTheRound, int moneyToCall, int lastPlayerActionAmount, string lastPlayerAction, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public PlayerTurnSendingData(Guid playerGuid, int moneyLeft, int moneyInTheRound, int moneyToCall, int lastPlayerActionAmount, int minRaise, int maxBet, string lastPlayerAction, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			_moneyInTheRound = moneyInTheRound;
 			_moneyToCall = moneyToCall;
@@ -701,6 +705,8 @@ namespace UniCastCommonData.Packet.InitialDatas
 			_player = playerGuid;
 			_lastPlayerAction = lastPlayerAction;
 			_lastPlayerActionAmount = lastPlayerActionAmount;
+			_minRaise = minRaise;
+			_maxBet = maxBet;
 		}
 
 		public override byte[] GetRawBytes()
@@ -711,6 +717,8 @@ namespace UniCastCommonData.Packet.InitialDatas
 			data.AddRange(_moneyLeft.ToByteArray());
 			data.AddRange(_moneyInTheRound.ToByteArray());
 			data.AddRange(_moneyToCall.ToByteArray());
+			data.AddRange(_minRaise.ToByteArray());
+			data.AddRange(_maxBet.ToByteArray());
 			data.AddRange(_lastPlayerAction.ToByteArray());
 			return data.ToArray();
 		}
@@ -722,15 +730,15 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public OpponentCardsSendingData(byte[] data) : base(data)
 		{
-			int length = data.ToInt32(40);
+			int length = data.ToInt32(40 + 4);
 
 			for (int i = 0; i < length; i++)
 			{
-				Guid key = data.ToGuid(44 + 32 * i);
-				int type1 = data.ToInt32(60 + 32 * i);
-				int suit1 = data.ToInt32(64 + 32 * i);
-				int type2 = data.ToInt32(68 + 32 * i);
-				int suit2 = data.ToInt32(72 + 32 * i);
+				Guid key = data.ToGuid(44 + 4 + 32 * i);
+				int type1 = data.ToInt32(60 + 4 + 32 * i);
+				int suit1 = data.ToInt32(64 + 4 + 32 * i);
+				int type2 = data.ToInt32(68 + 4 + 32 * i);
+				int suit2 = data.ToInt32(72 + 4 + 32 * i);
 				Cards.Add(key, (type1, suit1, type2, suit2));
 			}
 		}
@@ -767,7 +775,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public EndTurnSendingData(byte[] data) : base(data)
 		{
-			_player = data.ToGuid(40);
+			_player = data.ToGuid(40 + 4);
 		}
 
 		public EndTurnSendingData(Guid playerGuid, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -827,7 +835,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public EndGameSendingData(byte[] data) : base(data)
 		{
-			_winner = data.ToGuid(40);
+			_winner = data.ToGuid(40 + 4);
 		}
 
 		public EndGameSendingData(Guid winner, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -851,7 +859,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public ClearCardsSendingData(byte[] data) : base(data)
 		{
-			_cardKeeper = data.ToGuid(40);
+			_cardKeeper = data.ToGuid(40 + 4);
 		}
 
 		public ClearCardsSendingData(Guid cardKeeper, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -875,7 +883,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public PlayerDisconnectSendingData(byte[] data) : base(data)
 		{
-			_player = data.ToGuid(40);
+			_player = data.ToGuid(40 + 4);
 		}
 
 		public PlayerDisconnectSendingData(Guid player, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
@@ -888,6 +896,35 @@ namespace UniCastCommonData.Packet.InitialDatas
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
 			data.AddRange(_player.ToByteArray());
+			return data.ToArray();
+		}
+	}
+
+	public class PlayerInputSendingData : InitialSendingData
+	{
+		private byte[] _inputData;
+		private int _inputType;
+		private int _inputAmount;
+		public int InputType => _inputType;
+		public int InputAmount => _inputAmount;
+
+		public PlayerInputSendingData(byte[] data) : base(data)
+		{
+			_inputData = data.Where((b, i) => i >= 40).ToArray();
+			_inputType = _inputData.ToInt32(0);
+			_inputAmount = _inputData.ToInt32(4);
+		}
+
+		public PlayerInputSendingData(byte[] inputData, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		{
+			_inputData = inputData;
+		}
+
+		public override byte[] GetRawBytes()
+		{
+			List<byte> data = new List<byte>();
+			data.AddRange(base.GetRawBytes());
+			data.AddRange(_inputData);
 			return data.ToArray();
 		}
 	}

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using UniCastCommonData;
 
 namespace DatabaseServer
@@ -13,6 +14,8 @@ namespace DatabaseServer
 
 			await _mediator.StartServers();
 
+			Thread consoleInput = new Thread(new ThreadStart(() => new ConsoleInput<DatabaseServerMediator>(_mediator)));
+			consoleInput.Start();
 			//new ConsoleInput<DatabaseServerMediator>(_mediator);
 		}
 	}

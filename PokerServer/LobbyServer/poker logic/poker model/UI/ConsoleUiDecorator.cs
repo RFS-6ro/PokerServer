@@ -32,6 +32,12 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 		public int Time = 0;
 		public bool IsDealer;
 
+		public ConsoleUiDecorator(int row, int width)
+		{
+			_row = row;
+			_width = width;
+		}
+
 		public override void SetPlayer(IPlayer player)
 		{
 			base.SetPlayer(player);
@@ -39,6 +45,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			if (player.GetType() == typeof(ServerPlayer))
 			{
 				PlayerGuid = ((ServerPlayer)player).Guid;
+				Name = player.Name;
 			}
 		}
 
@@ -135,6 +142,11 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			ConsoleHelper.WriteOnConsole(row, col + 2 + card.ToString().Length, " ");
 		}
 
+		internal void Disconnect()
+		{
+			throw new NotImplementedException();
+		}
+
 		public async override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
 			PlayerAction action = await GetTurn(context);
@@ -145,7 +157,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 		public void SetWinner(int prize, string handRank)
 		{
 			PlayerBoxColor = ConsoleColor.DarkYellow;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 
 			//write prize and hand
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, $"Winner: prize:{prize} with hand rank: {handRank}");
@@ -156,7 +168,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 		public void ResetWinner()
 		{
 			PlayerBoxColor = ConsoleColor.DarkGreen;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 
 			//delete prize and hand
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width));
@@ -168,10 +180,8 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			DrawMuckedSingleCard(_row + 1, 14, secondCard);
 		}
 
-		public void DrawGameBox(int row, int width)
+		public void DrawGameBox()
 		{
-			_row = row;
-			_width = width;
 			string top;
 			if (Name != null && Name != string.Empty)
 			{
@@ -223,7 +233,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public override void EndHand(IEndHandContext context)
 		{
-			ResetWinner()
+			ResetWinner();
 			IsDealer = false;
 			base.EndHand(context);
 		}

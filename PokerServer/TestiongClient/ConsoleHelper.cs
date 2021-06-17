@@ -22,8 +22,8 @@ namespace TestingClient
 
 		public static string ToFriendlyString(int type, int suit)
 		{
-			string friendlyType;
-			string friendlySuit;
+			string friendlyType = " ";
+			string friendlySuit = " ";
 			switch (suit)
 			{
 			case -1:
@@ -126,7 +126,7 @@ namespace TestingClient
 			case 1: return ConsoleColor.Blue;
 			case 2: return ConsoleColor.Red;
 			case 3: return ConsoleColor.Black;
-			default: throw new ArgumentException("card.Suit");
+			default: return ConsoleColor.DarkRed;
 			}
 		}
 	}

@@ -23,7 +23,7 @@ namespace GameCore.Poker.Model
 			10000, 15000, 20000, 30000, 40000, 50000, 60000, 80000, 100000,
 		};
 
-		private readonly ICollection<ConsoleUiDecorator> allPlayers;
+		public readonly ICollection<ConsoleUiDecorator> allPlayers;
 
 		private readonly TableViewModel _tableViewModel;
 

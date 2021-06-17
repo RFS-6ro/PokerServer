@@ -2,15 +2,13 @@
 {
 	using System.Collections.Generic;
 	using System.Linq;
-	using LobbyServer.pokerlogic.pokermodel.Players;
+	using LobbyServer.pokerlogic.pokermodel.UI;
 
-
-	public class PotCreator<TDECORATOR>
-		where TDECORATOR : PlayerDecorator, new()
+	public class PotCreator
 	{
-		private IList<TDECORATOR> _players;
+		private IList<ConsoleUiDecorator> _players;
 
-		public PotCreator(IList<TDECORATOR> players)
+		public PotCreator(IList<ConsoleUiDecorator> players)
 		{
 			_players = players;
 		}

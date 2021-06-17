@@ -15,6 +15,7 @@ namespace TestingClient
 
 		public TableViewModel Table { get; }
 
+		private int _realPlayerIndex;
 		private ConsoleUiDecorator _mainPlayer;
 
 		public PokerInitializer()
@@ -23,8 +24,8 @@ namespace TestingClient
 			Table = new TableViewModel(30);
 			for (int i = 0; i < MaxPlayers; i++)
 			{
-				ConsoleUiDecorator decorator = new ConsoleUiDecorator();
-				decorator.DrawGameBox((6 * i) + 3, 30);
+				ConsoleUiDecorator decorator = new ConsoleUiDecorator((6 * i) + 3, 30);
+				decorator.DrawGameBox();
 				Decorators.Add(decorator);
 			}
 		}
@@ -33,20 +34,20 @@ namespace TestingClient
 		{
 			var keys = sendingData.Datas.Select((x) => x.Item1).ToList();
 
-			int realPlayerIndex = keys.IndexOf(IStaticInstance<Client_Lobby>.Instance.Id);
+			_realPlayerIndex = keys.IndexOf(IStaticInstance<Client_Lobby>.Instance.Id);
 
-			_mainPlayer = Decorators[realPlayerIndex];
+			_mainPlayer = Decorators[0];
 
-			for (int i = realPlayerIndex; i < sendingData.Datas.Count; i++)
+			for (int i = _realPlayerIndex; i < sendingData.Datas.Count; i++)
 			{
-				int index = i - realPlayerIndex;
-				Decorators[index].SetPlayerData(sendingData.Datas[index].Item1, sendingData.Datas[index].Item2);
+				int index = i - _realPlayerIndex;
+				Decorators[index].SetPlayerData(sendingData.Datas[i].Item1, sendingData.Datas[i].Item2);
 			}
 
-			for (int i = 0; i < realPlayerIndex; i++)
+			for (int i = 0; i < _realPlayerIndex; i++)
 			{
-				int index = i + 5;
-				Decorators[index].SetPlayerData(sendingData.Datas[index].Item1, sendingData.Datas[index].Item2);
+				int index = i + (9 - _realPlayerIndex);
+				Decorators[index].SetPlayerData(sendingData.Datas[i].Item1, sendingData.Datas[i].Item2);
 			}
 		}
 
@@ -62,7 +63,17 @@ namespace TestingClient
 
 		public void AddNewPlayer(NewPlayerConnectSendingData sendingData)
 		{
-			Decorators[sendingData.Index].SetPlayerData(sendingData.Guid, new PlayerData(sendingData.Name, sendingData.Money, 0, string.Empty, 0, sendingData.Index, false, false));
+			int index;
+			if (sendingData.Index < _realPlayerIndex)
+			{
+				index = sendingData.Index + (9 - _realPlayerIndex);
+			}
+			else
+			{
+				index = sendingData.Index - _realPlayerIndex;
+			}
+
+			Decorators[index].SetPlayerData(sendingData.Guid, new PlayerData(sendingData.Name, sendingData.Money, 0, string.Empty, 0, index, false, false));
 		}
 
 		public void RemovePlayer(Guid player)

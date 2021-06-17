@@ -162,6 +162,8 @@ namespace LobbyServer.pokerlogic.GameMechanics
 									 -1,
 									 -1,
 									 -1,
+									 _smallBlind * 2,
+									 0,
 									 string.Empty,
 									 Guid.Empty,
 									 Server.Id,

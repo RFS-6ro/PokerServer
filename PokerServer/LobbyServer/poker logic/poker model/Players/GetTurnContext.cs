@@ -12,13 +12,7 @@
 
 		public int SmallBlind { get; }
 
-		public int MoneyLeft { get; }
-
 		public int CurrentPot { get; }
-
-		public int MyMoneyInTheRound { get; }
-
-		public int CurrentMaxBet { get; }
 
 		public bool CanCheck => MyMoneyInTheRound == CurrentMaxBet;
 
@@ -41,9 +35,15 @@
 			}
 		}
 
-		public bool IsAllIn => MoneyLeft <= 0;
+		public int CurrentMaxBet { get; }
+
+		public int MyMoneyInTheRound { get; }
+
+		public int MoneyLeft { get; }
 
 		public int MinRaise { get; }
+
+		public bool IsAllIn => MoneyLeft <= 0;
 
 		public Pot MainPot { get; }
 

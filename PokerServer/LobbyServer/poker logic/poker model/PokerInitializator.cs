@@ -26,8 +26,6 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 	public List<ChairViewModel> Chairs;
 
-	private List<ServerPlayer> _readyToPlay = new(MaxPlayers);
-
 	private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
 	private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
 
@@ -35,20 +33,21 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 	public PokerInitializator()
 	{
+		TableViewModel = new TableViewModel(1, 30);
 		IStaticInstance<PokerInitializator>.Instance = this;
 		//init seats
 		for (int i = 0; i < MaxPlayers; i++)
 		{
 			CurrentPlayers.Add(null);
-			ConsoleUiDecorator decorator = new ConsoleUiDecorator();
-			decorator.DrawGameBox((6 * i) + 3, 30, 1);
+			ConsoleUiDecorator decorator = new ConsoleUiDecorator((6 * i) + 3, 30);
+			decorator.DrawGameBox();
 			Decorators.Add(decorator);
 		}
 	}
 
 	public void AddPlayer(Guid guid, string name)
 	{
-		var player = new ServerPlayer(guid, name);
+		var player = new ServerPlayer(guid, name, 300);
 		int randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
 
 		while (CurrentPlayers[randomSeatIndex] != null)
@@ -58,7 +57,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 		CurrentPlayers[randomSeatIndex] = player;
 		Decorators[randomSeatIndex].SetPlayer(player);
-		Decorators[randomSeatIndex].DrawGameBox((6 * randomSeatIndex) + 3, 30, 1);
+		Decorators[randomSeatIndex].DrawGameBox();
 
 		Sender.MulticastExept(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
 						 new NewPlayerConnectSendingData(
@@ -85,15 +84,22 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 			PlayerData activePlayerData;
 			Guid activePlayerGuid;
 
-			if (activePlayer != null && _currentGame != null)
+			if (activePlayer != null)// && )
 			{
-				activePlayerData = _currentGame.CollectDataByGuid(activePlayer.Guid);
+				if (_currentGame != null)
+				{
+					activePlayerData = _currentGame.CollectDataByGuid(activePlayer.Guid);
+				}
+				else
+				{
+					activePlayerData = new PlayerData(activePlayer.Name, 300, 0, string.Empty, -1, i, false, false);
+				}
 				activePlayerData.Index = i;
 				activePlayerGuid = activePlayer.Guid;
 			}
 			else
 			{
-				activePlayerData = new PlayerData("", -1, -1, "", -1, i, false, false);
+				activePlayerData = new PlayerData("Empty", -1, -1, string.Empty, -1, i, false, false);
 				activePlayerGuid = Guid.Empty;
 			}
 
@@ -119,6 +125,11 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 			CurrentPlayers[index] = null;
 			Decorators[index].SetPlayer(null);
 
+			if (_currentGame != null)
+			{
+				_currentGame.allPlayers.FirstOrDefault((player) => player.PlayerGuid == guid)?.Disconnect();
+			}
+
 			Sender.Multicast(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
 							 new PlayerDisconnectSendingData(
 								 guid,
@@ -129,6 +140,26 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 							 null);
 			//SEND: disconnect event
 		}
+	}
+
+	public ConsoleUiDecorator FindPlayerDecoratorByGuid(Guid receiverGuid)
+	{
+		if (receiverGuid == Guid.Empty)
+		{
+			return null;
+		}
+
+		return Decorators.Find((x) => x.PlayerGuid == receiverGuid);
+	}
+
+	public ServerPlayer FindPlayerByGuid(Guid receiverGuid)
+	{
+		if (receiverGuid == Guid.Empty)
+		{
+			return null;
+		}
+
+		return CurrentPlayers.Find((x) => x.Guid == receiverGuid);
 	}
 
 	public async Task Init()
@@ -143,7 +174,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		_currentGame = new TexasHoldemGame(players, TableViewModel);
 		var winner = await _currentGame.Start();//wait for end of game
 
-		if (_readyToPlay.Count + CurrentPlayers.Count((x) => x != null) > 2)
+		if (CurrentPlayers.Count((x) => x != null) > 2)
 		{
 			await Init();
 			return;
@@ -164,6 +195,6 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		CurrentPlayers.RemoveAt(0);
 		Decorators.Add(Decorators[0]);
 		Decorators.RemoveAt(0);
-		return Decorators.Where((x) => x != null).ToList();
+		return Decorators.Where((x) => x.PlayerGuid != Guid.Empty).ToList();
 	}
 }

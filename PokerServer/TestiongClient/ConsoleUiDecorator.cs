@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TestingClient.Lobby;
+using TestingClient.Lobby.Handlers;
 using UniCastCommonData;
+using UniCastCommonData.Handlers;
 using UniCastCommonData.Packet.InitialDatas;
 
 namespace TestingClient
@@ -23,6 +25,8 @@ namespace TestingClient
 		private int _type2;
 		private int _suit2;
 
+		private bool _isPlaying = false;
+
 		public int Time = 0;
 		private bool _isRealPlayer = false;
 
@@ -30,8 +34,37 @@ namespace TestingClient
 
 		public string Name { get; set; }
 
-		public ConsoleUiDecorator()
+		public bool CanRaise => MinRaise > 0 && MoneyLeft > MoneyToCall;
+
+		public int MoneyToCall
 		{
+			get
+			{
+				var temp = CurrentMaxBet - MyMoneyInTheRound;
+				if (temp >= MoneyLeft)
+				{
+					// The player does not have enough money to make a full call
+					return MoneyLeft;
+				}
+				else
+				{
+					return temp;
+				}
+			}
+		}
+
+		public int CurrentMaxBet { get; set; }
+
+		public int MyMoneyInTheRound { get; set; }//
+
+		public int MoneyLeft { get; set; }//
+
+		public int MinRaise { get; set; }
+
+		public ConsoleUiDecorator(int row, int width)
+		{
+			_row = row;
+			_width = width;
 			SetEmpty();
 		}
 
@@ -45,7 +78,7 @@ namespace TestingClient
 			SetMoney(-1);
 			SetDealer(false);
 			SetCards(-1, -1, -1, -1);
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 		}
 
 		public void SetPlayerData(Guid guid, PlayerData data)
@@ -62,7 +95,7 @@ namespace TestingClient
 			_isRealPlayer = guid == IStaticInstance<Client_Lobby>.Instance.Id;
 
 			SetDealer(data.IsDealer);
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 
 			if (data.InGame)
 			{
@@ -84,8 +117,9 @@ namespace TestingClient
 
 		public void StartGame(StartGameSendingData sendingData)
 		{
+			_isPlaying = true;
 			SetBet(0);
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 			SetMoney(sendingData.StartMoney);
 		}
 
@@ -94,7 +128,7 @@ namespace TestingClient
 			SetBet(0);
 			SetDealer(Name == sendingData.FirstPlayerName);
 
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 		}
 
 		public void SetDealer(bool value = true)
@@ -113,13 +147,13 @@ namespace TestingClient
 			_type2 = type2;
 			_suit2 = suit2;
 			DrawSingleCard(_row + 1, 10, type1, suit1);
-			DrawSingleCard(_row + 1, 10, type2, suit2);
+			DrawSingleCard(_row + 1, 14, type2, suit2);
 		}
 
 		public void StartRound(StartRoundSendingData sendingData)
 		{
 			SetBet(0);
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 			SetMoney(sendingData.Money);
 		}
 
@@ -130,14 +164,12 @@ namespace TestingClient
 				return;
 			}
 
-			if (!sendingData.CanRaise)
-			{
-				DrawRestrictedPlayerOptions(sendingData.MoneyToCall);
-			}
-			else
-			{
-				DrawPlayerOptions(sendingData.MoneyToCall);
-			}
+			CurrentMaxBet = sendingData.MaxMoneyPerPlayer;
+			MyMoneyInTheRound = sendingData.MyMoneyInTheRound;
+			MoneyLeft = sendingData.Money;
+			MinRaise = sendingData.MinRaise;
+
+			DrawGameBox();
 
 			InputModel.OnTurnSetted += OnTurnSetted;
 		}
@@ -145,11 +177,20 @@ namespace TestingClient
 		private void OnTurnSetted()
 		{
 			//TODOSEND: player input
-
+			IStaticInstance<Client_Lobby>.
+				Instance.
+				SendHandler.
+				SendAsync(new PlayerInputSendingData(
+						InputModel.GetTurn(),
+						Guid.Empty,
+						IStaticInstance<Client_Lobby>.Instance.Id,
+						ActorType.Client,
+						(int)clientTOlobby.SendTurn), null);
 		}
 
 		public void SetBet(int amount)
 		{
+			MyMoneyInTheRound = amount < 0 ? 0 : amount;
 			string bet = amount <= 0 ? "      " : amount.ToString();
 
 			ConsoleHelper.WriteOnConsole(_row, 20, $" Bet = {bet} ", ConsoleColor.Black, ConsoleColor.White);
@@ -158,13 +199,13 @@ namespace TestingClient
 		public void SetTimer(int amount)
 		{
 			Time = amount;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 		}
 
 		public void SetWinner(int prize, string handRank)
 		{
 			PlayerBoxColor = ConsoleColor.DarkYellow;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 
 			//write prize and hand
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, $"Winner: {prize} / {handRank}");
@@ -175,16 +216,27 @@ namespace TestingClient
 		public void ResetWinner()
 		{
 			PlayerBoxColor = ConsoleColor.DarkGreen;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 
 			//delete prize and hand
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, new string(' ', _width));
 		}
 
+		public void SetDataToMakeTurn(int minRaise, int currentMaxBet)
+		{
+			MinRaise = minRaise;
+			CurrentMaxBet = currentMaxBet;
+		}
+
 		public void ShowTurn(PlayerTurnSendingData sendingData)
 		{
+			if (sendingData.Player == PlayerGuid)
+			{
+				InputModel.OnTurnSetted -= OnTurnSetted;
+			}
+
 			int betAmount = -1;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 
 			SetMoney(sendingData.MoneyLeft);
 
@@ -233,6 +285,7 @@ namespace TestingClient
 
 		public void SetMoney(int amount)
 		{
+			MoneyLeft = amount < 0 ? 0 : amount;
 			string money = amount < 0 ? "         " : amount.ToString();
 			ConsoleHelper.WriteOnConsole(_row + 1, 2, money + "   ");
 		}
@@ -240,13 +293,13 @@ namespace TestingClient
 		public void EndTurn(EndTurnSendingData sendingData)
 		{
 			Time = 0;
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 		}
 
 		public void EndRound(EndRoundSendingData sendingData)
 		{
 			SetBet(0);
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 		}
 
 		public void EndHand(EndHandSendingData sendingData)
@@ -254,12 +307,13 @@ namespace TestingClient
 			SetBet(0);
 			ResetWinner();
 			SetDealer(false);
-			DrawGameBox(_row, _width);
+			DrawGameBox();
 		}
 
 		public void EndGame(EndGameSendingData sendingData)
 		{
-			DrawGameBox(_row, _width);
+			_isPlaying = false;
+			DrawGameBox();
 		}
 
 		private void Muck()
@@ -269,11 +323,8 @@ namespace TestingClient
 			DrawMuckedSingleCard(_row + 1, 14, _type2, _suit2);
 		}
 
-		public void DrawGameBox(int row, int width)
+		public void DrawGameBox()
 		{
-			_row = row;
-			_width = width;
-
 			string top;
 			if (Name != null && Name != string.Empty)
 			{
@@ -311,6 +362,18 @@ namespace TestingClient
 			{
 				ConsoleHelper.WriteOnConsole(_row + i, 0, "║", PlayerBoxColor);
 				ConsoleHelper.WriteOnConsole(_row + i, _width - 1, "║", PlayerBoxColor);
+			}
+
+			if (_isRealPlayer && _isPlaying)
+			{
+				if (!CanRaise)
+				{
+					DrawRestrictedPlayerOptions(MoneyToCall);
+				}
+				else
+				{
+					DrawPlayerOptions(MoneyToCall);
+				}
 			}
 		}
 

@@ -1,4 +1,5 @@
-﻿using UniCastCommonData.Network;
+﻿using UniCastCommonData;
+using UniCastCommonData.Network;
 
 namespace LobbyServer.Client
 {
@@ -7,5 +8,10 @@ namespace LobbyServer.Client
 		public string Name { get; }
 
 		public Lobby_Client_Session(TcpServer server) : base(server) { }
+
+		protected override void OnDisconnecting()
+		{
+			IStaticInstance<PokerInitializator>.Instance.RemovePlayer(Id);
+		}
 	}
 }

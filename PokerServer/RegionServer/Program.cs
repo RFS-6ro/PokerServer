@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using UniCastCommonData;
 
 namespace RegionServer
@@ -13,7 +14,8 @@ namespace RegionServer
 
 			await _mediator.StartServers(args);
 
-			new ConsoleInput<RegionServerMediator>(_mediator);
+			Thread consoleInput = new Thread(new ThreadStart(() => new ConsoleInput<RegionServerMediator>(_mediator)));
+			consoleInput.Start();
 		}
 	}
 }

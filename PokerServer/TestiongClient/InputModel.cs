@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using PokerSynchronisation;
 using UniCastCommonData;
 
@@ -16,7 +17,11 @@ namespace TestingClient
 		{
 			add
 			{
-				_onTurnSetted += value;
+				if (_onTurnSetted.GetInvocationList().Contains(value) == false)
+				{
+					_onTurnSetted += value;
+				}
+
 				if (_isCleared == false)
 				{
 					_onTurnSetted?.Invoke();
@@ -24,7 +29,10 @@ namespace TestingClient
 			}
 			remove
 			{
-				_onTurnSetted -= value;
+				if (_onTurnSetted.GetInvocationList().Contains(value))
+				{
+					_onTurnSetted -= value;
+				}
 			}
 		}
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using LobbyServer.Client;
 using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.pokermodel.UI;
+using PokerSynchronisation;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
@@ -18,6 +19,9 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 		public override string Name { get; }
 
 		public override int BuyIn { get; }
+
+		private int _playerRaiseAmount = -1;
+		private TurnType _turnType = TurnType.None;
 
 		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
 		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
@@ -45,39 +49,42 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 
 			while (passedTime < context.TimeForTurn)
 			{
-				//TODORECEIVE: player turn
-				//var key = Console.ReadKey(true);
+				//RECEIVE: player turn
 				PlayerAction action = null;
-				//switch (key.Key)
-				//{
-				//case ConsoleKey.C:
-				//	action = PlayerAction.CheckOrCall();
-				//	break;
-				//case ConsoleKey.R:
-				//	if (!context.CanRaise)
-				//	{
-				//		continue;
-				//	}
-				//	int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
-				//	action = PlayerAction.Raise(amount);
-				//	break;
-				//case ConsoleKey.F:
-				//	action = PlayerAction.Fold();
-				//	break;
-				//case ConsoleKey.A:
-				//	if (!context.CanRaise)
-				//	{
-				//		continue;
-				//	}
+				switch (_turnType)
+				{
+				case TurnType.None:
+					break;
+				case TurnType.Call:
+					action = PlayerAction.CheckOrCall();
+					break;
+				case TurnType.Raise:
+					if (!context.CanRaise)
+					{
+						break;
+					}
+					int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
+					action = PlayerAction.Raise(amount);
+					break;
+				case TurnType.Fold:
+					action = PlayerAction.Fold();
+					break;
+				case TurnType.AllIn:
+					if (!context.CanRaise)
+					{
+						break;
+					}
 
-				//	action = context.MoneyLeft > 0
-				//				 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
-				//				 : PlayerAction.CheckOrCall();
-				//	break;
-				//}
+					action = context.MoneyLeft > 0
+								 ? PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall)
+								 : PlayerAction.CheckOrCall();
+					break;
+				}
 
 				if (action != null)
 				{
+					_playerRaiseAmount = -1;
+					_turnType = TurnType.None;
 					return action;
 				}
 
@@ -100,11 +107,10 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			return PlayerAction.Fold();
 		}
 
-		private int _playerRaiseAmount = -1;
-
-		public void SetPlayerRaiseAmount(int amount)
+		public void SetPlayerTurn(int type, int amount)
 		{
-			//TODORECEIVE:
+			//RECEIVE:
+			_turnType = (TurnType)type;
 			_playerRaiseAmount = amount;
 		}
 

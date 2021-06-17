@@ -163,6 +163,8 @@ namespace TestingClient.Lobby.Handlers
 			var sendingData = new PlayerTurnSendingData(packet.GetRawBytes());
 
 			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player).ShowTurn(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(Guid.Empty).SetDataToMakeTurn(sendingData.MinRaise, sendingData.MaxBet);
+
 		}
 
 		private void UpdateTimer(UniCastPacket packet)

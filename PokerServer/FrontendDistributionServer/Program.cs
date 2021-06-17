@@ -15,7 +15,8 @@ namespace FrontendDistributionServer
 
 			await _mediator.StartServers(args);
 
-			new ConsoleInput<FrontendDistributionServerMediator>(_mediator);
+			Thread consoleInput = new Thread(new ThreadStart(() => new ConsoleInput<FrontendDistributionServerMediator>(_mediator)));
+			consoleInput.Start();
 		}
 	}
 }

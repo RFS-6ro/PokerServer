@@ -31,8 +31,11 @@ namespace LobbyServer.Client.Handlers
 			Handlers.Add((int)clientTOlobby.Disconnect, Disconnect);
 		}
 
-		private void ReceiveTurn(UniCastPacket obj)
+		private void ReceiveTurn(UniCastPacket packet)
 		{
+			PlayerInputSendingData sendingData = new PlayerInputSendingData(packet.GetRawBytes());
+
+			IStaticInstance<PokerInitializator>.Instance.FindPlayerByGuid(sendingData.SenderGuid)?.SetPlayerTurn(sendingData.InputType, sendingData.InputAmount);
 			//TODORECEIVE INPUT
 		}
 
@@ -45,7 +48,7 @@ namespace LobbyServer.Client.Handlers
 
 		private void Connect(UniCastPacket packet)
 		{
-			Guid receiverGuid = new Guid(packet.Read(16));
+			packet.Read(32);
 			string name = packet.ReadString();
 
 			IStaticInstance<PokerInitializator>.Instance.AddPlayer(LastSenderGuid, name);

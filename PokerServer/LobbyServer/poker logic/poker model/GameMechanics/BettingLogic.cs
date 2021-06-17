@@ -24,7 +24,7 @@
 
 		private readonly TableViewModel _tableViewModel;
 
-		private PotCreator<ConsoleUiDecorator> potCreator;
+		private PotCreator potCreator;
 
 		private MinRaise minRaise;
 
@@ -37,7 +37,7 @@
 			allPlayers = players;
 			_smallBlind = smallBlind;
 			RoundBets = new List<PlayerActionAndName>();
-			potCreator = new PotCreator<ConsoleUiDecorator>(allPlayers);
+			potCreator = new PotCreator(allPlayers);
 			minRaise = new MinRaise(_smallBlind);
 			_tableViewModel = tableViewModel;
 		}
@@ -152,6 +152,8 @@
 									 context.MyMoneyInTheRound,
 									 context.MoneyToCall,
 									 -1,
+									 minRaise.Amount(player.Name),
+									 maxMoneyPerPlayer,
 									 string.Empty,
 									 Guid.Empty,
 									 Server.Id,
@@ -164,13 +166,19 @@
 				PlayerAction action = await player.AwaitTurn(context);
 				//PlayerAction action = player.GetTurn(context);
 
+				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
+
+				maxMoneyPerPlayer = allPlayers.Max(x => x.PlayerMoney.CurrentRoundBet);
+
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new PlayerTurnSendingData(
 									 player.PlayerGuid,
-									 context.MoneyLeft,
-									 context.MyMoneyInTheRound,
-									 context.MoneyToCall,
+									 player.PlayerMoney.Money,
+									 player.PlayerMoney.CurrentRoundBet,
+									 0,
 									 action.Money,
+									 _smallBlind * 2,
+									 maxMoneyPerPlayer,
 									 action.ToString(),
 									 Guid.Empty,
 									 Server.Id,
@@ -187,8 +195,6 @@
 									 Server.ServerType,
 									 (int)lobbyTOclient.EndTurn),
 								 null);
-
-				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
 
 				Dictionary<Guid, int> moneys = new();
 				if (moneys.ContainsKey(player.PlayerGuid))
@@ -304,6 +310,8 @@
 								 0,
 								 0,
 								 post.Money,
+								 _smallBlind * 2,
+								 (Pot == 0 ? 0 : _smallBlind),
 								 post.ToString(),
 								 Guid.Empty,
 								 Server.Id,
