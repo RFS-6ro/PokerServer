@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using PokerSynchronisation;
 using TestingClient.Lobby;
 using TestingClient.Lobby.Handlers;
 using UniCastCommonData;
@@ -26,6 +28,7 @@ namespace TestingClient
 		private int _suit2;
 
 		private bool _isPlaying = false;
+		private bool _isTurning = false;
 
 		public int Time = 0;
 		private bool _isRealPlayer = false;
@@ -121,6 +124,8 @@ namespace TestingClient
 			SetBet(0);
 			DrawGameBox();
 			SetMoney(sendingData.StartMoney);
+
+			InputModel.Turn.OnValueChanged += OnTurnSetted;
 		}
 
 		public void StartHand(StartHandSendingData sendingData)
@@ -159,6 +164,8 @@ namespace TestingClient
 
 		public void StartTurn(StartTurnSendingData sendingData)
 		{
+			_isTurning = true;
+
 			if (_isRealPlayer == false)
 			{
 				return;
@@ -171,21 +178,35 @@ namespace TestingClient
 
 			DrawGameBox();
 
-			InputModel.OnTurnSetted += OnTurnSetted;
+
+
+			//if (InputModel.GetTurn() != null)
+			//{
+			//	OnTurnSetted();
+			//	return;
+			//}
+
+			//ConsoleHelper.WriteOnConsole(_row + 2, 2, new string(' ', Console.WindowWidth - 3));
+			//ConsoleHelper.WriteOnConsole(_row + 2, 2, perfix);
+
+			//var text = ConsoleHelper.UserInput(_row + 2, perfix.Length + 3);
 		}
 
-		private void OnTurnSetted()
+		private void OnTurnSetted((TurnType, int) previous, (TurnType, int) current)
 		{
-			//TODOSEND: player input
-			IStaticInstance<Client_Lobby>.
-				Instance.
-				SendHandler.
-				SendAsync(new PlayerInputSendingData(
-						InputModel.GetTurn(),
-						Guid.Empty,
-						IStaticInstance<Client_Lobby>.Instance.Id,
-						ActorType.Client,
-						(int)clientTOlobby.SendTurn), null);
+			if (current.Item1 != TurnType.None)
+			{
+				//SEND: player input
+				IStaticInstance<Client_Lobby>.
+					Instance.
+					SendHandler.
+					SendAsync(new PlayerInputSendingData(
+							InputModel.GetTurn(),
+							Guid.Empty,
+							IStaticInstance<Client_Lobby>.Instance.Id,
+							ActorType.Client,
+							(int)clientTOlobby.SendTurn), null);
+			}
 		}
 
 		public void SetBet(int amount)
@@ -230,11 +251,6 @@ namespace TestingClient
 
 		public void ShowTurn(PlayerTurnSendingData sendingData)
 		{
-			if (sendingData.Player == PlayerGuid)
-			{
-				InputModel.OnTurnSetted -= OnTurnSetted;
-			}
-
 			int betAmount = -1;
 			DrawGameBox();
 
@@ -274,13 +290,9 @@ namespace TestingClient
 
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "Last action: " + lastAction);
 
-			var moneyAfterAction = action == "Fold"
-				? sendingData.MoneyLeft
-				: sendingData.MoneyLeft - sendingData.LastPlayerActionAmount - sendingData.MoneyToCall;
-
 			SetBet(betAmount);
 
-			SetMoney(moneyAfterAction);
+			SetMoney(sendingData.MoneyLeft);
 		}
 
 		public void SetMoney(int amount)
@@ -292,6 +304,7 @@ namespace TestingClient
 
 		public void EndTurn(EndTurnSendingData sendingData)
 		{
+			_isTurning = false;
 			Time = 0;
 			DrawGameBox();
 		}
@@ -312,6 +325,11 @@ namespace TestingClient
 
 		public void EndGame(EndGameSendingData sendingData)
 		{
+			if (sendingData.ReceiverGuid == PlayerGuid ||
+				sendingData.ReceiverGuid == Guid.Empty)
+			{
+				InputModel.Turn.OnValueChanged -= OnTurnSetted;
+			}
 			_isPlaying = false;
 			DrawGameBox();
 		}
@@ -338,9 +356,10 @@ namespace TestingClient
 				}
 
 				top += Name + "═";
-				if (Time != 0)
+				if (false)
 				{
 					string time = Time.ToString();
+
 					top += time + new string('═', 5 - time.Length);
 				}
 				else
@@ -352,6 +371,16 @@ namespace TestingClient
 			{
 				top = new string('═', _width);
 			}
+
+			if (_isTurning)
+			{
+				PlayerBoxColor = ConsoleColor.DarkRed;
+			}
+			else
+			{
+				PlayerBoxColor = ConsoleColor.DarkGreen;
+			}
+
 			ConsoleHelper.WriteOnConsole(_row, 0, top, PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row + 4, 0, new string('═', _width), PlayerBoxColor);
 			ConsoleHelper.WriteOnConsole(_row, 0, "╔", PlayerBoxColor);

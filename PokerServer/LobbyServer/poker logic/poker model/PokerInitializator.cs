@@ -81,7 +81,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		{
 			ServerPlayer activePlayer = CurrentPlayers[i];
 
-			PlayerData activePlayerData;
+			PlayerData activePlayerData = null;
 			Guid activePlayerGuid;
 
 			if (activePlayer != null)// && )
@@ -90,7 +90,8 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 				{
 					activePlayerData = _currentGame.CollectDataByGuid(activePlayer.Guid);
 				}
-				else
+
+				if (activePlayerData == null)
 				{
 					activePlayerData = new PlayerData(activePlayer.Name, 300, 0, string.Empty, -1, i, false, false);
 				}
@@ -118,7 +119,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 	public void RemovePlayer(Guid guid)
 	{
-		var disconnectingPlayer = CurrentPlayers.Find((x) => x.Guid == guid);
+		var disconnectingPlayer = CurrentPlayers.Find((x) => x != null && x.Guid == guid);
 		if (disconnectingPlayer != null)
 		{
 			int index = CurrentPlayers.IndexOf(disconnectingPlayer);
@@ -152,16 +153,6 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		return Decorators.Find((x) => x.PlayerGuid == receiverGuid);
 	}
 
-	public ServerPlayer FindPlayerByGuid(Guid receiverGuid)
-	{
-		if (receiverGuid == Guid.Empty)
-		{
-			return null;
-		}
-
-		return CurrentPlayers.Find((x) => x.Guid == receiverGuid);
-	}
-
 	public async Task Init()
 	{
 		while (CurrentPlayers.Count((x) => x != null) < 2)
@@ -174,7 +165,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 		_currentGame = new TexasHoldemGame(players, TableViewModel);
 		var winner = await _currentGame.Start();//wait for end of game
 
-		if (CurrentPlayers.Count((x) => x != null) > 2)
+		if (CurrentPlayers.Count((x) => x != null) >= 2)
 		{
 			await Init();
 			return;

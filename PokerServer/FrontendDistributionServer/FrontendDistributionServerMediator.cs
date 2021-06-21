@@ -12,7 +12,7 @@ namespace FrontendDistributionServer
 		private static FrontendDistribution_Region_Server _regionServer;
 		private static FrontendDistribution_Client_Server _clientServer;
 
-#if !DEBUG
+#if false
 		private static ServerPool<Region_Server_Process> _regions;
 #endif
 
@@ -36,7 +36,7 @@ namespace FrontendDistributionServer
 			_regionServer = await startRegionServerTask;
 
 
-#if !DEBUG
+#if false
 			var factory = new RegionServerProcessFactory();
 
 			_regions = new ServerPool<Region_Server_Process>(() => factory.CreateWithParams(args));

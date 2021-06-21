@@ -2,6 +2,7 @@
 
 namespace UniCastCommonData.ServerPool
 {
+#if false
 	public interface IServerProcess
 	{
 		Process Process { get; }
@@ -12,4 +13,5 @@ namespace UniCastCommonData.ServerPool
 
 		void KillProcess();
 	}
+#endif
 }

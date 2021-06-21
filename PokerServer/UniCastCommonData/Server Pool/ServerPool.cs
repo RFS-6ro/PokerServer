@@ -5,6 +5,7 @@ using UniCastCommonData.Observable;
 
 namespace UniCastCommonData.ServerPool
 {
+#if false
 	public class ServerPool<SERVER_PROCESS>
 		where SERVER_PROCESS : class, IServerProcess
 	{
@@ -97,4 +98,5 @@ namespace UniCastCommonData.ServerPool
 			return true;
 		}
 	}
+#endif
 }

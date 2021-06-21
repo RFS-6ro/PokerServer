@@ -1,86 +1,63 @@
 ﻿using System;
-using System.Linq;
 using PokerSynchronisation;
 using UniCastCommonData;
+using UniCastCommonData.Observable;
 
 namespace TestingClient
 {
 	public static class InputModel
 	{
-		private static TurnType _turnType;
-		private static int _amount;
 		private static bool _isCleared = true;
 
-		private static Action _onTurnSetted;
-
-		public static event Action OnTurnSetted
-		{
-			add
-			{
-				if (_onTurnSetted.GetInvocationList().Contains(value) == false)
-				{
-					_onTurnSetted += value;
-				}
-
-				if (_isCleared == false)
-				{
-					_onTurnSetted?.Invoke();
-				}
-			}
-			remove
-			{
-				if (_onTurnSetted.GetInvocationList().Contains(value))
-				{
-					_onTurnSetted -= value;
-				}
-			}
-		}
+		public static ObservableVariable<(TurnType, int)> Turn = new ObservableVariable<(TurnType, int)>((TurnType.None, -1));
 
 		public static void ClearTurn()
 		{
-			_turnType = TurnType.None;
-			_amount = -1;
+			Turn.Value = (TurnType.None, -1);
 			_isCleared = true;
 		}
 
 		public static bool SetTurn(string turnMessage)
 		{
+			ClearTurn();
 			_isCleared = false;
-			turnMessage = turnMessage.ToLower();
-			if (turnMessage.Contains("r"))
+			try
 			{
-				_turnType = TurnType.Raise;
-
-				if (int.TryParse(turnMessage.Split(" ")[1], out int amount))
+				turnMessage = turnMessage.ToLower();
+				if (turnMessage.Contains("r"))
 				{
-					_amount = amount;
+					if (int.TryParse(turnMessage.Split(" ")[1], out int amount))
+					{
+						Turn.Value = (TurnType.Raise, amount);
+					}
+					else
+					{
+						return false;
+					}
+				}
+				else if (turnMessage.Contains("f"))
+				{
+					Turn.Value = (TurnType.Fold, 0);
+				}
+				else if (turnMessage.Contains("a"))
+				{
+					Turn.Value = (TurnType.AllIn, 0);
+				}
+				else if (turnMessage.Contains("c"))
+				{
+					Turn.Value = (TurnType.Call, 0);
 				}
 				else
 				{
-					ClearTurn();
 					return false;
 				}
+
+				return true;
 			}
-			else if (turnMessage.Contains("f"))
+			catch (Exception ex)
 			{
-				_turnType = TurnType.Fold;
-			}
-			else if (turnMessage.Contains("a"))
-			{
-				_turnType = TurnType.AllIn;
-			}
-			else if (turnMessage.Contains("c"))
-			{
-				_turnType = TurnType.Call;
-			}
-			else
-			{
-				ClearTurn();
 				return false;
 			}
-
-			_onTurnSetted.Invoke();
-			return true;
 		}
 
 		public static byte[] GetTurn()
@@ -91,8 +68,8 @@ namespace TestingClient
 			}
 
 			byte[] data = new byte[8];
-			((int)_turnType).ToByteArray().CopyTo(data, 0);
-			(_amount).ToByteArray().CopyTo(data, 4);
+			((int)Turn.Value.Item1).ToByteArray().CopyTo(data, 0);
+			Turn.Value.Item2.ToByteArray().CopyTo(data, 4);
 			ClearTurn();
 			return data;
 		}

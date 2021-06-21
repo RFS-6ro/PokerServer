@@ -123,7 +123,7 @@ namespace TestingClient
 			switch (suit)
 			{
 			case 0: return ConsoleColor.DarkGreen;
-			case 1: return ConsoleColor.Blue;
+			case 1: return ConsoleColor.Red;
 			case 2: return ConsoleColor.Red;
 			case 3: return ConsoleColor.Black;
 			default: return ConsoleColor.DarkRed;

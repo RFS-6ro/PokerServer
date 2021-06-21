@@ -713,6 +713,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 		{
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
+			data.AddRange(_player.ToByteArray());
 			data.AddRange(_lastPlayerActionAmount.ToByteArray());
 			data.AddRange(_moneyLeft.ToByteArray());
 			data.AddRange(_moneyInTheRound.ToByteArray());

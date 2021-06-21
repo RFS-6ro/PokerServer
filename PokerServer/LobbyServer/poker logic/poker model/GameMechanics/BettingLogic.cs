@@ -119,7 +119,7 @@
 							player.PlayerMoney.CurrentRoundBet,
 							maxMoneyPerPlayer,
 							minRaise.Amount(player.Name),
-							5000,
+							500000000,
 							MainPot,
 							SidePots);
 
@@ -164,7 +164,6 @@
 
 				_tableViewModel.UpdateTableBeforeTurn(context);
 				PlayerAction action = await player.AwaitTurn(context);
-				//PlayerAction action = player.GetTurn(context);
 
 				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
 
@@ -311,7 +310,7 @@
 								 0,
 								 post.Money,
 								 _smallBlind * 2,
-								 (Pot == 0 ? 0 : _smallBlind),
+								 (Pot == 0 ? _smallBlind : _smallBlind * 2),
 								 post.ToString(),
 								 Guid.Empty,
 								 Server.Id,

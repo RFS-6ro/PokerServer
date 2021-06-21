@@ -36,14 +36,12 @@ namespace TestingClient
 			int cardsStartCol;
 			if (CommunityCards.Count < 0)
 			{
-				cardsStartCol = (_width / 2) - ((17 / 2) / 2);
-				ConsoleHelper.WriteOnConsole(1, cardsStartCol, "                 ");
+				cardsStartCol = 0;
+				ConsoleHelper.WriteOnConsole(1, cardsStartCol, "                  ");
 				return;
 			}
 
-			string cardsAsString = CommunityCards.CardsToString();
-			int cardsLength = cardsAsString.Length / 2;
-			cardsStartCol = (_width / 2) - (cardsLength / 2);
+			cardsStartCol = 0;
 			int cardIndex = 0;
 			int spacing = 0;
 

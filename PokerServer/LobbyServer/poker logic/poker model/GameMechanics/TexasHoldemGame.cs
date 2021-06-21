@@ -29,7 +29,7 @@ namespace GameCore.Poker.Model
 
 		private int initialMoney;
 
-		public int HandsPlayed { get; private set; }
+		public int HandsPlayed { get; set; }
 
 		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
 		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
@@ -174,12 +174,12 @@ namespace GameCore.Poker.Model
 			}
 
 			// While at least two players have money
-			while (allPlayers.WithMoney().Count() > 1)
+			if (allPlayers.WithMoney().Count() > 1)
 			{
 				HandsPlayed++;
 
 				//Every 10 hands the blind increases
-				var smallBlind = SmallBlinds[(HandsPlayed - 1) / 10];
+				var smallBlind = SmallBlinds[7];
 				//var smallBlind = SmallBlinds[0];
 
 				// Players are shifted in order of priority to make a move

@@ -38,8 +38,24 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			_width = width;
 		}
 
+		public void SetPlayerTurn(int inputType, int inputAmount)
+		{
+			if (Player != null)
+			{
+				((ServerPlayer)Player).SetPlayerTurn(inputType, inputAmount);
+			}
+		}
+
 		public override void SetPlayer(IPlayer player)
 		{
+			if (player == null)
+			{
+				Muck();
+				ResetWinner();
+				IsDealer = false;
+				return;
+			}
+
 			base.SetPlayer(player);
 
 			if (player.GetType() == typeof(ServerPlayer))
@@ -142,9 +158,8 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			ConsoleHelper.WriteOnConsole(row, col + 2 + card.ToString().Length, " ");
 		}
 
-		internal void Disconnect()
+		public void Disconnect()
 		{
-			throw new NotImplementedException();
 		}
 
 		public async override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
@@ -224,7 +239,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			switch (card.Suit)
 			{
 			case CardSuit.Club: return ConsoleColor.DarkGreen;
-			case CardSuit.Diamond: return ConsoleColor.Blue;
+			case CardSuit.Diamond: return ConsoleColor.Red;
 			case CardSuit.Heart: return ConsoleColor.Red;
 			case CardSuit.Spade: return ConsoleColor.Black;
 			default: throw new ArgumentException("card.Suit");

@@ -81,9 +81,7 @@ namespace LobbyServer.pokerlogic.controllers
 		{
 			if (CommunityCards != null)
 			{
-				var cardsAsString = CommunityCards.CardsToString();
-				var cardsLength = cardsAsString.Length / 2;
-				var cardsStartCol = (_width / 2) - (cardsLength / 2);
+				var cardsStartCol = 0;
 				var cardIndex = 0;
 				var spacing = 0;
 

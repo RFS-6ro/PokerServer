@@ -202,7 +202,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 			foreach (var player in _players)
 			{
 				Card card = deck.GetNextCard();
-
+				player.AddCard(card, index == 0);
 				//SEND CardController.Dispence(player.ChairView, card, index);
 				await Task.Delay(500);
 			}

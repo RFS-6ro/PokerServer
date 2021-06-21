@@ -15,8 +15,9 @@ namespace RegionServer
 
 		private static Region_FrontendDistribution _headConnection;
 
+#if false
 		private static ServerPool<Lobby_Server_Process> _lobbies;
-
+#endif
 		public RegionServerMediator(int ticks = 30) : base(ticks) { }
 
 		public async override Task StartServers<T>(T param)
@@ -35,10 +36,12 @@ namespace RegionServer
 
 			var factory = new LobbyServerProcessFactory();
 
+#if false
 			_lobbies = new ServerPool<Lobby_Server_Process>(() => factory.CreateWithParams(args));
 			await _lobbies.CreateNew();
 			await _lobbies.CreateNew();
 			await _lobbies.CreateNew();
+#endif
 
 			Task<Region_Client_Server> startClientServer = StartClientServer();
 			await startClientServer;

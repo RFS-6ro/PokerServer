@@ -35,8 +35,8 @@ namespace LobbyServer.Client.Handlers
 		{
 			PlayerInputSendingData sendingData = new PlayerInputSendingData(packet.GetRawBytes());
 
-			IStaticInstance<PokerInitializator>.Instance.FindPlayerByGuid(sendingData.SenderGuid)?.SetPlayerTurn(sendingData.InputType, sendingData.InputAmount);
-			//TODORECEIVE INPUT
+			IStaticInstance<PokerInitializator>.Instance.FindPlayerDecoratorByGuid(sendingData.SenderGuid)?.SetPlayerTurn(sendingData.InputType, sendingData.InputAmount);
+			//RECEIVE INPUT
 		}
 
 		private void Disconnect(UniCastPacket packet)

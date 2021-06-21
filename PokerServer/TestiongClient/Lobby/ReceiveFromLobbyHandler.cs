@@ -247,7 +247,7 @@ namespace TestingClient.Lobby.Handlers
 		private void StartGame(UniCastPacket packet)
 		{
 			var sendingData = new StartGameSendingData(packet.GetRawBytes());
-			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).SetMoney(sendingData.StartMoney);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartGame(sendingData);
 		}
 
 		private void StartRound(UniCastPacket packet)
