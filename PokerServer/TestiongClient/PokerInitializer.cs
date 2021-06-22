@@ -85,7 +85,7 @@ namespace TestingClient
 			}
 		}
 
-		public void HighlightWinners(List<(Guid, int, string)> winners)
+		public void HighlightWinners(List<UniCastCommonData.Packet.InitialDatas.Tuple<Guid, int, string>> winners)
 		{
 			foreach (var winner in winners)
 			{

@@ -75,7 +75,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 
 		//_readyToPlay.Add(new ServerPlayer(guid, name));
 
-		List<(Guid, PlayerData)> datas = new List<(Guid, PlayerData)>();
+		List<UniCastCommonData.Packet.InitialDatas.Tuple<Guid, PlayerData>> datas = new List<UniCastCommonData.Packet.InitialDatas.Tuple<Guid, PlayerData>>();
 
 		for (int i = 0; i < CurrentPlayers.Count; ++i)
 		{
@@ -104,7 +104,7 @@ public class PokerInitializator : IStaticInstance<PokerInitializator>
 				activePlayerGuid = Guid.Empty;
 			}
 
-			datas.Add((activePlayerGuid, activePlayerData));
+			datas.Add(new UniCastCommonData.Packet.InitialDatas.Tuple<Guid, PlayerData>(activePlayerGuid, activePlayerData));
 		}
 
 		Sender.SendAsync(new CurrentGameStateSendingData(

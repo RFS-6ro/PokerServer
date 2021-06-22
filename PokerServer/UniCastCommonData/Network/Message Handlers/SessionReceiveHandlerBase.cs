@@ -5,11 +5,11 @@ using UniCastCommonData.Handlers;
 namespace UniCastCommonData.Network.MessageHandlers
 {
 	public class SessionReceiveHandlerBase<SERVER> : IReceivedMessageHandler
-		where SERVER : TcpServer, IStaticInstance<SERVER>
+		where SERVER : TcpServer
 	{
 		public Dictionary<int, Action<UniCastPacket>> Handlers { get; } = new Dictionary<int, Action<UniCastPacket>>();
 
-		public SERVER Server => IStaticInstance<SERVER>.Instance;
+		public SERVER Server { get; protected set; }
 
 		public Guid LastSenderGuid { get; protected set; }
 
