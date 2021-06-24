@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
 
-namespace UniCastCommonData.ServerPool
+namespace ServerPool
 {
-#if false
 	public interface IServerProcess
 	{
 		Process Process { get; }
@@ -13,5 +12,4 @@ namespace UniCastCommonData.ServerPool
 
 		void KillProcess();
 	}
-#endif
 }

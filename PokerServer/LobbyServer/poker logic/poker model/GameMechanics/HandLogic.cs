@@ -33,8 +33,8 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 		private Dictionary<string, ICollection<Card>> showdownCards;
 
-		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
-		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
+		private Lobby_Client_Server Server => Lobby_Client_Server.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => Lobby_Client_Server.Instance.SendHandler;
 
 		public HandLogic(IList<ConsoleUiDecorator> players, int handNumber, int smallBlind, TableViewModel tableViewModel)
 		{

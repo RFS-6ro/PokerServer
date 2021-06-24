@@ -35,7 +35,7 @@ namespace LobbyServer.Client.Handlers
 		{
 			PlayerInputSendingData sendingData = new PlayerInputSendingData(packet.GetRawBytes());
 
-			IStaticInstance<PokerInitializator>.Instance.FindPlayerDecoratorByGuid(sendingData.SenderGuid)?.SetPlayerTurn(sendingData.InputType, sendingData.InputAmount);
+			PokerInitializator.Instance.FindPlayerDecoratorByGuid(sendingData.SenderGuid)?.SetPlayerTurn(sendingData.InputType, sendingData.InputAmount);
 			//RECEIVE INPUT
 		}
 
@@ -43,7 +43,7 @@ namespace LobbyServer.Client.Handlers
 		{
 			DisconnectSendingData sendingData = new DisconnectSendingData(packet.GetRawBytes());
 			//DISCONNECT
-			IStaticInstance<PokerInitializator>.Instance.RemovePlayer(sendingData.Player);
+			PokerInitializator.Instance.RemovePlayer(sendingData.Player);
 		}
 
 		private void Connect(UniCastPacket packet)
@@ -51,7 +51,7 @@ namespace LobbyServer.Client.Handlers
 			packet.Read(32);
 			string name = packet.ReadString();
 
-			IStaticInstance<PokerInitializator>.Instance.AddPlayer(LastSenderGuid, name);
+			PokerInitializator.Instance.AddPlayer(LastSenderGuid, name);
 		}
 
 		private void Test(UniCastPacket packet)

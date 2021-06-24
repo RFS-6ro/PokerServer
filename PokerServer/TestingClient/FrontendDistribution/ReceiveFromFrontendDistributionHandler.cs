@@ -36,7 +36,7 @@ namespace TestingClient.FrontendDistribution.Handlers
 		private void Connect(UniCastPacket packet)
 		{
 			Guid receiverGuid = new Guid(packet.Read(16));
-			Client.SetId(receiverGuid);
+			Client_FrontendDistributor.Instance.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)

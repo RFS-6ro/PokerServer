@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using ServerPool;
 
 namespace RegionServer.Lobby
 {
-#if false
-using UniCastCommonData.ServerPool;
-	public class Lobby_Server_Process : IServerProcess
+	internal class Lobby_Server_Process : IServerProcess
 	{
 		private readonly string _filePath;
 		private readonly string[] _args;
@@ -32,5 +31,4 @@ using UniCastCommonData.ServerPool;
 			Process?.Dispose();
 		}
 	}
-#endif
 }

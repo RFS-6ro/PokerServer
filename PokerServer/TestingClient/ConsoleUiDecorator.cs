@@ -95,7 +95,7 @@ namespace TestingClient
 			PlayerGuid = guid;
 			Name = data.Name;
 
-			_isRealPlayer = guid == IStaticInstance<Client_Lobby>.Instance.Id;
+			_isRealPlayer = guid == Client_Lobby.Instance.Id;
 
 			SetDealer(data.IsDealer);
 			DrawGameBox();
@@ -197,13 +197,13 @@ namespace TestingClient
 			if (current.Item1 != TurnType.None)
 			{
 				//SEND: player input
-				IStaticInstance<Client_Lobby>.
+				Client_Lobby.
 					Instance.
 					SendHandler.
 					SendAsync(new PlayerInputSendingData(
 							InputModel.GetTurn(),
 							Guid.Empty,
-							IStaticInstance<Client_Lobby>.Instance.Id,
+							Client_Lobby.Instance.Id,
 							ActorType.Client,
 							(int)clientTOlobby.SendTurn), null);
 			}

@@ -15,7 +15,7 @@
 			Cards = new List<Card>();
 		}
 
-		public override async Task<PlayerAction> AwaitTurn(IGetTurnContext context)
+		public override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
 		{
 			throw new NotImplementedException();
 		}

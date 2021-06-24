@@ -29,9 +29,13 @@ namespace UniCastCommonData.Network
 		public AbstractTCPServer(string address, int port) : base(address, port) { InitReferences(); }
 		protected AbstractTCPServer(IPEndPoint endpoint) : base(endpoint) { InitReferences(); }
 
+		public static INSTANCE_TYPE Instance { get; protected set; }
+
 		protected virtual void InitReferences()
 		{
+			Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER>)this).SendHandler;
+			_sendHandler.Server = Instance;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER>)this).ReceiveHandler;
 		}
 

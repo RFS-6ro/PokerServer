@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\UniCastCommonData\UniCastCommonData.csproj" />
     <ProjectReference Include="..\..\..\ServerNetworkDLL\PokerSync\PokerSynchronisation.csproj" />
+    <ProjectReference Include="..\ServerDLL\ServerDLL.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Client\" />

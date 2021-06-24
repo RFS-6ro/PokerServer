@@ -11,7 +11,7 @@ namespace LobbyServer.Client
 
 		protected override void OnDisconnecting()
 		{
-			IStaticInstance<PokerInitializator>.Instance.RemovePlayer(Id);
+			PokerInitializator.Instance.RemovePlayer(Id);
 		}
 	}
 }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FrontendDistributionServer.Client;
 using FrontendDistributionServer.Database;
 using FrontendDistributionServer.Region;
+using ServerPool;
 using UniCastCommonData.Handlers;
 
 namespace FrontendDistributionServer
@@ -12,15 +13,13 @@ namespace FrontendDistributionServer
 		private static FrontendDistribution_Region_Server _regionServer;
 		private static FrontendDistribution_Client_Server _clientServer;
 
-#if false
 		private static ServerPool<Region_Server_Process> _regions;
-#endif
 
 		private static FrontendDistribution_Database _databaseClient;
 
 		public FrontendDistributionServerMediator(int ticks = 30) : base(ticks) { }
 
-		public async override Task StartServers<T>(T param)
+		public async Task StartServers<T>(T param)
 		{
 			if (typeof(T) != typeof(string[]))
 			{
@@ -36,9 +35,9 @@ namespace FrontendDistributionServer
 			_regionServer = await startRegionServerTask;
 
 
-#if false
 			var factory = new RegionServerProcessFactory();
 
+#if false
 			_regions = new ServerPool<Region_Server_Process>(() => factory.CreateWithParams(args));
 			await Task.WhenAll(
 				new Task[] {

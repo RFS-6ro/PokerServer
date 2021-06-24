@@ -32,9 +32,13 @@ namespace UniCastCommonData.Network
 		public AbstractTCPClient(string address, int port) : base(address, port) { InitReferences(); }
 		protected AbstractTCPClient(IPEndPoint endpoint) : base(endpoint) { InitReferences(); }
 
+		public static INSTANCE_TYPE Instance { get; protected set; }
+
 		protected virtual void InitReferences()
 		{
+			Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER>)this).SendHandler;
+			_sendHandler.Sender = Instance;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER>)this).ReceiveHandler;
 		}
 
