@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using UniCastCommonData.Network;
 
 namespace UniCastCommonData.Observable
 {
@@ -15,7 +13,7 @@ namespace UniCastCommonData.Observable
 	/// <param name="e">List changed even arguments.</param>
 	public delegate void ConcurrentDictionaryChangedEventHandler<TKey, TValue>(ObservableConcurrentDictionary<TKey, TValue> sender, ConcurrentDictionaryChangedEventArgs<TKey, TValue> e);
 
-	public class ObservableConcurrentDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable, IDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, IReadOnlyDictionary<TKey, TValue>, ICollection, IDictionary where TKey : notnull
+	public class ObservableConcurrentDictionary<TKey, TValue> : ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable, IDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, IReadOnlyDictionary<TKey, TValue>, ICollection, IDictionary
 	{
 		private ConcurrentDictionary<TKey, TValue> _dictionary;
 
@@ -77,7 +75,7 @@ namespace UniCastCommonData.Observable
 			}
 		}
 
-		object? IDictionary.this[object key]
+		object IDictionary.this[object key]
 		{
 			get
 			{
@@ -112,7 +110,7 @@ namespace UniCastCommonData.Observable
 		/// <param name="comparer">The <see cref="T:System.Collections.Generic.IEqualityComparer`1" /> implementation to use when comparing keys.</param>
 		/// <exception cref="T:System.ArgumentNullException">
 		///   <paramref name="collection" /> or <paramref name="comparer" /> is <see langword="null" />.</exception>
-		public ObservableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey>? comparer)
+		public ObservableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
 		{
 			_dictionary = new ConcurrentDictionary<TKey, TValue>(collection, comparer);
 		}
@@ -121,7 +119,7 @@ namespace UniCastCommonData.Observable
 		/// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
 		/// <exception cref="T:System.ArgumentNullException">
 		///   <paramref name="comparer" /> is <see langword="null" />.</exception>
-		public ObservableConcurrentDictionary(IEqualityComparer<TKey>? comparer)
+		public ObservableConcurrentDictionary(IEqualityComparer<TKey> comparer)
 		{
 			_dictionary = new ConcurrentDictionary<TKey, TValue>(comparer);
 		}
@@ -136,7 +134,7 @@ namespace UniCastCommonData.Observable
 		///   <paramref name="concurrencyLevel" /> is less than 1.</exception>
 		/// <exception cref="T:System.ArgumentException">
 		///   <paramref name="collection" /> contains one or more duplicate keys.</exception>
-		public ObservableConcurrentDictionary(int concurrencyLevel, IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey>? comparer)
+		public ObservableConcurrentDictionary(int concurrencyLevel, IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
 		{
 			_dictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, collection, comparer);
 		}
@@ -163,7 +161,7 @@ namespace UniCastCommonData.Observable
 		///   <paramref name="comparer" /> is <see langword="null" />.</exception>
 		/// <exception cref="T:System.ArgumentOutOfRangeException">
 		///   <paramref name="concurrencyLevel" /> or <paramref name="capacity" /> is less than 1.</exception>
-		public ObservableConcurrentDictionary(int concurrencyLevel, int capacity, IEqualityComparer<TKey>? comparer)
+		public ObservableConcurrentDictionary(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
 		{
 			_dictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, capacity, comparer);
 		}
@@ -268,7 +266,7 @@ namespace UniCastCommonData.Observable
 			return isRemoved;
 		}
 
-		public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+		public bool TryGetValue(TKey key, out TValue value)
 		{
 			return ((IDictionary<TKey, TValue>)_dictionary).TryGetValue(key, out value);
 		}

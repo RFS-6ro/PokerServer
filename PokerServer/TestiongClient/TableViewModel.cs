@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using UniCastCommonData.Packet.InitialDatas;
 
 namespace TestingClient
 {
 	public class TableViewModel
 	{
 		private int _width;
-		private List<(int, int)> CommunityCards = new();
+		private List<UniCastCommonData.Packet.InitialDatas.Tuple<int, int>> CommunityCards = new();
 
 		public TableViewModel(int width)
 		{
@@ -25,7 +26,7 @@ namespace TestingClient
 			ConsoleHelper.WriteOnConsole(1, _width - potAsString.Length - 2, potAsString);
 		}
 
-		public void AddCards(List<(int, int)> cards)
+		public void AddCards(List<UniCastCommonData.Packet.InitialDatas.Tuple<int, int>> cards)
 		{
 			CommunityCards.AddRange(cards);
 			DrawCommunityCards();

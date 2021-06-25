@@ -8,7 +8,6 @@ namespace UniCastCommonData.Network
 {
 	public abstract class AbstractTCPClient<RECEIVE_HANDLER, SEND_HANDLER, INSTANCE_TYPE>
 		: TcpClient,
-		  IStaticInstance<INSTANCE_TYPE>,
 		  IAsyncReceiver<RECEIVE_HANDLER>,
 		  IAsyncSender<SEND_HANDLER>
 
@@ -35,7 +34,6 @@ namespace UniCastCommonData.Network
 
 		protected virtual void InitReferences()
 		{
-			IStaticInstance<INSTANCE_TYPE>.Instance = (INSTANCE_TYPE)this;
 			_sendHandler = ((IAsyncSender<SEND_HANDLER>)this).SendHandler;
 			_receiveHandler = ((IAsyncReceiver<RECEIVE_HANDLER>)this).ReceiveHandler;
 		}

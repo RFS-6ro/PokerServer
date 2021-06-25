@@ -18,7 +18,7 @@ namespace TestingClient
 
 		public TestingClientMediator(int ticks = 30) : base(ticks) { }
 
-		public async override Task StartServers()
+		public async Task StartServers()
 		{
 			while (_name == null)
 			{

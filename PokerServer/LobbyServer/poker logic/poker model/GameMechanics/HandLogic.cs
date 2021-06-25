@@ -237,14 +237,15 @@ namespace LobbyServer.pokerlogic.GameMechanics
 		private void DetermineWinnerAndAddPot(int pot, Pot mainPot, List<Pot> sidePot)
 		{
 			Dictionary<Guid, int> moneys = new();
-			Dictionary<Guid, (int type1, int suit1, int type2, int suit2)> cards = new();
-			List<(Guid, int, string)> winners = new();
+			Dictionary<Guid, UniCastCommonData.Packet.InitialDatas.Tuple<int, int, int, int>> cards = new();
+			List<UniCastCommonData.Packet.InitialDatas.Tuple<Guid, int, string>> winners = new();
 
 			if (_players.Count(x => x.PlayerMoney.InHand) == 1)
 			{
 				var winner = _players.FirstOrDefault(x => x.PlayerMoney.InHand);
 				winner.PlayerMoney.Money += pot;
 				cards.Add(winner.PlayerGuid,
+						 new UniCastCommonData.Packet.InitialDatas.Tuple<int, int, int, int>
 						 (
 							(int)winner.Cards[0].Type,
 							(int)winner.Cards[0].Suit,
@@ -266,6 +267,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					{
 						showdownCards.Add(player.Name, player.Cards);
 						cards.Add(player.PlayerGuid,
+						 new UniCastCommonData.Packet.InitialDatas.Tuple<int, int, int, int>
 								 (
 									(int)player.Cards[0].Type,
 									(int)player.Cards[0].Suit,
@@ -419,7 +421,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 							 null);
 		}
 
-		private (Guid, int, string) ConfigureWinner(ConsoleUiDecorator player, int prize)
+		private UniCastCommonData.Packet.InitialDatas.Tuple<Guid, int, string> ConfigureWinner(ConsoleUiDecorator player, int prize)
 		{
 			player.PlayerMoney.Money += prize;
 			//SEND BetController.MoveBet(_tableViewModel, prize, player.ChairView);
@@ -427,18 +429,18 @@ namespace LobbyServer.pokerlogic.GameMechanics
 			string handString = handType + new string(' ', 13 - handType.Length);
 			player.SetWinner(prize, handType);
 
-			return (player.PlayerGuid, prize, handString);
+			return new UniCastCommonData.Packet.InitialDatas.Tuple<Guid, int, string>(player.PlayerGuid, prize, handString);
 		}
 
 		private async Task PlayRound(PokerSynchronisation.GameRoundType gameRoundType, int communityCardsCount)
 		{
-			List<(int, int)> cards = new();
+			List<UniCastCommonData.Packet.InitialDatas.Tuple<int, int>> cards = new();
 			for (var i = 0; i < communityCardsCount; i++)
 			{
 				Card card = deck.GetNextCard();
 
 				communityCards.Add(card);
-				cards.Add(((int)card.Type, (int)card.Suit));
+				cards.Add(new UniCastCommonData.Packet.InitialDatas.Tuple<int, int>((int)card.Type, (int)card.Suit));
 				//SEND CardController.Dispence(_tableViewModel, card, communityCards.Count - 1);
 			}
 
