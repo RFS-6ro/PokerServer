@@ -104,7 +104,7 @@ namespace PokerLobby
 			{
 				ServerId = ((RealPlayer)player).ServerId;
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				//bot has been connected
 			}

@@ -16,7 +16,7 @@ namespace LobbyServer
 
 		public LobbyServerMediator(int ticks = 30) : base(ticks) { }
 
-		public async override Task StartServers<T>(T param)
+		public async Task StartServers<T>(T param)
 		{
 			if (typeof(T) != typeof(string[]))
 			{

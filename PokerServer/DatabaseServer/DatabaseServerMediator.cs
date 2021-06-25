@@ -11,7 +11,7 @@ namespace DatabaseServer
 
 		public DatabaseServerMediator(int ticks = 30) : base(ticks) { }
 
-		public async override Task StartServers()
+		public async Task StartServers()
 		{
 			_server = await StartClientServer();
 		}

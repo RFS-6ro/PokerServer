@@ -6,13 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>.</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>Debug</OutputPath>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>.</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>Release</OutputPath>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -27,5 +25,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Handlers\IStaticInstance.cs" />
+    <Compile Remove="Server Pool\IServerProcess.cs" />
+    <Compile Remove="Server Pool\IServerProcessFactory.cs" />
+    <Compile Remove="Server Pool\ServerPool.cs" />
+    <Compile Remove="Network\AbstractTCPServer.cs" />
+    <Compile Remove="Network\TcpSession.cs" />
+    <Compile Remove="Network\TcpServer.cs" />
+    <Compile Remove="Network\Message Handlers\SessionReceiveHandlerBase.cs" />
+    <Compile Remove="Network\Message Handlers\SessionSender.cs" />
+    <Compile Remove="Handlers\ServerInitResult.cs" />
+    <Compile Remove="Handlers\ServerInitialisator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="bin\StaticInstance.cs" />
   </ItemGroup>
 </Project>

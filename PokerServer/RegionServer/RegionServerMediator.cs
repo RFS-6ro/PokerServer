@@ -3,9 +3,7 @@ using UniCastCommonData.Handlers;
 using RegionServer.Client;
 using RegionServer.FrontendDistribution;
 using RegionServer.Lobby;
-#if false
-using UniCastCommonData.ServerPool;
-#endif
+using ServerPool;
 using System;
 
 namespace RegionServer
@@ -17,12 +15,11 @@ namespace RegionServer
 
 		private static Region_FrontendDistribution _headConnection;
 
-#if false
-		private static ServerPool<Lobby_Server_Process> _lobbies;
-#endif
+		internal static ServerPool<Lobby_Server_Process> _lobbies;
+
 		public RegionServerMediator(int ticks = 30) : base(ticks) { }
 
-		public async override Task StartServers<T>(T param)
+		public async Task StartServers<T>(T param)
 		{
 			if (typeof(T) != typeof(string[]))
 			{
@@ -36,9 +33,9 @@ namespace RegionServer
 			await StartLobbyServer();
 
 
-#if false
 			var factory = new LobbyServerProcessFactory();
 
+#if false
 			_lobbies = new ServerPool<Lobby_Server_Process>(() => factory.CreateWithParams(args));
 			await _lobbies.CreateNew();
 			await _lobbies.CreateNew();

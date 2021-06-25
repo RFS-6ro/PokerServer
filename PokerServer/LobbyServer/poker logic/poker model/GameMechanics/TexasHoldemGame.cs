@@ -31,8 +31,8 @@ namespace GameCore.Poker.Model
 
 		public int HandsPlayed { get; set; }
 
-		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
-		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
+		private Lobby_Client_Server Server => Lobby_Client_Server.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => Lobby_Client_Server.Instance.SendHandler;
 
 		public TexasHoldemGame(IList<ConsoleUiDecorator> players, TableViewModel tableViewModel, int initialMoney = 200)
 			: this(players, initialMoney)
