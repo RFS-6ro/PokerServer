@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using UniCastCommonData.ServerPool;
 
 namespace FrontendDistributionServer.Region
 {
-#if false
-using UniCastCommonData.ServerPool;
+#if DEBUG
 	public class Region_Server_Process : IServerProcess
 	{
 		private readonly string _filePath;

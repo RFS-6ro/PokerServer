@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 
 namespace UniCastCommonData.Handlers
 {
-	public class AbstractMediator<MEDIATOR> where MEDIATOR : AbstractMediator<MEDIATOR>
+	public class AbstractMediator<MEDIATOR> : IStaticInstance<MEDIATOR>
+		where MEDIATOR : AbstractMediator<MEDIATOR>
 	{
 		private static int _ticks = 30;
 		CancellationTokenSource _cts;
@@ -14,17 +15,16 @@ namespace UniCastCommonData.Handlers
 
 		public event Action OnUpdateEvent;
 
-		public static MEDIATOR Instance { get; protected set; }
-
 		public AbstractMediator(int ticks = 30)
 		{
-			Instance = (MEDIATOR)this;
+			IStaticInstance<MEDIATOR>.Instance = (MEDIATOR)this;
 			_ticks = ticks;
 		}
 
 		public void Start()
 		{
 			Console.WriteLine("\tServer Started");
+
 			if (_cts == null)
 			{
 				_cts = new CancellationTokenSource();
@@ -32,6 +32,10 @@ namespace UniCastCommonData.Handlers
 				_task = Task.Factory.StartNew(() => MainThread(_cts.Token), _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
 			}
 		}
+
+		public virtual async Task StartServers<T>(T param) { }
+
+		public virtual async Task StartServers() { }
 
 		public virtual void OnUpdate() { }
 

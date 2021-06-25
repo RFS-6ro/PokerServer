@@ -6,9 +6,9 @@ using UniCastCommonData.Packet.InitialDatas;
 namespace UniCastCommonData.Network.MessageHandlers
 {
 	public abstract class SessionSender<SERVER> : ISendMessageHandler
-		where SERVER : TcpServer
+		where SERVER : TcpServer, IStaticInstance<SERVER>
 	{
-		public SERVER Server { get; protected set; }
+		public SERVER Server => IStaticInstance<SERVER>.Instance;
 
 		public ISender Sender { get; set; }
 

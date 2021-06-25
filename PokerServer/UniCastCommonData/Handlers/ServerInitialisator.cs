@@ -24,7 +24,7 @@ namespace UniCastCommonData.Handlers
 
 			ServerInitResult<SERVER> result = await Task.Run(() =>
 			{
-				result = TryStart(port);
+				ServerInitResult<SERVER> result = TryStart(port);
 
 				while (result.Success == false)
 				{

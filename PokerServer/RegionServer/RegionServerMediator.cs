@@ -3,9 +3,7 @@ using UniCastCommonData.Handlers;
 using RegionServer.Client;
 using RegionServer.FrontendDistribution;
 using RegionServer.Lobby;
-#if false
 using UniCastCommonData.ServerPool;
-#endif
 using System;
 
 namespace RegionServer
@@ -36,9 +34,9 @@ namespace RegionServer
 			await StartLobbyServer();
 
 
-#if false
 			var factory = new LobbyServerProcessFactory();
 
+#if false
 			_lobbies = new ServerPool<Lobby_Server_Process>(() => factory.CreateWithParams(args));
 			await _lobbies.CreateNew();
 			await _lobbies.CreateNew();

@@ -151,10 +151,10 @@ namespace TestingClient.Lobby.Handlers
 			{
 				IStaticInstance<PokerInitializer>.Instance.
 					FindPlayerByGuid(playerCards.Key).
-					SetCards(playerCards.Value.Item1,
-							 playerCards.Value.Item2,
-							 playerCards.Value.Item3,
-							 playerCards.Value.Item4);
+					SetCards(playerCards.Value.type1,
+							 playerCards.Value.suit1,
+							 playerCards.Value.type2,
+							 playerCards.Value.suit2);
 			}
 		}
 

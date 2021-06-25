@@ -44,63 +44,6 @@ namespace UniCastCommonData.Packet.InitialDatas
 		}
 	}
 
-	public struct Tuple<T1, T2>
-	{
-		private T1 _item1;
-		public T1 Item1 => _item1;
-
-		private T2 _item2;
-		public T2 Item2 => _item2;
-
-		public Tuple(T1 item1, T2 item2)
-		{
-			_item1 = item1;
-			_item2 = item2;
-		}
-	}
-
-	public struct Tuple<T1, T2, T3>
-	{
-		private T1 _item1;
-		public T1 Item1 => _item1;
-
-		private T2 _item2;
-		public T2 Item2 => _item2;
-
-		private T3 _item3;
-		public T3 Item3 => _item3;
-
-		public Tuple(T1 item1, T2 item2, T3 item3)
-		{
-			_item1 = item1;
-			_item2 = item2;
-			_item3 = item3;
-		}
-	}
-
-	public struct Tuple<T1, T2, T3, T4>
-	{
-		private T1 _item1;
-		public T1 Item1 => _item1;
-
-		private T2 _item2;
-		public T2 Item2 => _item2;
-
-		private T3 _item3;
-		public T3 Item3 => _item3;
-
-		private T4 _item4;
-		public T4 Item4 => _item4;
-
-		public Tuple(T1 item1, T2 item2, T3 item3, T4 item4)
-		{
-			_item1 = item1;
-			_item2 = item2;
-			_item3 = item3;
-			_item4 = item4;
-		}
-	}
-
 	#region from lobby
 	public class PlayerData : IByteArrayConvertable
 	{
@@ -127,7 +70,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 		public byte[] GetRawBytes()
 		{
-			List<byte> data = new List<byte>();
+			List<byte> data = new();
 
 			data.AddRange(Money.ToByteArray());//4
 			data.AddRange(Bet.ToByteArray());//4
@@ -169,7 +112,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class CurrentGameStateSendingData : InitialSendingData
 	{
-		public List<Tuple<Guid, PlayerData>> Datas = new List<Tuple<Guid, PlayerData>>();
+		public List<(Guid, PlayerData)> Datas = new();
 
 		public CurrentGameStateSendingData(byte[] data) : base(data)
 		{
@@ -186,11 +129,11 @@ namespace UniCastCommonData.Packet.InitialDatas
 				bool isDealer = data.ToBoolean(81 + 82 * i);//34
 				string name = data.ToString(82 + 82 * i);//58
 				string lastPlayerAction = data.ToString(106 + 82 * i);//82
-				Datas.Add(new Tuple<Guid, PlayerData>(key, new PlayerData(name, money, bet, lastPlayerAction, lastPlayerActionAmount, index, inGame, isDealer)));
+				Datas.Add((key, new PlayerData(name, money, bet, lastPlayerAction, lastPlayerActionAmount, index, inGame, isDealer)));
 			}
 		}
 
-		public CurrentGameStateSendingData(List<Tuple<Guid, PlayerData>> datas, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public CurrentGameStateSendingData(List<(Guid, PlayerData)> datas, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			Datas = datas;
 		}
@@ -501,7 +444,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class DealCardsToTableSendingData : InitialSendingData
 	{
-		public List<Tuple<int, int>> Cards = new List<Tuple<int, int>>();
+		public List<(int, int)> Cards = new();
 
 		public DealCardsToTableSendingData(byte[] data) : base(data)
 		{
@@ -509,11 +452,11 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 			for (int i = 0; i < length; i++)
 			{
-				Cards.Add(new Tuple<int, int>(data.ToInt32(44 + 4 + 8 * i), data.ToInt32(48 + 4 + 8 * i)));
+				Cards.Add((data.ToInt32(44 + 4 + 8 * i), data.ToInt32(48 + 4 + 8 * i)));
 			}
 		}
 
-		public DealCardsToTableSendingData(List<Tuple<int, int>> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public DealCardsToTableSendingData(List<(int, int)> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			Cards = cards;
 		}
@@ -537,7 +480,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class WinnersSendingData : InitialSendingData
 	{
-		public List<Tuple<Guid, int, string>> Winners = new List<Tuple<Guid, int, string>>();
+		public List<(Guid, int, string)> Winners = new();
 
 		public WinnersSendingData(byte[] data) : base(data)
 		{
@@ -545,7 +488,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 			for (int i = 0; i < length; i++)
 			{
-				Winners.Add(new Tuple<Guid, int, string>(
+				Winners.Add((
 					data.ToGuid(44 + 4 + 37 * i),
 					data.ToInt32(60 + 4 + 37 * i),
 					data.ToString(64 + 4 + 37 * i)
@@ -553,7 +496,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 			}
 		}
 
-		public WinnersSendingData(List<Tuple<Guid, int, string>> winners, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public WinnersSendingData(List<(Guid, int, string)> winners, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			Winners = winners;
 		}
@@ -650,7 +593,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class UpdatePlayersMoneySendingData : InitialSendingData
 	{
-		public Dictionary<Guid, int> Moneys = new Dictionary<Guid, int>();
+		public Dictionary<Guid, int> Moneys = new();
 
 		public UpdatePlayersMoneySendingData(byte[] data) : base(data)
 		{
@@ -784,7 +727,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class OpponentCardsSendingData : InitialSendingData
 	{
-		public Dictionary<Guid, Tuple<int, int, int, int>> Cards = new Dictionary<Guid, Tuple<int, int, int, int>>();
+		public Dictionary<Guid, (int type1, int suit1, int type2, int suit2)> Cards = new();
 
 		public OpponentCardsSendingData(byte[] data) : base(data)
 		{
@@ -797,11 +740,11 @@ namespace UniCastCommonData.Packet.InitialDatas
 				int suit1 = data.ToInt32(64 + 4 + 32 * i);
 				int type2 = data.ToInt32(68 + 4 + 32 * i);
 				int suit2 = data.ToInt32(72 + 4 + 32 * i);
-				Cards.Add(key, new Tuple<int, int, int, int>(type1, suit1, type2, suit2));
+				Cards.Add(key, (type1, suit1, type2, suit2));
 			}
 		}
 
-		public OpponentCardsSendingData(Dictionary<Guid, Tuple<int, int, int, int>> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public OpponentCardsSendingData(Dictionary<Guid, (int, int, int, int)> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			Cards = cards;
 		}
@@ -816,10 +759,10 @@ namespace UniCastCommonData.Packet.InitialDatas
 			foreach (var player in Cards)
 			{
 				data.AddRange(player.Key.ToByteArray());
-				data.AddRange(player.Value.Item1.ToByteArray());
-				data.AddRange(player.Value.Item2.ToByteArray());
-				data.AddRange(player.Value.Item3.ToByteArray());
-				data.AddRange(player.Value.Item4.ToByteArray());
+				data.AddRange(player.Value.type1.ToByteArray());
+				data.AddRange(player.Value.suit1.ToByteArray());
+				data.AddRange(player.Value.type2.ToByteArray());
+				data.AddRange(player.Value.suit2.ToByteArray());
 			}
 
 			return data.ToArray();
