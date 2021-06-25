@@ -8,7 +8,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 	public abstract class SessionSender<SERVER> : ISendMessageHandler
 		where SERVER : TcpServer
 	{
-		public SERVER Server { get; set; }
+		public SERVER Server { get; protected set; }
 
 		public ISender Sender { get; set; }
 

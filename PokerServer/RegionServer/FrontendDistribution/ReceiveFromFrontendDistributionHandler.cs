@@ -35,7 +35,7 @@ namespace RegionServer.FrontendDistribution.Handlers
 		private void Connect(UniCastPacket packet)
 		{
 			Guid receiverGuid = new Guid(packet.Read(16));
-			Region_FrontendDistribution.Instance.SetId(receiverGuid);
+			Client.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)

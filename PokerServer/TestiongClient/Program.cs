@@ -8,7 +8,7 @@ namespace TestingClient
 	{
 		private static TestingClientMediator _mediator;
 
-		static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			_mediator = new TestingClientMediator(60);
 			new PokerInitializer();

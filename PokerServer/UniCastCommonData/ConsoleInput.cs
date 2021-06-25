@@ -23,7 +23,7 @@ namespace UniCastCommonData
 			}
 
 			// wait for the task to finish before exiting
-			_mediator.MainThreadTask.Wait();
+			_mediator._task.Wait();
 		}
 
 		protected virtual void checkInput(string input)

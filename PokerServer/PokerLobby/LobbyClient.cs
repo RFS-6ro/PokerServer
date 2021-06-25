@@ -97,7 +97,7 @@ namespace PokerLobby
 			{
 				Players.Remove(Players.Where((x) => x.Value.ServerId == playerId).ElementAt(0).Key);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 				//TODO: write in log that lobby is trying to disconnect missing player
 				return;
@@ -201,7 +201,7 @@ namespace PokerLobby
 						_stream.BeginWrite(packet.ToArray(), 0, packet.Length, null, null); // Send data to server
 					}
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
 				}
 			}
@@ -228,12 +228,12 @@ namespace PokerLobby
 					{
 						_stream.BeginRead(_receiveBuffer, 0, NetworkSettings.DATA_BUFFER_SIZE, ReceiveCallback, null);
 					}
-					catch (Exception)
+					catch (Exception ex)
 					{
 						Disconnect();
 					}
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
 					Disconnect();
 				}

@@ -13,7 +13,7 @@ using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
 
-public class PokerInitializator : StaticInstance<PokerInitializator>
+public class PokerInitializator : IStaticInstance<PokerInitializator>
 {
 	public event Action OnGameEnds;
 
@@ -26,15 +26,15 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 
 	public List<ChairViewModel> Chairs;
 
-	private Lobby_Client_Server Server => Lobby_Client_Server.Instance;
-	private SessionSender<Lobby_Client_Server> Sender => Lobby_Client_Server.Instance.SendHandler;
+	private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+	private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
 
 	private TexasHoldemGame _currentGame;
 
 	public PokerInitializator()
 	{
 		TableViewModel = new TableViewModel(1, 30);
-		Instance = this;
+		IStaticInstance<PokerInitializator>.Instance = this;
 		//init seats
 		for (int i = 0; i < MaxPlayers; i++)
 		{
@@ -155,7 +155,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 
 	public async Task Init()
 	{
-		while (CurrentPlayers.Count((x) => x != null) < 9)
+		while (CurrentPlayers.Count((x) => x != null) < 2)
 		{
 			await Task.Delay(100);
 		}
@@ -175,7 +175,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 		{
 			if (player != null)
 			{
-				//TODO: uncomment StaticInstance<Lobby_Client_Server>.Instance.FindSession(player.Guid)?.Disconnect();
+				//TODO: uncomment IStaticInstance<Lobby_Client_Server>.Instance.FindSession(player.Guid)?.Disconnect();
 			}
 		}
 	}

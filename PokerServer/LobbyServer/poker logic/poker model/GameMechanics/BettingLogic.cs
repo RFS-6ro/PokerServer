@@ -28,8 +28,8 @@
 
 		private MinRaise minRaise;
 
-		private Lobby_Client_Server Server => Lobby_Client_Server.Instance;
-		private SessionSender<Lobby_Client_Server> Sender => Lobby_Client_Server.Instance.SendHandler;
+		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
 
 		public BettingLogic(IList<ConsoleUiDecorator> players, int smallBlind, TableViewModel tableViewModel)
 		{

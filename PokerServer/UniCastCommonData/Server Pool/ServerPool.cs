@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UniCastCommonData.Observable;
 
-namespace ServerPool
+namespace UniCastCommonData.ServerPool
 {
+#if false
 	public class ServerPool<SERVER_PROCESS>
 		where SERVER_PROCESS : class, IServerProcess
 	{
@@ -97,4 +98,5 @@ namespace ServerPool
 			return true;
 		}
 	}
+#endif
 }

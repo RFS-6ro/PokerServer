@@ -35,7 +35,7 @@ namespace FrontendDistributionServer.Database
 		private void Connect(UniCastPacket packet)
 		{
 			Guid receiverGuid = new Guid(packet.Read(16));
-			Lobby_Database.Instance.SetId(receiverGuid);
+			Client.SetId(receiverGuid);
 		}
 
 		private void Test(UniCastPacket packet)

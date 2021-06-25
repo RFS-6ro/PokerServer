@@ -92,14 +92,14 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new PlayerDisconnectSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.RemovePlayer(sendingData.Player);
+			IStaticInstance<PokerInitializer>.Instance.RemovePlayer(sendingData.Player);
 		}
 
 		private void ClearCards(UniCastPacket packet)
 		{
 			var sendingData = new ClearCardsSendingData(packet.GetRawBytes());
 
-			PokerInitializer initializer = PokerInitializer.Instance;
+			PokerInitializer initializer = IStaticInstance<PokerInitializer>.Instance;
 
 			if (sendingData.CardKeeper != Guid.Empty)
 			{
@@ -121,26 +121,26 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new EndGameSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndGame(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndGame(sendingData);
 		}
 
 		private void EndHand(UniCastPacket packet)
 		{
 			var sendingData = new EndHandSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndHand(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndHand(sendingData);
 		}
 
 		private void EndRound(UniCastPacket packet)
 		{
 			var sendingData = new EndRoundSendingData(packet.GetRawBytes());
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndRound(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).EndRound(sendingData);
 		}
 
 		private void EndTurn(UniCastPacket packet)
 		{
 			var sendingData = new EndTurnSendingData(packet.GetRawBytes());
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.Player).EndTurn(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player).EndTurn(sendingData);
 		}
 
 		private void OpponentCards(UniCastPacket packet)
@@ -149,7 +149,7 @@ namespace TestingClient.Lobby.Handlers
 
 			foreach (var playerCards in sendingData.Cards)
 			{
-				PokerInitializer.Instance.
+				IStaticInstance<PokerInitializer>.Instance.
 					FindPlayerByGuid(playerCards.Key).
 					SetCards(playerCards.Value.Item1,
 							 playerCards.Value.Item2,
@@ -162,8 +162,8 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new PlayerTurnSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.Player).ShowTurn(sendingData);
-			PokerInitializer.Instance.FindPlayerByGuid(Guid.Empty).SetDataToMakeTurn(sendingData.MinRaise, sendingData.MaxBet);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player).ShowTurn(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(Guid.Empty).SetDataToMakeTurn(sendingData.MinRaise, sendingData.MaxBet);
 
 		}
 
@@ -171,7 +171,7 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new UpdateTimerSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.Player).SetTimer(sendingData.Milliseconds);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player).SetTimer(sendingData.Milliseconds);
 		}
 
 		private void UpdatePlayersMoney(UniCastPacket packet)
@@ -180,7 +180,7 @@ namespace TestingClient.Lobby.Handlers
 
 			foreach (var playerMoney in sendingData.Moneys)
 			{
-				PokerInitializer.Instance.
+				IStaticInstance<PokerInitializer>.Instance.
 					FindPlayerByGuid(playerMoney.Key).
 					SetMoney(playerMoney.Value);
 			}
@@ -190,14 +190,14 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new UpdatePotSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.Table.ShowPot(sendingData.Pot);
+			IStaticInstance<PokerInitializer>.Instance.Table.ShowPot(sendingData.Pot);
 		}
 
 		private void DealerButton(UniCastPacket packet)
 		{
 			var sendingData = new DealerButtonSendingData(packet.GetRawBytes());
 
-			ConsoleUiDecorator player = PokerInitializer.Instance.FindPlayerByGuid(sendingData.Dealer);
+			ConsoleUiDecorator player = IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Dealer);
 			player.SetDealer();
 		}
 
@@ -205,21 +205,21 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new DealCardsToTableSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.Table.AddCards(sendingData.Cards);
+			IStaticInstance<PokerInitializer>.Instance.Table.AddCards(sendingData.Cards);
 		}
 
 		private void Winners(UniCastPacket packet)
 		{
 			var sendingData = new WinnersSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.HighlightWinners(sendingData.Winners);
+			IStaticInstance<PokerInitializer>.Instance.HighlightWinners(sendingData.Winners);
 		}
 
 		private void DealCardsToPlayer(UniCastPacket packet)
 		{
 			var sendingData = new DealCardsToPlayerSendingData(packet.GetRawBytes());
 
-			List<ConsoleUiDecorator> players = PokerInitializer.Instance.Decorators;
+			List<ConsoleUiDecorator> players = IStaticInstance<PokerInitializer>.Instance.Decorators;
 			foreach (var player in players)
 			{
 				if (player.PlayerGuid == sendingData.ReceiverGuid)
@@ -241,48 +241,48 @@ namespace TestingClient.Lobby.Handlers
 		{
 			var sendingData = new StartTurnSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.Player).StartTurn(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.Player).StartTurn(sendingData);
 		}
 
 		private void StartGame(UniCastPacket packet)
 		{
 			var sendingData = new StartGameSendingData(packet.GetRawBytes());
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartGame(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartGame(sendingData);
 		}
 
 		private void StartRound(UniCastPacket packet)
 		{
 			var sendingData = new StartRoundSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartRound(sendingData);
-			PokerInitializer.Instance.Table.ShowPot(sendingData.Pot);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartRound(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.Table.ShowPot(sendingData.Pot);
 		}
 
 		private void StartHand(UniCastPacket packet)
 		{
 			var sendingData = new StartHandSendingData(packet.GetRawBytes());
 
-			PokerInitializer.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartHand(sendingData);
-			PokerInitializer.Instance.Table.DrawCommunityCards();
-			PokerInitializer.Instance.Table.ShowPot(0);
+			IStaticInstance<PokerInitializer>.Instance.FindPlayerByGuid(sendingData.ReceiverGuid).StartHand(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.Table.DrawCommunityCards();
+			IStaticInstance<PokerInitializer>.Instance.Table.ShowPot(0);
 		}
 
 		private void NewPlayerConnect(UniCastPacket packet)
 		{
 			var sendingData = new NewPlayerConnectSendingData(packet.GetRawBytes());
-			PokerInitializer.Instance.AddNewPlayer(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.AddNewPlayer(sendingData);
 		}
 
 		private void CurrentGameState(UniCastPacket packet)
 		{
 			var sendingData = new CurrentGameStateSendingData(packet.GetRawBytes());
-			PokerInitializer.Instance.SetCurrentGameState(sendingData);
+			IStaticInstance<PokerInitializer>.Instance.SetCurrentGameState(sendingData);
 		}
 
 		private void Connect(UniCastPacket packet)
 		{
 			Guid receiverGuid = new Guid(packet.Read(16));
-			Client_Lobby.Instance.SetId(ReceiverId);
+			Client.SetId(ReceiverId);
 		}
 
 		private void Test(UniCastPacket packet)

@@ -23,8 +23,8 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 		private int _playerRaiseAmount = -1;
 		private TurnType _turnType = TurnType.None;
 
-		private Lobby_Client_Server Server => Lobby_Client_Server.Instance;
-		private SessionSender<Lobby_Client_Server> Sender => Lobby_Client_Server.Instance.SendHandler;
+		private Lobby_Client_Server Server => IStaticInstance<Lobby_Client_Server>.Instance;
+		private SessionSender<Lobby_Client_Server> Sender => IStaticInstance<Lobby_Client_Server>.Instance.SendHandler;
 
 		public ServerPlayer(Guid guid, string name, int buyIn = -1)
 		{

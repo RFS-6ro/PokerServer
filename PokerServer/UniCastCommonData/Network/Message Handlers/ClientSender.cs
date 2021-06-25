@@ -8,7 +8,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 	public class ClientSender<CLIENT> : ISendMessageHandler
 		where CLIENT : TcpClient, ISender
 	{
-		public ISender Sender { get; set; }
+		public ISender Sender { get; protected set; }
 
 		public Dictionary<int, Action<InitialSendingData>> Handlers { get; } = new Dictionary<int, Action<InitialSendingData>>();
 

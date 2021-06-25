@@ -6,9 +6,9 @@ namespace UniCastCommonData.Handlers
 {
 	public class AbstractMediator<MEDIATOR> where MEDIATOR : AbstractMediator<MEDIATOR>
 	{
-		internal static int _ticks = 30;
-		internal CancellationTokenSource _cts;
-		public Task MainThreadTask;
+		private static int _ticks = 30;
+		CancellationTokenSource _cts;
+		public Task _task;
 
 		public static int Ticks => _ticks;
 
@@ -29,22 +29,21 @@ namespace UniCastCommonData.Handlers
 			{
 				_cts = new CancellationTokenSource();
 
-				MainThreadTask = Task.Factory.StartNew(
-					() => { try { MainThread(() => _cts.Token.IsCancellationRequested); } catch { } },
-					_cts.Token,
-					TaskCreationOptions.LongRunning, TaskScheduler.Current);
+				_task = Task.Factory.StartNew(() => MainThread(_cts.Token), _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
 			}
 		}
 
 		public virtual void OnUpdate() { }
 
-		protected virtual void MainThread(Func<bool> cancelationCondition)
+		private void MainThread(CancellationToken token)
 		{
 			Console.WriteLine("Main thread started. Running at 30 ticks per second.");
 			DateTime _nextLoop = DateTime.Now;
 
-			while (cancelationCondition() == false)
+			while (token.IsCancellationRequested == false)
 			{
+				token.ThrowIfCancellationRequested();
+
 				while (_nextLoop < DateTime.Now)
 				{
 					// If the time for the next loop is in the past, aka it's time to execute another tick

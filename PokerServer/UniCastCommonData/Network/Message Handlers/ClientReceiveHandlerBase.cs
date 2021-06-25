@@ -11,7 +11,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 		public Guid ReceiverId;
 
-		public virtual void Receive(int action, UniCastPacket packet, Guid guid)
+		public void Receive(int action, UniCastPacket packet, Guid guid)
 		{
 			ThreadManager.ExecuteOnMainThread(() =>
 			{

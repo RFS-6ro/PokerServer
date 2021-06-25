@@ -24,7 +24,7 @@ namespace LobbyServer
 			await Task.Factory.StartNew(
 				() => { a.Init(); },
 				CancellationToken.None,
-				TaskCreationOptions.LongRunning,
+				TaskCreationOptions.None,
 				SynchronizationContext.Current != null ?
 					TaskScheduler.FromCurrentSynchronizationContext() :
 					TaskScheduler.Current);

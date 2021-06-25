@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UniCastCommonData\UniCastCommonData.csproj" />
-    <ProjectReference Include="..\ServerDLL\ServerDLL.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Client\" />

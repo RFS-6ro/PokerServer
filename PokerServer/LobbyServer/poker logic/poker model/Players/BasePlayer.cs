@@ -48,6 +48,6 @@
 
 		public virtual void EndGame(IEndGameContext context) { }
 
-		public virtual Task<PlayerAction> AwaitTurn(IGetTurnContext context) { throw new NotImplementedException(); }
+		public virtual async Task<PlayerAction> AwaitTurn(IGetTurnContext context) { throw new NotImplementedException(); }
 	}
 }

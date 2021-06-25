@@ -13,7 +13,7 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 
 		private PlayerAction _currentTurn = null;
 
-		public override Task<PlayerAction> GetTurn(IGetTurnContext context)
+		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
 			//TODO: Set timer value, remove hard coded value
 			//InputController.GetTurn(context, 5f, (x) => _currentTurn = x);

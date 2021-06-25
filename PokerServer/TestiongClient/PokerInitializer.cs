@@ -7,7 +7,7 @@ using UniCastCommonData.Packet.InitialDatas;
 
 namespace TestingClient
 {
-	public class PokerInitializer : StaticInstance<PokerInitializer>
+	public class PokerInitializer : IStaticInstance<PokerInitializer>
 	{
 		public const int MaxPlayers = 9;
 
@@ -20,7 +20,7 @@ namespace TestingClient
 
 		public PokerInitializer()
 		{
-			Instance = this;
+			IStaticInstance<PokerInitializer>.Instance = this;
 			Table = new TableViewModel(30);
 			for (int i = 0; i < MaxPlayers; i++)
 			{
@@ -34,7 +34,7 @@ namespace TestingClient
 		{
 			var keys = sendingData.Datas.Select((x) => x.Item1).ToList();
 
-			_realPlayerIndex = keys.IndexOf(Client_Lobby.Instance.Id);
+			_realPlayerIndex = keys.IndexOf(IStaticInstance<Client_Lobby>.Instance.Id);
 
 			_mainPlayer = Decorators[0];
 
