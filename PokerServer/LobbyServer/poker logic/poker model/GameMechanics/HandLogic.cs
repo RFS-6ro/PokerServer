@@ -176,9 +176,9 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 		private async Task DispencingCards()
 		{
-			await DispenceCircle(0);
+			DispenceCircle(0);
 
-			await DispenceCircle(1);
+			DispenceCircle(1);
 
 			foreach (var player in _players)
 			{
@@ -197,14 +197,14 @@ namespace LobbyServer.pokerlogic.GameMechanics
 			await Task.Delay(1000);
 		}
 
-		private async Task DispenceCircle(int index)
+		private void DispenceCircle(int index)
 		{
 			foreach (var player in _players)
 			{
 				Card card = deck.GetNextCard();
 				player.AddCard(card, index == 0);
 				//SEND CardController.Dispence(player.ChairView, card, index);
-				await Task.Delay(500);
+				//await Task.Delay(500);
 			}
 		}
 

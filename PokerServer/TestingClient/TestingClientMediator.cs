@@ -26,7 +26,7 @@ namespace TestingClient
 			}
 
 #if DEBUG
-			_lobbyConnection = await InitConnectionToLobbyServer(new IPEndPoint(IPAddress.Parse("192.168.0.131"), 27000));
+			_lobbyConnection = await InitConnectionToLobbyServer(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 27000));//192.168.0.131
 			return;
 #endif
 			_headConnection = await InitConnectionToFrontendDistributionServer();

@@ -4,6 +4,7 @@ using System.Text;
 using UniCastCommonData.Handlers;
 using UniCastCommonData.Wrappers;
 using UniCastCommonData.Packet.InitialDatas;
+using UniCastCommonData.Handlers.Convert;
 
 namespace UniCastCommonData
 {
@@ -75,23 +76,11 @@ namespace UniCastCommonData
 			_buffer.AddRange(data);
 		}
 
-		public int ReadInt(bool moveReadPos = true)
-		{
-			try
-			{
-				return Read(4, moveReadPos).ToInt32();
-			}
-			catch
-			{
-				throw new Exception("Could not read value of type 'int'!");
-			}
-		}
-
 		public string ReadString(bool moveReadPos = true)
 		{
 			try
 			{
-				int length = ReadInt(); // Get the length of the string
+				int length = this.ReadInt(); // Get the length of the string
 				string value = Encoding.ASCII.GetString(_readableBuffer, _readPosition, length); // Convert the bytes to a string
 				if (moveReadPos && value.Length > 0)
 				{
@@ -159,7 +148,6 @@ namespace UniCastCommonData
 
 		public void Reset(int byteLength)
 		{
-			byteLength = Math.Abs(byteLength);
 			_readPosition -= byteLength; // "Unread" the last N bytes
 		}
 
