@@ -87,6 +87,8 @@
 				return;
 			}
 
+			Dictionary<Guid, int> moneys = new();
+
 			while (allPlayers.Count(x => x.PlayerMoney.InHand) >= 2
 				   && allPlayers.Any(x => x.PlayerMoney.ShouldPlayInRound))
 			{
@@ -126,7 +128,7 @@
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new StartTurnSendingData(
 									 player.PlayerGuid,
-									 context.TimeForTurn * 1000,
+									 context.TimeForTurn,
 									 (int)context.RoundType,
 									 _smallBlind,
 									 player.PlayerMoney.Money,
@@ -195,7 +197,6 @@
 									 (int)lobbyTOclient.EndTurn),
 								 null);
 
-				Dictionary<Guid, int> moneys = new();
 				if (moneys.ContainsKey(player.PlayerGuid))
 				{
 					moneys[player.PlayerGuid] = player.PlayerMoney.Money;

@@ -115,6 +115,17 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 			await Task.Delay(5000);
 
+			_tableViewModel.ClearCards();
+
+			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
+							 new ClearCardsSendingData(
+								 Guid.Empty,
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.ClearCards),
+							 null);
+
 			foreach (var player in _players)
 			{
 				player.EndHand(new EndHandContext(showdownCards));
@@ -127,16 +138,6 @@ namespace LobbyServer.pokerlogic.GameMechanics
 								 null);
 				//SEND player.ChairView.ClearCards();
 			}
-
-
-			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
-							 new ClearCardsSendingData(
-								 Guid.Empty,
-								 Guid.Empty,
-								 Server.Id,
-								 Server.ServerType,
-								 (int)lobbyTOclient.ClearCards),
-							 null);
 
 			await Task.Delay(1000);
 		}

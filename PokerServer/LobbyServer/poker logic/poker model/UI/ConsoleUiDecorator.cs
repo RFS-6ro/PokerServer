@@ -68,7 +68,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 		public override void StartHand(IStartHandContext context)
 		{
 			IsDealer = context.FirstPlayerName == Player.Name;
-			var dealerSymbol = context.FirstPlayerName == Player.Name ? "D" : " ";
+			var dealerSymbol = IsDealer ? "D" : " ";
 
 			ConsoleHelper.WriteOnConsole(_row + 1, 1, dealerSymbol, ConsoleColor.Green);
 			ConsoleHelper.WriteOnConsole(_row + 3, 2, "                            ");

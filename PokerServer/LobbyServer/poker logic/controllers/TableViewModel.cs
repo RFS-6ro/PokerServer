@@ -28,6 +28,7 @@ namespace LobbyServer.pokerlogic.controllers
 		public void StartRound(IStartRoundContext context)
 		{
 			CommunityCards = context.CommunityCards;
+			DrawCommunityCards();
 			UpdateCommonRows(
 				context.CurrentPot,
 				context.CurrentMainPot.AmountOfMoney,
@@ -93,6 +94,13 @@ namespace LobbyServer.pokerlogic.controllers
 					spacing += communityCard.Type == CardType.Ten ? 1 : 0;
 				}
 			}
+		}
+
+		public void ClearCards()
+		{
+			CommunityCards = null;
+
+			ConsoleHelper.WriteOnConsole(_commonRow, 0, "                       ", ConsoleColor.Black, ConsoleColor.Black);
 		}
 
 		private void DrawSingleCard(int row, int col, Card card)
