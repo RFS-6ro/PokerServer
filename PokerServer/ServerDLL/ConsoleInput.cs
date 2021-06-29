@@ -1,4 +1,5 @@
 ﻿using System;
+using ServerDLL;
 using UniCastCommonData.Handlers;
 
 namespace UniCastCommonData
@@ -34,6 +35,26 @@ namespace UniCastCommonData
 
 				_mediator.Stop();
 				_isRunning = false;
+				return;
+			}
+
+			if (input.Contains("start log"))
+			{
+				string filename = input.Split(' ')[2];
+				StaticLogger.CreateFile(filename);
+				return;
+			}
+
+			if (input == "stop log")
+			{
+				StaticLogger.CloseFile();
+				return;
+			}
+
+			if (input == "print log")
+			{
+				StaticLogger.WriteLogToConsole();
+				return;
 			}
 		}
 	}

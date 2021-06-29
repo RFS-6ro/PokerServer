@@ -4,6 +4,7 @@ using LobbyServer.Client;
 using LobbyServer.Region;
 using System;
 using FrontendDistributionServer.Database;
+using ServerDLL;
 
 namespace LobbyServer
 {

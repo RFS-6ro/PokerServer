@@ -266,7 +266,6 @@ namespace LobbyServer.pokerlogic.GameMechanics
 				{
 					if (player.PlayerMoney.InHand)
 					{
-						showdownCards.Add(player.Name, player.Cards);
 						cards.Add(player.PlayerGuid,
 						 new UniCastCommonData.Packet.InitialDatas.Tuple<int, int, int, int>
 								 (
@@ -275,6 +274,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 									(int)player.Cards[1].Type,
 									(int)player.Cards[1].Suit
 								 ));
+						showdownCards.Add(player.Name, player.Cards);
 					}
 				}
 
@@ -435,13 +435,16 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 		private async Task PlayRound(PokerSynchronisation.GameRoundType gameRoundType, int communityCardsCount)
 		{
-			List<UniCastCommonData.Packet.InitialDatas.Tuple<int, int>> cards = new();
+			List<UniCastCommonData.Packet.InitialDatas.Tuple<int, int, int>> cards = new();
+			int index = communityCards.Count;
 			for (var i = 0; i < communityCardsCount; i++)
 			{
 				Card card = deck.GetNextCard();
 
 				communityCards.Add(card);
-				cards.Add(new UniCastCommonData.Packet.InitialDatas.Tuple<int, int>((int)card.Type, (int)card.Suit));
+
+				cards.Add(new UniCastCommonData.Packet.InitialDatas.Tuple<int, int, int>((int)card.Type, (int)card.Suit, index));
+				index++;
 				//SEND CardController.Dispence(_tableViewModel, card, communityCards.Count - 1);
 			}
 

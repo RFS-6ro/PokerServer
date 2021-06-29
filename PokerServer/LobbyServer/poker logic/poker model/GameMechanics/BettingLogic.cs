@@ -121,7 +121,7 @@
 							player.PlayerMoney.CurrentRoundBet,
 							maxMoneyPerPlayer,
 							minRaise.Amount(player.Name),
-							500000000,
+							5000,
 							MainPot,
 							SidePots);
 
@@ -147,21 +147,6 @@
 									 (int)lobbyTOclient.StartTurn),
 								 null);
 
-				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
-								 new PlayerTurnSendingData(
-									 player.PlayerGuid,
-									 context.MoneyLeft,
-									 context.MyMoneyInTheRound,
-									 context.MoneyToCall,
-									 -1,
-									 minRaise.Amount(player.Name),
-									 maxMoneyPerPlayer,
-									 string.Empty,
-									 Guid.Empty,
-									 Server.Id,
-									 Server.ServerType,
-									 (int)lobbyTOclient.PlayerTurn),
-								 null);
 				//SEND player.ChairView.SetGameStateHolder(string.Empty);
 
 				_tableViewModel.UpdateTableBeforeTurn(context);
@@ -176,9 +161,9 @@
 									 player.PlayerGuid,
 									 player.PlayerMoney.Money,
 									 player.PlayerMoney.CurrentRoundBet,
-									 0,
+									 -1,
 									 action.Money,
-									 _smallBlind * 2,
+									 minRaise.Amount(player.Name),
 									 maxMoneyPerPlayer,
 									 action.ToString(),
 									 Guid.Empty,

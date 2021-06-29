@@ -155,7 +155,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 
 	public async Task Init()
 	{
-		while (CurrentPlayers.Count((x) => x != null) < 9)
+		while (CurrentPlayers.Count((x) => x != null) < 2)
 		{
 			await Task.Delay(100);
 		}

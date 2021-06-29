@@ -7,4 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\UniCastCommonData\UniCastCommonData.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConsoleInput.cs" Condition=" '$(EnableDefaultCompileItems)' == 'true' ">
+      <Link>ConsoleInput.cs</Link>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -502,7 +502,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class DealCardsToTableSendingData : InitialSendingData
 	{
-		public List<Tuple<int, int>> Cards = new List<Tuple<int, int>>();
+		public List<Tuple<int, int, int>> Cards = new List<Tuple<int, int, int>>();
 
 		public DealCardsToTableSendingData(byte[] data) : base(data)
 		{
@@ -510,11 +510,11 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 			for (int i = 0; i < length; i++)
 			{
-				Cards.Add(new Tuple<int, int>(data.ToInt32(44 + 4 + 8 * i), data.ToInt32(48 + 4 + 8 * i)));
+				Cards.Add(new Tuple<int, int, int>(data.ToInt32(44 + 4 + 12 * i), data.ToInt32(48 + 4 + 12 * i), data.ToInt32(52 + 4 + 12 * i)));
 			}
 		}
 
-		public DealCardsToTableSendingData(List<Tuple<int, int>> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public DealCardsToTableSendingData(List<Tuple<int, int, int>> cards, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			Cards = cards;
 		}
@@ -530,6 +530,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 			{
 				data.AddRange(Cards[i].Item1.ToByteArray());
 				data.AddRange(Cards[i].Item2.ToByteArray());
+				data.AddRange(Cards[i].Item3.ToByteArray());
 			}
 
 			return data.ToArray();

@@ -35,6 +35,7 @@
     <Compile Remove="Network\Message Handlers\SessionSender.cs" />
     <Compile Remove="Handlers\ServerInitResult.cs" />
     <Compile Remove="Handlers\ServerInitialisator.cs" />
+    <Compile Remove="ConsoleInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="bin\StaticInstance.cs" />

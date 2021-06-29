@@ -52,7 +52,9 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 			{
 				Muck();
 				ResetWinner();
+				Name = string.Empty;
 				IsDealer = false;
+				DrawGameBox();
 				return;
 			}
 
@@ -160,6 +162,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public void Disconnect()
 		{
+			SetPlayer(null);
 		}
 
 		public async override Task<PlayerAction> AwaitTurn(IGetTurnContext context)
