@@ -1,4 +1,5 @@
 ﻿using System;
+using ServerDLL;
 using UniCastCommonData;
 
 namespace TestingClient

@@ -1,8 +1,7 @@
 ﻿using System;
-using ServerDLL;
 using UniCastCommonData.Handlers;
 
-namespace UniCastCommonData
+namespace ServerDLL
 {
 	public class ConsoleInput<MEDIATOR>
 		where MEDIATOR : AbstractMediator<MEDIATOR>
@@ -38,22 +37,29 @@ namespace UniCastCommonData
 				return;
 			}
 
-			if (input.Contains("start log"))
+			if (input.Contains("log start"))
 			{
 				string filename = input.Split(' ')[2];
 				StaticLogger.CreateFile(filename);
 				return;
 			}
 
-			if (input == "stop log")
+			if (input == "log stop")
 			{
 				StaticLogger.CloseFile();
 				return;
 			}
 
-			if (input == "print log")
+			if (input == "log print")
 			{
 				StaticLogger.WriteLogToConsole();
+				return;
+			}
+
+			if (input.Contains("log filter"))
+			{
+				string[] filters = input.Split(' ');
+				StaticLogger.Filter(filters);
 				return;
 			}
 		}

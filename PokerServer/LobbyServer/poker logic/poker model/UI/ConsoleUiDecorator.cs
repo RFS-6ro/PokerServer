@@ -12,6 +12,18 @@ using UniCastCommonData.Network.MessageHandlers;
 
 namespace LobbyServer.pokerlogic.pokermodel.UI
 {
+	/*
+
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+			new string[]
+			{
+				"multicasting for all users",
+				text
+			}
+		);
+
+	 */
 	public class ConsoleUiDecorator : PlayerDecorator
 	{
 		public Guid PlayerGuid { get; protected set; }

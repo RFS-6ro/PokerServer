@@ -21,36 +21,36 @@ namespace LobbyServer.Client
 
 		public Lobby_Client_Server(IPAddress address, int port) : base(address, port)
 		{
-			StaticLogger.Print("initializing server with " + address);
+			StaticLogger.Print("Lobby_Client_Server", "initializing server with " + address);
 		}
 
 		protected override TcpSession CreateSession()
 		{
-			StaticLogger.Print("creating session for new connection");
+			StaticLogger.Print("Lobby_Client_Server", "creating session for new connection");
 			return new Lobby_Client_Session(this);
 		}
 
 		public override bool Start()
 		{
-			StaticLogger.Print("starting server");
+			StaticLogger.Print("Lobby_Client_Server", "starting server");
 			return base.Start();
 		}
 
 		public override bool Stop()
 		{
-			StaticLogger.Print("stopping server");
+			StaticLogger.Print("Lobby_Client_Server", "stopping server");
 			return base.Stop();
 		}
 
 		public override bool Restart()
 		{
-			StaticLogger.Print("restarting server");
+			StaticLogger.Print("Lobby_Client_Server", "restarting server");
 			return base.Restart();
 		}
 
 		public override bool DisconnectAll()
 		{
-			StaticLogger.Print("disconnect all users");
+			StaticLogger.Print("Lobby_Client_Server", "disconnect all users");
 			return base.DisconnectAll();
 		}
 
@@ -60,10 +60,10 @@ namespace LobbyServer.Client
 			for (int i = 0; i < buffer.Length; i++)
 			{
 				stringBuilder.Append(buffer[i].ToString());
-				stringBuilder.Append(" ");
+				if (i % 4 == 0) stringBuilder.Append(" ");
 			}
 
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"multicasting for all users",
 				stringBuilder.ToString()
@@ -77,10 +77,10 @@ namespace LobbyServer.Client
 			for (int i = 0; i < buffer.Length; i++)
 			{
 				stringBuilder.Append(buffer[i].ToString());
-				stringBuilder.Append(" ");
+				if (i % 4 == 0) stringBuilder.Append(" ");
 			}
 
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"multicasting for all users",
 				stringBuilder.ToString(),
@@ -92,7 +92,7 @@ namespace LobbyServer.Client
 
 		public override bool Multicast(string text)
 		{
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"multicasting for all users",
 				text
@@ -102,49 +102,42 @@ namespace LobbyServer.Client
 
 		protected override void OnDisconnecting(TcpSession session)
 		{
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"session is trying to disconnect",
-				$"Id = {session.Id}",
-				$"Socket = {session.Socket}"
+				$"Id = {session.Id}"
 			});
 			base.OnDisconnecting(session);
 		}
 
 		protected override void OnDisconnected(TcpSession session)
 		{
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"session was disconnected",
-				$"Id = {session.Id}",
-				$"Socket = {session.Socket}"
+				$"Id = {session.Id}"
 			});
 			base.OnDisconnected(session);
 		}
 
 		protected override void OnError(SocketError error)
 		{
-			StaticLogger.Print(new object[]
-			{
-				"Socket Error",
-				$"Error = {error}"
-			});
+			StaticLogger.Print("Lobby_Client_Server", $"Socket Error occured: {error}");
 			base.OnError(error);
 		}
 
 		protected override void Dispose(bool disposingManagedResources)
 		{
-			StaticLogger.Print("Disposing");
+			StaticLogger.Print("Lobby_Client_Server", "Disposing");
 			base.Dispose(disposingManagedResources);
 		}
 
 		protected override void OnConnecting(TcpSession session)
 		{
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"new session is trying to connect",
-				$"Id = {session.Id}",
-				$"Socket = {session.Socket}"
+				$"Id = {session.Id}"
 			});
 			base.OnConnecting(session);
 		}
@@ -152,11 +145,10 @@ namespace LobbyServer.Client
 		protected override void OnConnected(TcpSession session)
 		{
 			base.OnConnected(session);
-			StaticLogger.Print(new object[]
+			StaticLogger.Print("Lobby_Client_Server", new string[]
 			{
 				"new session was connected",
-				$"new Id = {session.Id}",
-				$"Socket = {session.Socket}"
+				$"new Id = {session.Id}"
 			});
 		}
 	}

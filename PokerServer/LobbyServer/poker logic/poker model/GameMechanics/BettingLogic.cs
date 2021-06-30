@@ -6,6 +6,7 @@
 	using LobbyServer.pokerlogic.pokermodel.Players;
 	using LobbyServer.pokerlogic.pokermodel.UI;
 	using PokerSynchronisation;
+	using ServerDLL;
 	using System;
 	using System.Collections.Generic;
 	using System.Linq;
@@ -14,6 +15,17 @@
 	using UniCastCommonData.Network.MessageHandlers;
 	using UniCastCommonData.Packet.InitialDatas;
 
+	/*
+	
+		StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"new update pot event: pot = {0}");
+		StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}",
+			new string[]
+			{
+				"multicasting for all users",
+			}
+		);
+
+	 */
 	public class BettingLogic
 	{
 		private readonly int initialPlayerIndex = 1;
@@ -74,16 +86,19 @@
 
 			if (gameRoundType == GameRoundType.PreFlop)
 			{
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"pre flop situation");
 				playerIndex = initialPlayerIndex + 2;
 			}
 			else
 			{
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"clearing round bets");
 				RoundBets.Clear();
 				minRaise.Reset();
 			}
 
 			if (allPlayers.Count(x => x.PlayerMoney.ShouldPlayInRound) <= 1)
 			{
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"not enough players to continue playing");
 				return;
 			}
 
@@ -110,6 +125,10 @@
 
 					continue;
 				}
+
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"new betting round. current turning player is {player.Name} with id {player.PlayerGuid}");
+
+
 
 				var maxMoneyPerPlayer = allPlayers.Max(x => x.PlayerMoney.CurrentRoundBet);
 				IGetTurnContext context = new GetTurnContext(
@@ -236,6 +255,7 @@
 			}
 
 
+			StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"new update pot event: pot = {0}");
 			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 							 new UpdatePotSendingData(
 								 Pot,

@@ -2,17 +2,35 @@
 using System.Linq;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace ServerDLL
 {
 	public static class StaticLogger
 	{
+		private struct Log
+		{
+			public DateTime Time;
+			public string Identificator;
+			public IEnumerable<string> Messages;
+
+			public Log(DateTime time, string identificator, IEnumerable<string> messages)
+			{
+				Time = time;
+				Identificator = identificator;
+				Messages = messages;
+			}
+		}
+
+		private static List<Log> Logs = new List<Log>();
+
 		private static StreamWriter _writer;
 		private static StreamReader _reader;
 
 		private static string _name;
 
-		private static object _lock;
+		private static object _lock = new object();
+
 
 		public static void CreateFile(string name)
 		{
@@ -24,23 +42,70 @@ namespace ServerDLL
 			}
 		}
 
+
+		public static void Filter(string[] filters)
+		{
+			try
+			{
+				if (filters.Length == 2)
+				{
+					throw null;
+				}
+
+				IEnumerable<Log> filtered = Logs.Where((x) => x.Identificator == filters[2]);
+				var filteredWriter = new StreamWriter(filters[3], true, Encoding.ASCII);
+				foreach (var log in filtered)
+				{
+					WriteLogToFile(log, filteredWriter);
+				}
+				filteredWriter.Close();
+			}
+			catch
+			{
+				Console.WriteLine(@"Wrong fiter signature. It should be: log filter %Identificator% %FileName.*%");
+			}
+		}
+
 		public static void Print(object message)
 		{
-			if (_writer == null)
-			{
-				return;
-			}
+			Print("default", message.ToString());
+		}
 
-			lock (_lock)
-			{
-				string log = message.ToString();
+		public static void Print(string log)
+		{
+			Print("default", log);
+		}
 
-				Log(log, _writer);
-			}
+		public static void Print(string identificator, object message)
+		{
+			Print(identificator, message.ToString());
+		}
+
+		public static void Print(string identificator, string log)
+		{
+			Print(identificator, new string[] { log });
 		}
 
 		public static void Print(object[] messages)
 		{
+			string[] logs = messages.Cast<string>().ToArray();
+			Print("default", logs);
+		}
+
+		public static void Print(string[] logs)
+		{
+			Print("default", logs);
+		}
+
+		public static void Print(string identificator, object[] messages)
+		{
+			string[] logs = messages.Cast<string>().ToArray();
+
+			Print(identificator, logs);
+		}
+
+		public static void Print(string identificator, string[] logs)
+		{
 			if (_writer == null)
 			{
 				return;
@@ -48,29 +113,36 @@ namespace ServerDLL
 
 			lock (_lock)
 			{
-				string[] logs = messages.Cast<string>().ToArray();
-
-				Log(logs, _writer);
+				Log currentLog = new Log(DateTime.Now, identificator, logs);
+				Logs.Add(currentLog);
+				WriteLogToFile(currentLog, _writer);
 			}
 		}
 
-		private static void Log(string logMessage, TextWriter w)
+		public static void Print(string identificator, IEnumerable<string> logs)
 		{
-			w.Write("\r\nLog Entry : ");
-			w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
-			w.WriteLine("  :");
-			w.WriteLine($"  :{logMessage}");
-			w.WriteLine("-------------------------------");
+			if (_writer == null)
+			{
+				return;
+			}
+
+			lock (_lock)
+			{
+				Log currentLog = new Log(DateTime.Now, identificator, logs);
+				Logs.Add(currentLog);
+				WriteLogToFile(currentLog, _writer);
+			}
 		}
 
-		private static void Log(string[] logMessages, TextWriter w)
+
+		private static void WriteLogToFile(Log log, TextWriter w)
 		{
-			w.Write("\r\nLog Entry : ");
-			w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+			w.Write($"\r\nLog Entry {log.Identificator}: ");
+			w.WriteLine($"{log.Time.ToLongTimeString()} {log.Time.ToLongDateString()}");
 			w.WriteLine("  :");
-			for (int i = 0; i < logMessages.Length; i++)
+			foreach (var message in log.Messages)
 			{
-				w.WriteLine($"  :{logMessages[i]}");
+				w.WriteLine($"  :{message}");
 			}
 			w.WriteLine("-------------------------------");
 		}
@@ -97,6 +169,7 @@ namespace ServerDLL
 				Console.WriteLine(line);
 			}
 		}
+
 
 		public static void CloseFile()
 		{

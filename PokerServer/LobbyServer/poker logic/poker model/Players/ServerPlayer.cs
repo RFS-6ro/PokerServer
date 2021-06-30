@@ -10,6 +10,18 @@ using UniCastCommonData.Packet.InitialDatas;
 
 namespace LobbyServer.pokerlogic.pokermodel.Players
 {
+	/*
+
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+			new string[]
+			{
+				"multicasting for all users",
+				text
+			}
+		);
+
+	 */
 	public class ServerPlayer : BasePlayer
 	{
 		public int Row { get; protected set; }

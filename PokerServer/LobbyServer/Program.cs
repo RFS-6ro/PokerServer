@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UniCastCommonData;
+using ServerDLL;
 
 namespace LobbyServer
 {
@@ -11,6 +11,7 @@ namespace LobbyServer
 
 		static async Task Main(string[] args)
 		{
+			Console.Clear();
 			PokerInitializator a = new PokerInitializator();
 
 			_mediator = new LobbyServerMediator(40);

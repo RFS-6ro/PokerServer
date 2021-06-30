@@ -8,6 +8,18 @@ using ServerDLL;
 
 namespace LobbyServer
 {
+	/*
+
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+			new string[]
+			{
+				"multicasting for all users",
+				text
+			}
+		);
+
+	 */
 	public class LobbyServerMediator : AbstractMediator<LobbyServerMediator>
 	{
 		private static Lobby_Client_Server _clientServer;

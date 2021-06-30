@@ -8,6 +8,18 @@ using LobbyServer.pokerlogic.pokermodel.UI;
 
 namespace LobbyServer.pokerlogic.controllers
 {
+	/*
+
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
+		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+			new string[]
+			{
+				"multicasting for all users",
+				text
+			}
+		);
+
+	 */
 	public class TableViewModel
 	{
 		private IReadOnlyCollection<Card> CommunityCards { get; set; }
@@ -25,14 +37,11 @@ namespace LobbyServer.pokerlogic.controllers
 			UpdateCommonRows(0, 0, new int[] { });
 		}
 
-		public void StartRound(IStartRoundContext context)
+		public void StartRound(IReadOnlyCollection<Card> communityCards, int currentPot, int mainPot, IEnumerable<int> sidePots)
 		{
-			CommunityCards = context.CommunityCards;
+			CommunityCards = communityCards;
 			DrawCommunityCards();
-			UpdateCommonRows(
-				context.CurrentPot,
-				context.CurrentMainPot.AmountOfMoney,
-				context.CurrentSidePots.Select(s => s.AmountOfMoney));
+			UpdateCommonRows(currentPot, mainPot, sidePots);
 		}
 
 		public void UpdateTableBeforeTurn(IGetTurnContext context)

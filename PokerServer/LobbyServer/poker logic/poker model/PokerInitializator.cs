@@ -13,6 +13,18 @@ using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
 
+/*
+
+	StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
+	StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+		new string[]
+		{
+			"multicasting for all users",
+			text
+		}
+	);
+
+ */
 public class PokerInitializator : StaticInstance<PokerInitializator>
 {
 	public event Action OnGameEnds;

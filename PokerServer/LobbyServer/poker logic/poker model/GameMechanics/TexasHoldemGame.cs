@@ -11,9 +11,23 @@ using LobbyServer.pokerlogic.GameMechanics;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
+using ServerDLL;
+using System.Security.Cryptography;
 
 namespace GameCore.Poker.Model
 {
+	/*
+
+		StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}", "");
+		StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}",
+			new string[]
+			{
+				"multicasting for all users",
+				text
+			}
+		);
+
+	 */
 	public class TexasHoldemGame
 	{
 		protected static readonly int[] SmallBlinds =
@@ -80,6 +94,15 @@ namespace GameCore.Poker.Model
 				allPlayers.Add(player);
 			}
 
+			StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}",
+				new string[]
+				{
+					$"starting game with {players.Count} players:"
+				}
+				.Concat(GetPlayersForLogs())
+			);
+
+
 			this.initialMoney = initialMoney;
 			HandsPlayed = 0;
 		}
@@ -122,6 +145,14 @@ namespace GameCore.Poker.Model
 								 null);
 			}
 
+			StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}",
+				new string[]
+				{
+					$"send start game event to {allPlayers.Count} players:"
+				}
+				.Concat(GetPlayersForLogs())
+			);
+
 			await PlayGame();
 
 			var winner = allPlayers.WithMoney().FirstOrDefault();
@@ -137,6 +168,14 @@ namespace GameCore.Poker.Model
 									 (int)lobbyTOclient.EndGame),
 								 null);
 			}
+
+			StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}",
+				new string[]
+				{
+					$"send end game event to {allPlayers.Count} players:"
+				}
+				.Concat(GetPlayersForLogs())
+			);
 
 			return winner;
 		}
@@ -164,14 +203,14 @@ namespace GameCore.Poker.Model
 		{
 			var shifted = allPlayers.ToList();
 
-			int shuffleNumber = new Random().Next(0, allPlayers.Count - 1);
+			//int shuffleNumber = new Random().Next(0, allPlayers.Count - 1);
 
-			for (int i = 0; i < shuffleNumber; i++)
-			{
-				shifted = shifted.WithMoney().Cast<ConsoleUiDecorator>().ToList();
-				shifted.Add(shifted.First());
-				shifted.RemoveAt(0);
-			}
+			//for (int i = 0; i < shuffleNumber; i++)
+			//{
+			//	shifted = shifted.WithMoney().Cast<ConsoleUiDecorator>().ToList();
+			//	shifted.Add(shifted.First());
+			//	shifted.RemoveAt(0);
+			//}
 
 			// While at least two players have money
 			if (allPlayers.WithMoney().Count() > 1)
@@ -187,13 +226,40 @@ namespace GameCore.Poker.Model
 				shifted.Add(shifted.First());
 				shifted.RemoveAt(0);
 
+				StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}",
+					new string[]
+					{
+						$"shifted players:"
+					}
+					.Concat(GetPlayersForLogs(shifted))
+				);
+
 				// Rotate players
 				HandLogic hand = new HandLogic(shifted, HandsPlayed, smallBlind, _tableViewModel);
 
+				StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}", "Awaiting players to finish hand");
 				await hand.Play();
 
 				//Rebuy();
 			}
+		}
+
+		internal IEnumerable<string> GetPlayersForLogs(IEnumerable<ConsoleUiDecorator> players = null)
+		{
+			if (players == null)
+			{
+				players = allPlayers;
+			}
+			List<string> logPlayers = new List<string>();
+
+			int index = 0;
+			foreach (var player in players)
+			{
+				logPlayers.Add($"{index}) {player.Name} {player.PlayerGuid}");
+				index++;
+			}
+
+			return logPlayers;
 		}
 	}
 }
