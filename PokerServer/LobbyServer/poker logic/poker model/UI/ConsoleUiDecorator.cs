@@ -14,12 +14,11 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 {
 	/*
 
-		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
-		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+		StaticLogger.Print($"Console Ui Decorator + {PlayerGuid}", "disconnect all users");
+		StaticLogger.Print($"Console Ui Decorator + {PlayerGuid}",
 			new string[]
 			{
-				"multicasting for all users",
-				text
+				"multicasting for all users"
 			}
 		);
 

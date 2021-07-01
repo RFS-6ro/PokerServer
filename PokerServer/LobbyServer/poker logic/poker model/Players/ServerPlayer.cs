@@ -1,9 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using LobbyServer.Client;
+﻿using LobbyServer.Client;
 using LobbyServer.Client.Handlers;
 using LobbyServer.pokerlogic.pokermodel.UI;
 using PokerSynchronisation;
+using ServerDLL;
+using System;
+using System.Threading.Tasks;
 using UniCastCommonData;
 using UniCastCommonData.Network.MessageHandlers;
 using UniCastCommonData.Packet.InitialDatas;
@@ -12,12 +13,11 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	/*
 
-		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
-		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+		StaticLogger.Print($"Server Player + {Guid}", $"");
+		StaticLogger.Print($"Server Player + {Guid}",
 			new string[]
 			{
-				"multicasting for all users",
-				text
+				$"",
 			}
 		);
 
@@ -52,12 +52,33 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 
 		public override PlayerAction PostingBlind(IPostingBlindContext context)
 		{
+			StaticLogger.Print($"Server Player + {Guid}", $"posting blind {context.BlindAction.Money}");
 			return context.BlindAction;
 		}
 
 		public async override Task<PlayerAction> GetTurn(IGetTurnContext context)
 		{
 			int passedTime = 0;
+
+			StaticLogger.Print($"Server Player + {Guid}",
+				new string[]
+				{
+					$"awaiting for turn",
+					$"timer value = {context.TimeForTurn}",
+					$"CanRaise = {context.CanRaise}",
+					$"CanCheck = {context.CanCheck}",
+					$"CurrentMaxBet = {context.CurrentMaxBet}",
+					$"CurrentPot = {context.CurrentPot}",
+					$"IsAllIn = {context.IsAllIn}",
+					$"MainPot = {context.MainPot.AmountOfMoney}",
+					$"MinRaise = {context.MinRaise}",
+					$"MoneyLeft = {context.MoneyLeft}",
+					$"MoneyToCall = {context.MoneyToCall}",
+					$"MyMoneyInTheRound = {context.MyMoneyInTheRound}",
+					$"RoundType = {context.RoundType}",
+					$"SmallBlind = {context.SmallBlind}",
+				}
+			);
 
 			while (passedTime < context.TimeForTurn)
 			{
@@ -75,7 +96,7 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 					{
 						break;
 					}
-					int amount = await RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
+					int amount = RaiseAmount(context.MoneyLeft, context.MinRaise, context.MoneyToCall, context.MyMoneyInTheRound);
 					action = PlayerAction.Raise(amount);
 					break;
 				case TurnType.Fold:
@@ -97,25 +118,25 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 				{
 					_playerRaiseAmount = -1;
 					_turnType = TurnType.None;
+
+					StaticLogger.Print($"Server Player + {Guid}", $"result valid action = {action}");
 					return action;
 				}
 
-				await Task.Delay(1);
-				passedTime++;
+				await Task.Delay(100);
+				passedTime += 100;
 
-				if (passedTime % 100 == 0)
-				{
-					Sender.SendAsync(new UpdateTimerSendingData(
-										 Guid,
-										 context.TimeForTurn - passedTime,
-										 Guid,
-										 Server.Id,
-										 Server.ServerType,
-										 (int)lobbyTOclient.UpdateTimer),
-									 null);
-				}
+				Sender.SendAsync(new UpdateTimerSendingData(
+									 Guid,
+									 context.TimeForTurn - passedTime,
+									 Guid,
+									 Server.Id,
+									 Server.ServerType,
+									 (int)lobbyTOclient.UpdateTimer),
+								 null);
 			}
 
+			StaticLogger.Print($"Server Player + {Guid}", $"Turn timeout");
 			return PlayerAction.Fold();
 		}
 
@@ -124,9 +145,10 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			//RECEIVE:
 			_turnType = (TurnType)type;
 			_playerRaiseAmount = amount;
+			StaticLogger.Print($"Server Player + {Guid}", $"player turn received: [{_turnType}, {_playerRaiseAmount}]");
 		}
 
-		private async Task<int> RaiseAmount(int moneyLeft, int minRaise, int moneyToCall, int myMoneyInTheRound)
+		private int RaiseAmount(int moneyLeft, int minRaise, int moneyToCall, int myMoneyInTheRound)
 		{
 			int amount;
 			var wholeMinRaise = minRaise + myMoneyInTheRound + moneyToCall;
@@ -137,45 +159,26 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			}
 			else
 			{
-				var perfix = $"Raise amount [{wholeMinRaise}-{moneyLeft + myMoneyInTheRound}]:";
+				int result = _playerRaiseAmount;
 
-				do
+				if (result < wholeMinRaise)
 				{
-					ConsoleHelper.WriteOnConsole(Row + 2, 2, new string(' ', Console.WindowWidth - 3));
-					ConsoleHelper.WriteOnConsole(Row + 2, 2, perfix);
-
-					//var text = ConsoleHelper.UserInput(Row + 2, perfix.Length + 3);
-
-					while (_playerRaiseAmount == -1)
-					{
-						await Task.Yield();
-					}
-
-					int result = _playerRaiseAmount;
-
-					//if (int.TryParse(text, out result))
-					//{
-					if (result < wholeMinRaise)
-					{
-						amount = minRaise;
-						break;
-					}
-					else if (result >= moneyLeft + myMoneyInTheRound)
-					{
-						// Raise All-in
-						amount = moneyLeft - moneyToCall;
-						break;
-					}
-
-					amount = result - (myMoneyInTheRound + moneyToCall);
-					break;
-					//}
+					amount = minRaise;
 				}
-				while (true);
+				else if (result >= moneyLeft + myMoneyInTheRound)
+				{
+					// Raise All-in
+					amount = moneyLeft - moneyToCall;
+				}
+				else
+				{
+					amount = result - (myMoneyInTheRound + moneyToCall);
+				}
 			}
 
 			_playerRaiseAmount = -1;
 
+			StaticLogger.Print($"Server Player + {Guid}", $"valid raise amount = {amount}");
 			return amount;
 		}
 	}

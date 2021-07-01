@@ -47,18 +47,21 @@ namespace ServerDLL
 		{
 			try
 			{
-				if (filters.Length == 2)
+				lock (_lock)
 				{
-					throw null;
-				}
+					if (filters.Length == 2)
+					{
+						throw null;
+					}
 
-				IEnumerable<Log> filtered = Logs.Where((x) => x.Identificator == filters[2]);
-				var filteredWriter = new StreamWriter(filters[3], true, Encoding.ASCII);
-				foreach (var log in filtered)
-				{
-					WriteLogToFile(log, filteredWriter);
+					IEnumerable<Log> filtered = Logs.Where((x) => x.Identificator == filters[2]);
+					var filteredWriter = new StreamWriter(filters[3], true, Encoding.ASCII);
+					foreach (var log in filtered)
+					{
+						WriteLogToFile(log, filteredWriter);
+					}
+					filteredWriter.Close();
 				}
-				filteredWriter.Close();
 			}
 			catch
 			{
@@ -121,15 +124,16 @@ namespace ServerDLL
 
 		public static void Print(string identificator, IEnumerable<string> logs)
 		{
-			if (_writer == null)
-			{
-				return;
-			}
-
 			lock (_lock)
 			{
 				Log currentLog = new Log(DateTime.Now, identificator, logs);
 				Logs.Add(currentLog);
+
+				if (_writer == null)
+				{
+					return;
+				}
+
 				WriteLogToFile(currentLog, _writer);
 			}
 		}

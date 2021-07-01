@@ -5,17 +5,17 @@ using LobbyServer.pokerlogic.Cards;
 using LobbyServer.pokerlogic.Extensions;
 using LobbyServer.pokerlogic.pokermodel.Players;
 using LobbyServer.pokerlogic.pokermodel.UI;
+using ServerDLL;
 
 namespace LobbyServer.pokerlogic.controllers
 {
 	/*
 
-		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}", "disconnect all users");
-		StaticLogger.Print($"Lobby_Client_Session + {Id.ToString().Split('-')[0]}",
+		StaticLogger.Print($"Table View Model", "disconnect all users");
+		StaticLogger.Print($"Table View Model",
 			new string[]
 			{
-				"multicasting for all users",
-				text
+				"multicasting for all users"
 			}
 		);
 
@@ -34,12 +34,34 @@ namespace LobbyServer.pokerlogic.controllers
 
 		public void StartHand()
 		{
+			StaticLogger.Print($"Table View Model", "start hand init");
 			UpdateCommonRows(0, 0, new int[] { });
 		}
 
 		public void StartRound(IReadOnlyCollection<Card> communityCards, int currentPot, int mainPot, IEnumerable<int> sidePots)
 		{
+			List<string> cards = new List<string>();
+			foreach (var pot in sidePots)
+			{
+				cards.Add(pot.ToString());
+			}
+			cards.Add("dispenced community cards: ");
+			foreach (var card in communityCards)
+			{
+				cards.Add($"[{card.Type}, {card.Suit}]");
+			}
+
 			CommunityCards = communityCards;
+			StaticLogger.Print($"Table View Model",
+				new string[]
+				{
+					"start round event",
+					$"current pot = {currentPot}, main pot = {mainPot}",
+					"side pots: "
+				}
+				.Concat(cards)
+			);
+
 			DrawCommunityCards();
 			UpdateCommonRows(currentPot, mainPot, sidePots);
 		}

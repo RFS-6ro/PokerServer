@@ -144,6 +144,15 @@
 							MainPot,
 							SidePots);
 
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}",
+					new string[]
+					{
+						$"multicasting start turn for all users of round {gameRoundType}",
+						$"turning player is {player.Name} with Id {player.PlayerGuid}, Money = {context.MoneyLeft}, currenyRoundBet = {context.MyMoneyInTheRound}",
+						$"Max bet {maxMoneyPerPlayer}, Small blind {_smallBlind}, Pot {Pot}, MinRaise = {context.MinRaise}, MoneyToCall = {context.MoneyToCall}, CanRaise = {context.CanRaise}"
+					}
+				);
+
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new StartTurnSendingData(
 									 player.PlayerGuid,
@@ -171,10 +180,13 @@
 				_tableViewModel.UpdateTableBeforeTurn(context);
 				PlayerAction action = await player.AwaitTurn(context);
 
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"received action is {action}");
 				action = player.PlayerMoney.DoPlayerAction(action, maxMoneyPerPlayer);
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"valid result action is {action}");
 
 				maxMoneyPerPlayer = allPlayers.Max(x => x.PlayerMoney.CurrentRoundBet);
 
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"sending player turn to all players");
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new PlayerTurnSendingData(
 									 player.PlayerGuid,
@@ -192,6 +204,7 @@
 								 null);
 				//SEND player.ChairView.SetGameStateHolder(action.ToString());
 
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"sending end turn of player {player.Name} with Id {player.PlayerGuid} to all players");
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 								 new EndTurnSendingData(
 									 player.PlayerGuid,
@@ -227,6 +240,7 @@
 
 				if (action.Type == TurnType.Fold)
 				{
+					StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"players turns fold");
 					Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 									 new ClearCardsSendingData(
 										 player.PlayerGuid,
@@ -240,6 +254,7 @@
 
 				if (action.Type == TurnType.Raise)
 				{
+					StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"players turns raise");
 					// When raising, all players are required to do action afterwards in current round
 					foreach (var playerToUpdate in allPlayers)
 					{
@@ -255,6 +270,16 @@
 			}
 
 
+			StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"new update moneys event");
+			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+							 new UpdatePlayersMoneySendingData(
+								 moneys,
+								 Guid.Empty,
+								 Server.Id,
+								 Server.ServerType,
+								 (int)lobbyTOclient.UpdatePlayersMoney),
+							 null);
+
 			StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"new update pot event: pot = {0}");
 			Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
 							 new UpdatePotSendingData(
@@ -269,10 +294,12 @@
 			if (allPlayers.Count == 2)
 			{
 				// works only for heads-up
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"Return Money In Case Of AllIn");
 				ReturnMoneyInCaseOfAllIn();
 			}
 			else
 			{
+				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"Return Money In Case Uncalled Bet");
 				ReturnMoneyInCaseUncalledBet();
 			}
 		}
@@ -284,6 +311,15 @@
 
 			var firstPlayer = allPlayers[allPlayers.Count == 2 ? 1 : initialPlayerIndex];
 			var secondPlayer = allPlayers[allPlayers.Count == 2 ? 0 : initialPlayerIndex + 1];
+
+			StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}",
+				new string[]
+				{
+					$"sending blinds event. SmallBlind = {_smallBlind}",
+					$"small blind player is {firstPlayer.Name} with Id {firstPlayer.PlayerGuid}, Money = {firstPlayer.PlayerMoney.Money}",
+					$"big blind player is {secondPlayer.Name} with Id {secondPlayer.PlayerGuid}, Money = {secondPlayer.PlayerMoney.Money}",
+				}
+			);
 
 			// Small blind
 			PlaceBlindForPlayer(firstPlayer);
