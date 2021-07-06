@@ -258,17 +258,22 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class StartGameSendingData : InitialSendingData
 	{
+		protected Guid _guid;
+		public Guid Guid => _guid;
+
 		private int _startMoney;
 		public int StartMoney => _startMoney;
 
 		public StartGameSendingData(byte[] data) : base(data)
 		{
 			_startMoney = data.ToInt32(40 + 4);
+			_guid = data.ToGuid(44 + 4);
 		}
 
-		public StartGameSendingData(int startMoney, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public StartGameSendingData(int startMoney, Guid playerGuid, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			_startMoney = startMoney;
+			_guid = playerGuid;
 		}
 
 		public override byte[] GetRawBytes()
@@ -276,12 +281,16 @@ namespace UniCastCommonData.Packet.InitialDatas
 			List<byte> data = new List<byte>();
 			data.AddRange(base.GetRawBytes());
 			data.AddRange(_startMoney.ToByteArray());
+			data.AddRange(_guid.ToByteArray());
 			return data.ToArray();
 		}
 	}
 
 	public class StartHandSendingData : InitialSendingData
 	{
+		protected Guid _player;
+		public Guid Player => _player;
+
 		private int _handNumber;
 		public int HandNumber => _handNumber;
 
@@ -299,14 +308,16 @@ namespace UniCastCommonData.Packet.InitialDatas
 			_handNumber = data.ToInt32(40 + 4);
 			_money = data.ToInt32(44 + 4);
 			_smallBlind = data.ToInt32(48 + 4);
-			_firstPlayerName = data.ToString(52 + 4);
+			_player = data.ToGuid(52 + 4);
+			_firstPlayerName = data.ToString(68 + 4);
 		}
 
-		public StartHandSendingData(int handNumber, int money, int smallBlind, string firstPlayerName, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public StartHandSendingData(Guid playerGuid, int handNumber, int money, int smallBlind, string firstPlayerName, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			_handNumber = handNumber;
 			_money = money;
 			_smallBlind = smallBlind;
+			_player = playerGuid;
 			_firstPlayerName = firstPlayerName;
 		}
 
@@ -317,6 +328,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 			data.AddRange(_handNumber.ToByteArray());
 			data.AddRange(_money.ToByteArray());
 			data.AddRange(_smallBlind.ToByteArray());
+			data.AddRange(_player.ToByteArray());
 			data.AddRange(_firstPlayerName.ToByteArray());
 
 			return data.ToArray();
@@ -325,6 +337,9 @@ namespace UniCastCommonData.Packet.InitialDatas
 
 	public class StartRoundSendingData : InitialSendingData
 	{
+		protected Guid _player;
+		public Guid Player => _player;
+
 		private int _pot;
 		public int Pot => _pot;
 
@@ -335,12 +350,14 @@ namespace UniCastCommonData.Packet.InitialDatas
 		{
 			_pot = data.ToInt32(40 + 4);
 			_money = data.ToInt32(44 + 4);
+			_player = data.ToGuid(48 + 4);
 		}
 
-		public StartRoundSendingData(int pot, int money, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
+		public StartRoundSendingData(Guid playerGuid, int pot, int money, Guid receiverGuid, Guid senderGuid, ActorType actorType, int action) : base(receiverGuid, senderGuid, actorType, action)
 		{
 			_pot = pot;
 			_money = money;
+			_player = playerGuid;
 		}
 
 		public override byte[] GetRawBytes()
@@ -349,6 +366,7 @@ namespace UniCastCommonData.Packet.InitialDatas
 			data.AddRange(base.GetRawBytes());
 			data.AddRange(_pot.ToByteArray());
 			data.AddRange(_money.ToByteArray());
+			data.AddRange(_player.ToByteArray());
 
 			return data.ToArray();
 		}

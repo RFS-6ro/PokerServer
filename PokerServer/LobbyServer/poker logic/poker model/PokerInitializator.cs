@@ -45,7 +45,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 
 	public PokerInitializator()
 	{
-		StaticLogger.Print($"Poker Initializator + {Server.Id.ToString().Split('-')[0]}", "poker initialisation");
+		StaticLogger.Print($"Poker Initializator", "poker initialisation");
 		TableViewModel = new TableViewModel(1, 30);
 		Instance = this;
 		//init seats
@@ -196,7 +196,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 			StaticLogger.Print($"Poker Initializator + {Server.Id.ToString().Split('-')[0]}", $"awaiting for at least 2 players");
 		}
 
-		while (CurrentPlayers.Count((x) => x != null) < 2)
+		while (CurrentPlayers.Count((x) => x != null) < 3)
 		{
 			await Task.Delay(100);
 		}

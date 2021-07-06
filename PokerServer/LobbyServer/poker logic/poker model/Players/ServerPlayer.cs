@@ -137,7 +137,7 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			}
 
 			StaticLogger.Print($"Server Player + {Guid}", $"Turn timeout");
-			return PlayerAction.Fold();
+			return PlayerAction.CheckOrCall();
 		}
 
 		public void SetPlayerTurn(int type, int amount)

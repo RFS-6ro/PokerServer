@@ -175,6 +175,14 @@
 									 (int)lobbyTOclient.StartTurn),
 								 null);
 
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+					new UpdatePotSendingData(
+						Pot,
+						Guid.Empty,
+						Server.Id,
+						Server.ServerType,
+						(int)lobbyTOclient.UpdatepPot),
+					null);
 				//SEND player.ChairView.SetGameStateHolder(string.Empty);
 
 				_tableViewModel.UpdateTableBeforeTurn(context);

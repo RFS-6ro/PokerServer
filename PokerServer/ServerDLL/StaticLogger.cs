@@ -54,7 +54,7 @@ namespace ServerDLL
 						throw null;
 					}
 
-					IEnumerable<Log> filtered = Logs.Where((x) => x.Identificator == filters[2]);
+					IEnumerable<Log> filtered = Logs.Where((x) => x.Identificator.Contains(filters[2]));
 					var filteredWriter = new StreamWriter(filters[3], true, Encoding.ASCII);
 					foreach (var log in filtered)
 					{

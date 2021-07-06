@@ -136,13 +136,15 @@ namespace GameCore.Poker.Model
 			{
 				player.StartGame(new StartGameContext(playerNames, player.BuyIn == -1 ? initialMoney : player.BuyIn));
 
-				Sender.SendAsync(new StartGameSendingData(
-									 player.BuyIn == -1 ? initialMoney : player.BuyIn,
-									 player.PlayerGuid,
-									 Server.Id,
-									 Server.ServerType,
-									 (int)lobbyTOclient.StartGame),
-								 null);
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+					new StartGameSendingData(
+						player.BuyIn == -1 ? initialMoney : player.BuyIn,
+						player.PlayerGuid,
+						Guid.Empty,
+						Server.Id,
+						Server.ServerType,
+						(int)lobbyTOclient.StartGame),
+					null);
 			}
 
 			StaticLogger.Print($"Texas Holdem Game + {Server.Id.ToString().Split('-')[0]}",
@@ -188,13 +190,16 @@ namespace GameCore.Poker.Model
 				if (player.PlayerMoney.Money <= 0)
 				{
 					player.StartGame(new StartGameContext(playerNames, player.BuyIn == -1 ? initialMoney : player.BuyIn));
-					Sender.SendAsync(new StartGameSendingData(
-										 player.BuyIn == -1 ? initialMoney : player.BuyIn,
-										 player.PlayerGuid,
-										 Server.Id,
-										 Server.ServerType,
-										 (int)lobbyTOclient.StartGame),
-									 null);
+
+					Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+						new StartGameSendingData(
+							player.BuyIn == -1 ? initialMoney : player.BuyIn,
+							player.PlayerGuid,
+							Guid.Empty,
+							Server.Id,
+							Server.ServerType,
+							(int)lobbyTOclient.StartGame),
+						null);
 				}
 			}
 		}

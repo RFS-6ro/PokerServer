@@ -73,16 +73,18 @@ namespace LobbyServer.pokerlogic.GameMechanics
 				_tableViewModel.StartHand();
 				player.StartHand(startHandContext);
 
-				Sender.SendAsync(new StartHandSendingData(
-									 _handNumber,
-									 player.PlayerMoney.Money,
-									 _smallBlind,
-									 _players[0].Name,
-									 player.PlayerGuid,
-									 Server.Id,
-									 Server.ServerType,
-									 (int)lobbyTOclient.StartHand),
-								 null);
+				Sender.Multicast(_players.Select((x) => x.PlayerGuid),
+					new StartHandSendingData(
+						player.PlayerGuid,
+						_handNumber,
+						player.PlayerMoney.Money,
+						_smallBlind,
+						_players[0].Name,
+						Guid.Empty,
+						Server.Id,
+						Server.ServerType,
+						(int)lobbyTOclient.StartHand),
+					null);
 			}
 
 			StaticLogger.Print($"Hand Logic + {Server.Id.ToString().Split('-')[0]}",
@@ -125,7 +127,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					}
 					.Concat(GetPlayersForLogs(_players, (player) => $" Is in hand = {player.PlayerMoney.InHand}"))
 				);
-				ResetStates();
+				//ResetStates();
 				await Task.Delay(500);
 				await PlayRound(PokerSynchronisation.GameRoundType.Flop, 3);
 			}
@@ -140,7 +142,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					}
 					.Concat(GetPlayersForLogs(_players, (player) => $" Is in hand = {player.PlayerMoney.InHand}"))
 				);
-				ResetStates();
+				//ResetStates();
 				await Task.Delay(500);
 				await PlayRound(PokerSynchronisation.GameRoundType.Turn, 1);
 			}
@@ -155,12 +157,12 @@ namespace LobbyServer.pokerlogic.GameMechanics
 					}
 					.Concat(GetPlayersForLogs(_players, (player) => $" Is in hand = {player.PlayerMoney.InHand}"))
 				);
-				ResetStates();
+				//ResetStates();
 				await Task.Delay(500);
 				await PlayRound(PokerSynchronisation.GameRoundType.River, 1);
 			}
 
-			ResetStates(true);
+			//ResetStates(true);
 
 			StaticLogger.Print($"HandLogic + {Server.Id.ToString().Split('-')[0]}", "Determining winners");
 			DetermineWinnerAndAddPot(bettingLogic.Pot, bettingLogic.MainPot, bettingLogic.SidePots);
@@ -203,7 +205,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 			await Task.Delay(1000);
 		}
 
-		private void ResetStates(bool all = false)
+		private void ResetStatess(bool all = false)
 		{
 			IEnumerable<ConsoleUiDecorator> players;
 			if (all)
@@ -290,13 +292,13 @@ namespace LobbyServer.pokerlogic.GameMechanics
 		{
 			StaticLogger.Print($"Hand Logic + {Server.Id.ToString().Split('-')[0]}", $"new update pot event: pot = {0}");
 			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
-							 new UpdatePotSendingData(
-								 0,
-								 Guid.Empty,
-								 Server.Id,
-								 Server.ServerType,
-								 (int)lobbyTOclient.UpdatepPot),
-							 null);
+				new UpdatePotSendingData(
+					0,
+					Guid.Empty,
+					Server.Id,
+					Server.ServerType,
+					(int)lobbyTOclient.UpdatepPot),
+				null);
 			//SEND BetController.MoveBet(null, 0, _tableViewModel, 0f, false);
 		}
 
@@ -554,13 +556,22 @@ namespace LobbyServer.pokerlogic.GameMechanics
 			);
 
 			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
-							 new DealCardsToTableSendingData(
-								 cards,
-								 Guid.Empty,
-								 Server.Id,
-								 Server.ServerType,
-								 (int)lobbyTOclient.DealCardsToTable),
-							 null);
+				new DealCardsToTableSendingData(
+					cards,
+					Guid.Empty,
+					Server.Id,
+					Server.ServerType,
+					(int)lobbyTOclient.DealCardsToTable),
+				null);
+
+			Sender.Multicast(_players.Select((x) => x.PlayerGuid),
+				new UpdatePotSendingData(
+					bettingLogic.Pot,
+					Guid.Empty,
+					Server.Id,
+					Server.ServerType,
+					(int)lobbyTOclient.UpdatepPot),
+				null);
 
 			StaticLogger.Print($"Hand Logic + {Server.Id.ToString().Split('-')[0]}", $"Table start round, pot = {bettingLogic.Pot}");
 			_tableViewModel.StartRound
@@ -583,14 +594,16 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 				player.StartRound(startRoundContext);
 
-				Sender.SendAsync(new StartRoundSendingData(
-									 bettingLogic.Pot,
-									 player.PlayerMoney.Money,
-									 player.PlayerGuid,
-									 Server.Id,
-									 Server.ServerType,
-									 (int)lobbyTOclient.StartRound),
-								 null);
+				Sender.Multicast(_players.Select((x) => x.PlayerGuid),
+					new StartRoundSendingData(
+						player.PlayerGuid,
+						bettingLogic.Pot,
+						player.PlayerMoney.Money,
+						Guid.Empty,
+						Server.Id,
+						Server.ServerType,
+						(int)lobbyTOclient.StartRound),
+					null);
 			}
 
 			StaticLogger.Print($"Hand Logic + {Server.Id.ToString().Split('-')[0]}",
