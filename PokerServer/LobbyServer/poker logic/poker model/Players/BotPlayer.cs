@@ -6,9 +6,15 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 {
 	public class BotPlayer : BasePlayer
 	{
-		public override string Name => "DummyPlayer_" + Guid.NewGuid();
+		public BotPlayer(Guid guid, string name, int buyIn)
+		{
+			Guid = guid;
+			Name = name; BuyIn = buyIn;
+		}
 
-		public override int BuyIn => -1;
+		public override string Name { get; }
+
+		public override int BuyIn { get; }
 
 		public override PlayerAction PostingBlind(IPostingBlindContext context)
 		{
@@ -19,12 +25,12 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 		{
 			await Task.Delay(RandomProvider.Next(1000, 3000));
 
-			PlayerAction action;
+			//PlayerAction action;
 			var chanceForAction = RandomProvider.Next(1, 101);
 			if (chanceForAction == 1 && context.MoneyLeft > 0)
 			{
 				// All-in
-				action = PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
+				return PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
 			}
 
 			if (chanceForAction <= 15)
@@ -35,19 +41,19 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 					{
 						//Debug.Log("All in" + Name);
 						// All-in
-						action = PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
+						return PlayerAction.Raise(context.MoneyLeft - context.MoneyToCall);
 					}
 					else
 					{
 						//Debug.Log("Min raise" + Name);
 						// Minimum raise
-						action = PlayerAction.Raise(context.MinRaise);
+						return PlayerAction.Raise(context.MinRaise);
 					}
 				}
 				else
 				{
 					//Debug.Log("check or call" + Name);
-					action = PlayerAction.CheckOrCall();
+					return PlayerAction.CheckOrCall();
 				}
 			}
 
@@ -55,24 +61,24 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 			if (context.CanCheck)
 			{
 				//Debug.Log("check or call" + Name);
-				action = PlayerAction.CheckOrCall();
+				return PlayerAction.CheckOrCall();
 			}
 
 			if (chanceForAction <= 60)
 			{
 				// Call
 				//Debug.Log("check or call" + Name);
-				action = PlayerAction.CheckOrCall();
+				return PlayerAction.CheckOrCall();
 			}
 			else
 			{
 				// Fold
 				//Debug.Log("fold" + Name);
-				action = PlayerAction.Fold();
+				return PlayerAction.Fold();
 			}
 
 			//Debug.Log(action + Name);
-			return action;
+			//return action;
 		}
 
 		public override async Task<PlayerAction> AwaitTurn(IGetTurnContext context)

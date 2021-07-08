@@ -22,6 +22,7 @@
 		public virtual void SetPlayer(IPlayer player)
 		{
 			Player = player;
+			Name = Player.Name;
 		}
 
 		public virtual void StartGame(IStartGameContext context)

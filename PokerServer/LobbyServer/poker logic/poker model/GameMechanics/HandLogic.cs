@@ -596,6 +596,7 @@ namespace LobbyServer.pokerlogic.GameMechanics
 
 				Sender.Multicast(_players.Select((x) => x.PlayerGuid),
 					new StartRoundSendingData(
+						(int)gameRoundType,
 						player.PlayerGuid,
 						bettingLogic.Pot,
 						player.PlayerMoney.Money,

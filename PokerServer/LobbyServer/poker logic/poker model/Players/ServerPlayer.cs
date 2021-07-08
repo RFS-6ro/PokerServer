@@ -26,7 +26,6 @@ namespace LobbyServer.pokerlogic.pokermodel.Players
 	{
 		public int Row { get; protected set; }
 
-		public Guid Guid { get; }
 
 		public override string Name { get; }
 

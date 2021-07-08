@@ -109,17 +109,7 @@ namespace ServerDLL
 
 		public static void Print(string identificator, string[] logs)
 		{
-			if (_writer == null)
-			{
-				return;
-			}
-
-			lock (_lock)
-			{
-				Log currentLog = new Log(DateTime.Now, identificator, logs);
-				Logs.Add(currentLog);
-				WriteLogToFile(currentLog, _writer);
-			}
+			Print(identificator, (IEnumerable<string>)logs);
 		}
 
 		public static void Print(string identificator, IEnumerable<string> logs)
@@ -137,7 +127,6 @@ namespace ServerDLL
 				WriteLogToFile(currentLog, _writer);
 			}
 		}
-
 
 		private static void WriteLogToFile(Log log, TextWriter w)
 		{

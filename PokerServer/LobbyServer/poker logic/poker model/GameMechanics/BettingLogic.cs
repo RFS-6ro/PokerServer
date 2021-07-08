@@ -175,14 +175,7 @@
 									 (int)lobbyTOclient.StartTurn),
 								 null);
 
-				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
-					new UpdatePotSendingData(
-						Pot,
-						Guid.Empty,
-						Server.Id,
-						Server.ServerType,
-						(int)lobbyTOclient.UpdatepPot),
-					null);
+
 				//SEND player.ChairView.SetGameStateHolder(string.Empty);
 
 				_tableViewModel.UpdateTableBeforeTurn(context);
@@ -193,6 +186,15 @@
 				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"valid result action is {action}");
 
 				maxMoneyPerPlayer = allPlayers.Max(x => x.PlayerMoney.CurrentRoundBet);
+
+				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),
+					new UpdatePotSendingData(
+						Pot,
+						Guid.Empty,
+						Server.Id,
+						Server.ServerType,
+						(int)lobbyTOclient.UpdatepPot),
+					null);
 
 				StaticLogger.Print($"Betting Logic + {Server.Id.ToString().Split('-')[0]}", $"sending player turn to all players");
 				Sender.Multicast(allPlayers.Select((x) => x.PlayerGuid),

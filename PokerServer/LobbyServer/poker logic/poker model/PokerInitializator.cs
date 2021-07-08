@@ -31,7 +31,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 
 	public const int MaxPlayers = 9;
 
-	public List<ServerPlayer> CurrentPlayers = new(MaxPlayers);
+	public List<BasePlayer> CurrentPlayers = new(MaxPlayers);
 	public List<ConsoleUiDecorator> Decorators = new(MaxPlayers);
 
 	public TableViewModel TableViewModel;
@@ -58,23 +58,33 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 		}
 	}
 
-	public void AddPlayer(Guid guid, string name)
+	public void AddPlayer(Guid guid, string name, bool isBot = false)
 	{
 		int playerMoney = 300; //TODO: RECEIVE MONEY FROM DATABASE
-		var player = new ServerPlayer(guid, name, playerMoney);
-		int randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
+		BasePlayer player;
+		if (isBot)
+		{
+			player = new BotPlayer(guid, name, playerMoney);
+		}
+		else
+		{
+			player = new ServerPlayer(guid, name, playerMoney);
+		}
 
-		while (CurrentPlayers[randomSeatIndex] != null)
+		int randomSeatIndex;
+		do
 		{
 			randomSeatIndex = RandomProvider.Next(0, MaxPlayers);
 		}
+		while (CurrentPlayers[randomSeatIndex] != null);
+
 
 		StaticLogger.Print($"Poker Initializator + {Server.Id.ToString().Split('-')[0]}", $"new player connectionw ith name {name} and id = {guid}, Money = {playerMoney}, Index = {randomSeatIndex}");
 		CurrentPlayers[randomSeatIndex] = player;
 		Decorators[randomSeatIndex].SetPlayer(player);
 		Decorators[randomSeatIndex].DrawGameBox();
 
-		Sender.MulticastExept(CurrentPlayers.Where((x) => x != null).Select((x) => x.Guid),
+		Sender.MulticastExept(CurrentPlayers.Where((x) => x != null && x.GetType() == typeof(ServerPlayer)).Select((x) => x.Guid),
 						 new NewPlayerConnectSendingData(
 							 playerMoney,
 							 name,
@@ -94,7 +104,7 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 		List<string> currentPlayersLog = new List<string>();
 		for (int i = 0; i < CurrentPlayers.Count; ++i)
 		{
-			ServerPlayer activePlayer = CurrentPlayers[i];
+			BasePlayer activePlayer = CurrentPlayers[i];
 
 			PlayerData activePlayerData = null;
 			Guid activePlayerGuid;
@@ -191,12 +201,23 @@ public class PokerInitializator : StaticInstance<PokerInitializator>
 
 	public async Task Init()
 	{
+		if (CurrentPlayers.Count((x) => x != null && x.Name.Contains("bot")) == 0 && CurrentPlayers.Count((x) => x != null) < 7)
+		{
+			while (CurrentPlayers.Count((x) => x != null) < 1)
+			{
+				await Task.Delay(100);
+			}
+			AddPlayer(Guid.NewGuid(), "bot 1", true);
+			AddPlayer(Guid.NewGuid(), "bot 2", true);
+			await Task.Delay(10000);
+		}
+
 		if (CurrentPlayers.Count((x) => x != null) < 2)
 		{
 			StaticLogger.Print($"Poker Initializator + {Server.Id.ToString().Split('-')[0]}", $"awaiting for at least 2 players");
 		}
 
-		while (CurrentPlayers.Count((x) => x != null) < 3)
+		while (CurrentPlayers.Count((x) => x != null) < 2)
 		{
 			await Task.Delay(100);
 		}

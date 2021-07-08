@@ -51,7 +51,7 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public void SetPlayerTurn(int inputType, int inputAmount)
 		{
-			if (Player != null)
+			if (Player != null && Player.GetType() == typeof(ServerPlayer))
 			{
 				((ServerPlayer)Player).SetPlayerTurn(inputType, inputAmount);
 			}
@@ -59,23 +59,22 @@ namespace LobbyServer.pokerlogic.pokermodel.UI
 
 		public override void SetPlayer(IPlayer player)
 		{
+			Muck();
+			ResetWinner();
+			Name = string.Empty;
+			IsDealer = false;
+			DrawGameBox();
+
 			if (player == null)
 			{
-				Muck();
-				ResetWinner();
-				Name = string.Empty;
-				IsDealer = false;
-				DrawGameBox();
 				return;
 			}
 
 			base.SetPlayer(player);
 
-			if (player.GetType() == typeof(ServerPlayer))
-			{
-				PlayerGuid = ((ServerPlayer)player).Guid;
-				Name = player.Name;
-			}
+			PlayerGuid = ((BasePlayer)player).Guid;
+			Name = player.Name;
+			DrawGameBox();
 		}
 
 		public override void StartHand(IStartHandContext context)

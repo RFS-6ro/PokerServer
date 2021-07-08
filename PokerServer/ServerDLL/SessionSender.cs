@@ -33,7 +33,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 				}
 
 				packet.WriteLength();
-				GetSenderByID(data.ReceiverGuid).SendAsync(packet);
+				GetSenderByID(data.ReceiverGuid)?.SendAsync(packet);
 			}
 		}
 
@@ -55,7 +55,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 
 				foreach (var clientGuid in clients)
 				{
-					GetSenderByID(clientGuid).SendAsync(packet);
+					GetSenderByID(clientGuid)?.SendAsync(packet);
 				}
 			}
 		}
@@ -82,7 +82,7 @@ namespace UniCastCommonData.Network.MessageHandlers
 					{
 						continue;
 					}
-					GetSenderByID(clientGuid).SendAsync(packet);
+					GetSenderByID(clientGuid)?.SendAsync(packet);
 				}
 			}
 		}

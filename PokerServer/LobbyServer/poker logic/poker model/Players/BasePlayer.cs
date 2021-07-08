@@ -7,6 +7,8 @@
 
 	public abstract class BasePlayer : IPlayer
 	{
+		public Guid Guid { get; protected set; }
+
 		public abstract string Name { get; }
 
 		public abstract int BuyIn { get; }
